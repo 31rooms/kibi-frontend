@@ -1,26 +1,230 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Kibi Design System - Color Palette */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Grey */
+  --color-grey-50: #fcfcfd;
+  --color-grey-100: #f5f5f7;
+  --color-grey-200: #f0f2f4;
+  --color-grey-300: #e9ecee;
+  --color-grey-400: #e5e8eb;
+  --color-grey-500: #dee2e6;
+  --color-grey-600: #caced1;
+  --color-grey-700: #9ea0a3;
+  --color-grey-800: #7a7c7f;
+  --color-grey-900: #5d5f61;
+
+  /* Orange */
+  --color-orange-50: #fef1ea;
+  --color-orange-100: #ffbdad;
+  --color-orange-200: #f6bfa0;
+  --color-orange-300: #f6a274;
+  --color-orange-400: #f59059;
+  --color-orange-500: #f27430;
+  --color-orange-600: #dc6a2c;
+  --color-orange-700: #ac5222;
+  --color-orange-800: #85401a;
+  --color-orange-900: #663114;
+
+  /* Violet */
+  --color-violet-50: #fdf6ff;
+  --color-violet-100: #f8e4fe;
+  --color-violet-200: #f5d7fa;
+  --color-violet-300: #f1c4fd;
+  --color-violet-400: #ee6bfa;
+  --color-violet-500: #eea7fc;
+  --color-violet-600: #d598e5;
+  --color-violet-700: #a677b3;
+  --color-violet-800: #815c8b;
+  --color-violet-900: #62468a;
+
+  /* Rose */
+  --color-rose-50: #fff6fb;
+  --color-rose-100: #fee2f4;
+  --color-rose-200: #fdd4ee;
+  --color-rose-300: #fcc1e6;
+  --color-rose-400: #fcb5e1;
+  --color-rose-500: #fba2da;
+  --color-rose-600: #e493c6;
+  --color-rose-700: #b2739b;
+  --color-rose-800: #8a5978;
+  --color-rose-900: #69445c;
+
+  /* Purple */
+  --color-purple-50: #f3edfe;
+  --color-purple-100: #d9c6fc;
+  --color-purple-200: #c7aafa;
+  --color-purple-300: #ae83f8;
+  --color-purple-400: #9e6bf8;
+  --color-purple-500: #86d4f4;
+  --color-purple-600: #7a4bde;
+  --color-purple-700: #5f32ad;
+  --color-purple-800: #4a278c;
+  --color-purple-900: #381d66;
+
+  /* Blue */
+  --color-blue-50: #eaf0fe;
+  --color-blue-100: #becdfd;
+  --color-blue-200: #9ebafc;
+  --color-blue-300: #729afa;
+  --color-blue-400: #5786f9;
+  --color-blue-500: #2d68f8;
+  --color-blue-600: #295fe2;
+  --color-blue-700: #204ab0;
+  --color-blue-800: #193d88;
+  --color-blue-900: #132c68;
+
+  /* Cyan */
+  --color-cyan-50: #ecf6fb;
+  --color-cyan-100: #b0e4fd;
+  --color-cyan-200: #8ad7ee;
+  --color-cyan-300: #55c5e7;
+  --color-cyan-400: #34bae2;
+  --color-cyan-500: #01a9db;
+  --color-cyan-600: #019ac7;
+  --color-cyan-700: #01789b;
+  --color-cyan-800: #015d78;
+  --color-cyan-900: #00475c;
+
+  /* Teal */
+  --color-teal-50: #e6f7f6;
+  --color-teal-100: #b1e5e3;
+  --color-teal-200: #8bd8d5;
+  --color-teal-300: #55c6c2;
+  --color-teal-400: #35bbb6;
+  --color-teal-500: #02aaa4;
+  --color-teal-600: #029b95;
+  --color-teal-700: #017974;
+  --color-teal-800: #015e5a;
+  --color-teal-900: #014745;
+
+  /* Dark */
+  --color-dark-50: #ebebce;
+  --color-dark-100: #c1c4c9;
+  --color-dark-200: #a3a8af;
+  --color-dark-300: #79808a;
+  --color-dark-400: #5f6774;
+  --color-dark-500: #374151;
+  --color-dark-600: #323b4a;
+  --color-dark-700: #272e3a;
+  --color-dark-800: #1e242d;
+  --color-dark-900: #171b22;
+
+  /* Error - Semantic Colors */
+  --color-error-50: #fce6e6;
+  --color-error-100: #f5b2b2;
+  --color-error-200: #f0b8bd;
+  --color-error-300: #ea5959;
+  --color-error-400: #e53939;
+  --color-error-500: #df0707;
+  --color-error-600: #cb0606;
+  --color-error-700: #9e0505;
+  --color-error-800: #7b0404;
+  --color-error-900: #5e0303;
+
+  /* Success - Semantic Colors */
+  --color-success-50: #e8f6eb;
+  --color-success-100: #b9e3c0;
+  --color-success-200: #97d6a2;
+  --color-success-300: #68c377;
+  --color-success-400: #4db75d;
+  --color-success-500: #1da534;
+  --color-success-600: #1a962f;
+  --color-success-700: #157525;
+  --color-success-800: #105b1d;
+  --color-success-900: #0c4516;
+
+  /* Warning - Semantic Colors */
+  --color-warning-50: #fffae6;
+  --color-warning-100: #ffeeb0;
+  --color-warning-200: #ffe68a;
+  --color-warning-300: #ffdaa54;
+  --color-warning-400: #ffd333;
+  --color-warning-500: #ffc800;
+  --color-warning-600: #e8b600;
+  --color-warning-700: #b58e00;
+  --color-warning-800: #8c6e00;
+  --color-warning-900: #6b5400;
+
+  /* Design Tokens - Shadows */
+  --shadow-bubble: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+  --shadow-strong: 0 20px 40px 0 rgba(0, 0, 0, 0.15);
+
+  /* Design Tokens - Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Background Colors */
+  --color-background-white: #ffffff;
+  --color-background-gray: #f8f8ff;
+  --color-background-blue: #20263d;
+  --color-background-helper: #e7ffe7;
+  --color-background-elevated: #ffffff;
+
+  /* Border Colors */
+  --color-border: #dee2e6;
+
+  /* Text Colors */
+  --color-text-dark: #373737;
+  --color-text-medium: #7b7b7b;
+  --color-text-light: #ffffff;
+
+  /* Icon Colors */
+  --color-icon-gray: #5f6774;
+  --color-icon-white: #ffffff;
+
+  /* Primary Brand Colors */
+  --color-primary-blue: #20263d;
+  --color-primary-green: #95c16b;
+
+  /* Button Colors */
+  --color-button-green-default: #47830e;
+
+  /* Chatbot Colors */
+  --color-chatbot-blue: #111928;
+  --color-chatbot-green: #95c16b;
+  --color-chatbot-white: #ffffff;
+
+  /* Fonts */
+  --font-quicksand: "Quicksand", sans-serif;
+  --font-rubik: "Rubik", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background-white);
+  color: var(--color-text-dark);
+  font-family: var(--font-rubik);
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
 }
