@@ -2,6 +2,7 @@ export { Button, type ButtonProps } from './Button';
 export { Badge, type BadgeProps } from './Badge';
 export { Tag, type TagProps } from './Tag';
 export { TopMenu, type TopMenuProps } from './TopMenu';
+export { Alert, AlertTitle, AlertDescription } from './Alert';
 export {
   Tooltip,
   TooltipProvider,
