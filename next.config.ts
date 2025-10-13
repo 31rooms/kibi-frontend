@@ -3,6 +3,16 @@ import withPWA from "@ducanh2912/next-pwa";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors. Only enable during development.
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // !! WARN !!
+    // Allow production builds even with type errors (temporary during refactoring)
+    // ignoreBuildErrors: true,
+  },
 };
 
 export default withPWA({

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "@/lib/context/AuthContext";
+import { AuthProvider } from "@/features/authentication";
 import "./globals.css";
 
 const geistSans = Geist({

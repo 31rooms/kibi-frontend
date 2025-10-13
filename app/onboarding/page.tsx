@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { OnboardingSheet, Button, Logo } from '@/components/ui';
+import { OnboardingSheet, Button, Logo } from '@/shared/ui';
 
 interface OnboardingSlideData {
   id: number;

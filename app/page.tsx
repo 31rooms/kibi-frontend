@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Logo } from '@/components/ui';
+import { Logo } from '@/shared/ui';
 
 export default function SplashPage() {
   const router = useRouter();

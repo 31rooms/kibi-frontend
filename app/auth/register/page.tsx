@@ -2,12 +2,11 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input, Button } from '@/components/ui';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { Alert, AlertDescription } from '@/components/ui/Alert';
+import { Input, Button } from '@/shared/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/Select';
+import { Alert, AlertDescription } from '@/shared/ui/Alert';
 import { Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/lib/context/AuthContext';
-import { authAPI, type RegisterDto, type Career } from '@/lib/api/auth';
+import { useAuth, authAPI, type RegisterDto, type Career } from '@/features/authentication';
 import Image from 'next/image';
 
 export default function RegisterPage() {

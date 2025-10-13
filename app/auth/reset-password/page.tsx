@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Input, Button, Logo } from '@/components/ui';
-import { Alert, AlertDescription } from '@/components/ui/Alert';
-import { authAPI } from '@/lib/api/auth';
+import { Input, Button, Logo } from '@/shared/ui';
+import { Alert, AlertDescription } from '@/shared/ui/Alert';
+import { authAPI } from '@/features/authentication';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function ResetPasswordPage() {
