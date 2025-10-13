@@ -18,7 +18,13 @@ import {
   SelectItem,
   ToggleWithText,
   CircleButton,
-  Tag
+  Tag,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  ListDropdown,
+  PageIndicator,
+  Calendar
 } from '@/shared/ui';
 import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
 
@@ -30,6 +36,9 @@ export default function DesignSystemPage() {
   const [selectValue, setSelectValue] = useState('');
   const [toggleWithTextValue, setToggleWithTextValue] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [listDropdownValue, setListDropdownValue] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   return (
     <div className="min-h-screen bg-grey-50">
@@ -57,7 +66,7 @@ export default function DesignSystemPage() {
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Menú', 'Colores', 'Tipografía'].map((section) => (
+            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Calendar', 'Menú', 'Colores', 'Tipografía'].map((section) => (
               <a
                 key={section}
                 href={`#${section.toLowerCase()}`}
@@ -446,6 +455,151 @@ export default function DesignSystemPage() {
                 <Tag variant="subtle" color="info" removable onRemove={() => console.log('Removed')}>
                   Next.js
                 </Tag>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Alerts Section */}
+        <section id="alerts" className="mb-16 bg-white rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+            Alerts
+          </h2>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Variantes de Alerts
+              </h3>
+              <div className="space-y-4">
+                <Alert variant="success">
+                  <AlertTitle>Success</AlertTitle>
+                  <AlertDescription>
+                    La operación se completó exitosamente.
+                  </AlertDescription>
+                </Alert>
+
+                <Alert variant="destructive">
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    Hubo un error al procesar tu solicitud.
+                  </AlertDescription>
+                </Alert>
+
+                <Alert variant="warning">
+                  <AlertTitle>Advertencia</AlertTitle>
+                  <AlertDescription>
+                    Por favor revisa la información antes de continuar.
+                  </AlertDescription>
+                </Alert>
+
+                <Alert variant="info">
+                  <AlertTitle>Información</AlertTitle>
+                  <AlertDescription>
+                    Este es un mensaje informativo para ti.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Calendar Section */}
+        <section id="calendar" className="mb-16 bg-white rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+            Calendar
+          </h2>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Calendario Completo
+              </h3>
+              <Calendar
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                showActions
+                onDone={() => console.log('Done clicked')}
+                onRemove={() => console.log('Remove clicked')}
+              />
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Calendar Sin Acciones
+              </h3>
+              <Calendar
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                showActions={false}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* List Dropdown Section */}
+        <section className="mb-16 bg-white rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+            List Dropdown
+          </h2>
+
+          <div className="space-y-6 max-w-md">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Lista de Opciones
+              </h3>
+              <ListDropdown
+                value={listDropdownValue}
+                onValueChange={setListDropdownValue}
+                items={[
+                  { value: 'option1', label: 'Primera Opción' },
+                  { value: 'option2', label: 'Segunda Opción' },
+                  { value: 'option3', label: 'Tercera Opción' },
+                  { value: 'option4', label: 'Opción Deshabilitada', disabled: true },
+                  { value: 'option5', label: 'Última Opción' },
+                ]}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Page Indicator Section */}
+        <section className="mb-16 bg-white rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+            Page Indicator
+          </h2>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Indicador de Páginas
+              </h3>
+              <div className="space-y-4">
+                <PageIndicator
+                  totalPages={5}
+                  currentPage={currentPage}
+                  onPageClick={setCurrentPage}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    color="blue"
+                    size="small"
+                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                    disabled={currentPage === 0}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    color="blue"
+                    size="small"
+                    onClick={() => setCurrentPage(Math.min(4, currentPage + 1))}
+                    disabled={currentPage === 4}
+                  >
+                    Siguiente
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
