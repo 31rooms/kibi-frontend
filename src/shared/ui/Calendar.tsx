@@ -68,7 +68,8 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
       setCurrentMonth(addMonths(currentMonth, 1));
     };
 
-    const handleDateClick = (date: Date) => {
+    const handleDateClick = (date: Date, e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
       if (onSelect) {
         onSelect(date);
       }
@@ -85,6 +86,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button
+            type="button"
             onClick={handlePrevMonth}
             className="p-2 hover:bg-grey-100 rounded-md transition-colors"
             aria-label="Previous month"
@@ -95,6 +97,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
             {format(currentMonth, dateFormat)}
           </h2>
           <button
+            type="button"
             onClick={handleNextMonth}
             className="p-2 hover:bg-grey-100 rounded-md transition-colors"
             aria-label="Next month"
@@ -124,8 +127,9 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
 
             return (
               <button
+                type="button"
                 key={index}
-                onClick={() => handleDateClick(day)}
+                onClick={(e) => handleDateClick(day, e)}
                 className={cn(
                   'h-9 w-full text-sm rounded-md transition-colors',
                   'hover:bg-grey-100',
@@ -148,12 +152,14 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         {showActions && (
           <div className="flex gap-3 mt-4">
             <button
+              type="button"
               onClick={onRemove}
               className="flex-1 px-4 py-2 text-sm font-medium text-grey-700 bg-dark hover:bg-grey-800 rounded-lg transition-colors"
             >
               {removeLabel}
             </button>
             <button
+              type="button"
               onClick={onDone}
               className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
             >

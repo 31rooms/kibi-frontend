@@ -231,11 +231,11 @@ Documentación completa de todas las rutas disponibles para visualizar component
 - ✅ Burbuja de mensaje (speech bubble) apuntando a Kibi
 - ✅ Kibi Icon robot con gorro de graduación
 - ✅ Sección "Toma el test gratuito"
-- ✅ Botón "Empezar el Test" → `/diagnostic-test`
+- ✅ Botón "Empezar el Test" → `/form-diagnostic-test`
 
 **Flujo:**
 ```
-/auth/register/success → [Empezar el Test] → /diagnostic-test
+/auth/register/success → [Empezar el Test] → /form-diagnostic-test
 ```
 
 ---

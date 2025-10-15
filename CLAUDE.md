@@ -22,18 +22,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ```bash
-# Start development server with Turbopack
+# Start development server with Turbopack on port 3001
 npm run dev
 
 # Build for production
 npm run build
 
-# Start production server
+# Start production server on port 3001
 npm start
 
 # Lint code
 npm run lint
 ```
+
+**Note:** The development and production servers run on port 3001 (configured in package.json).
 
 ## Project Structure
 
@@ -54,13 +56,6 @@ This project follows **Screaming Architecture** principles, organizing code by b
       /config         # Auth configuration
       index.ts        # Public API (barrel export)
 
-    /onboarding       # Onboarding flow feature
-      /ui             # Onboarding components
-      /hooks          # Flow logic hooks
-      /config         # Slides configuration
-      /types          # Types
-      index.ts        # Public API
-
     /dashboard        # Student dashboard feature
       /ui             # Dashboard components
       /hooks          # Dashboard hooks
@@ -69,15 +64,25 @@ This project follows **Screaming Architecture** principles, organizing code by b
 
   /shared             # Shared/reusable code (NOT feature-specific)
     /ui               # Design system components (Button, Input, etc.)
-      Button.tsx
+      Alert.tsx
       Badge.tsx
-      Input.tsx
-      Select.tsx
-      Tooltip.tsx
+      Button.tsx
       Calendar.tsx
+      CalendarMobile.tsx
       Checkbox.tsx
+      CircleButton.tsx
+      Input.tsx
+      ListDropdown.tsx
+      Logo.tsx
       Modal.tsx
-      TopMenu.tsx
+      OnboardingSheet.tsx
+      OnboardingSlide.tsx
+      PageIndicator.tsx
+      Select.tsx
+      Tag.tsx
+      Toggle.tsx
+      ToggleWithText.tsx
+      Tooltip.tsx
       index.ts        # Barrel exports
 
     /lib              # Shared utilities and configs
@@ -91,9 +96,11 @@ This project follows **Screaming Architecture** principles, organizing code by b
     /login
     /register
     /forgot-password
+    /reset-password
+    /verify-email
   /dashboard         # Dashboard route
   /onboarding        # Onboarding route
-  /test-*           # Design system demo pages
+  /design-system     # Design system demo page
   layout.tsx        # Root layout with AuthProvider
   globals.css       # Tailwind config and design tokens
   page.tsx          # Home page
@@ -101,10 +108,9 @@ This project follows **Screaming Architecture** principles, organizing code by b
 /components          # Global components (not feature-specific)
   ProtectedRoute.tsx # Route protection HOC
 
-/docs                # Design system documentation
-  /brand            # Brand guidelines
-  /components       # Component docs
-  design-system-colors.md
+/docs                # PWA documentation
+  PWA-COMPONENTS-GUIDE.md
+  PWA-DEVELOPMENT-GUIDE.md
 
 /public              # Static assets
   /icons            # PWA icons
@@ -115,9 +121,13 @@ This project follows **Screaming Architecture** principles, organizing code by b
 
 1. **Features are self-contained:** All code related to a feature lives in `/src/features/[feature-name]`
 2. **Clear boundaries:** Features don't import from each other (use shared code instead)
-3. **Public API:** Each feature exports only what's needed via `index.ts`
+3. **Public API:** Each feature exports only what's needed via `index.ts` (barrel exports)
 4. **Shared for reusability:** `/src/shared` contains truly reusable code (UI components, utilities)
 5. **Routes are thin:** `/app` routes are just wrappers that compose features
+
+**Current Features:**
+- `authentication` - Login, register, password management, auth context
+- `dashboard` - Student dashboard with course cards and progress tracking
 
 ## Design System
 
@@ -141,7 +151,7 @@ The project uses a comprehensive color system defined in `app/globals.css` with 
 style={{ backgroundColor: 'var(--color-primary-green)' }}
 ```
 
-See `docs/design-system-colors.md` for the complete palette reference.
+All colors are defined in `app/globals.css` using the `@theme inline` directive.
 
 ### Component Pattern
 
@@ -149,14 +159,14 @@ All UI components follow this structure:
 
 1. **Variants with CVA:** Use `class-variance-authority` for type-safe variants
 2. **TypeScript Props:** Full TypeScript definitions exported
-3. **cn() Utility:** Merge classes with `cn()` from `@/lib/utils`
-4. **Forwarded Refs:** Use `React.forwardRef` for ref access
-5. **Barrel Exports:** Export from `/components/ui/index.ts`
+3. **cn() Utility:** Merge classes with `cn()` from `@/shared/lib/utils`
+4. **Forwarded Refs:** Use `React.forwardRef` for ref access when needed
+5. **Barrel Exports:** Export from `/src/shared/ui/index.ts`
 
 **Example:**
 ```tsx
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 const componentVariants = cva('base-classes', {
   variants: { /* ... */ },
@@ -180,15 +190,9 @@ export const Component = React.forwardRef<HTMLElement, ComponentProps>(
 );
 ```
 
-### Component Documentation
+### Component Showcase
 
-Every component has comprehensive documentation in `/docs/components/` with:
-- Import examples
-- Variant demonstrations
-- Props table
-- Usage examples
-- Accessibility notes
-- Demo page reference (`/test-*` routes)
+Components can be viewed in the design system showcase at `/design-system` route, which displays all available UI components and their variants.
 
 ## PWA Configuration
 
@@ -203,7 +207,7 @@ The app is fully configured as a Progressive Web App:
 
 **Important:** PWA features only work in production builds. Use `npm run build && npm start` to test.
 
-See `PWA-SETUP.md` for detailed PWA configuration and testing instructions.
+See `docs/PWA-DEVELOPMENT-GUIDE.md` and `docs/PWA-COMPONENTS-GUIDE.md` for detailed PWA configuration and development instructions.
 
 ## Styling Guidelines
 
@@ -251,15 +255,17 @@ import { storage } from '@/shared/lib/utils/storage';
 
 // Features (import from public API only)
 import { useAuth, LoginForm, AuthProvider } from '@/features/authentication';
-import { OnboardingLayout, useOnboardingFlow } from '@/features/onboarding';
 import { DashboardLayout, DashboardHeader } from '@/features/dashboard';
 
 // DO NOT import from feature internals:
 // ❌ import { validateEmail } from '@/features/authentication/utils/validation';
 // ✅ Only import from feature's index.ts
 
-// App routes and layouts
+// Global components
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+
+// Note: The project uses @ as the root alias
+// @/ maps to the project root directory
 ```
 
 ### Import Rules
@@ -275,9 +281,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 The Kibi brand features:
 - **Logo:** Robot character with graduation cap
 - **Colors:** Blue (#20263D) and Green (#95C16B)
-- **Fonts:** Quicksand (headings), Rubik (body), Roboto (secondary)
-
-See `docs/brand/BrandBoard.md` for complete brand guidelines, logo usage, and asset locations.
+- **Fonts:** Geist (default Next.js font)
 
 ## Common Development Patterns
 
@@ -328,10 +332,9 @@ When adding a new business feature (e.g., "courses", "exams", "chat"):
 For reusable design system components (used across multiple features):
 
 1. Create component file in `/src/shared/ui/ComponentName.tsx`
-2. Use CVA for variants, TypeScript for props, forwardRef for refs
+2. Use CVA for variants, TypeScript for props, forwardRef for refs when needed
 3. Export from `/src/shared/ui/index.ts`
-4. Create documentation in `/docs/components/ComponentName.md`
-5. Create demo page in `/app/test-componentname/page.tsx`
+4. Test component in `/app/design-system/page.tsx` if needed
 
 **Example:**
 ```tsx
@@ -356,8 +359,7 @@ export { Badge } from './Badge';
 ### Adding New Colors
 
 1. Add color tokens to `app/globals.css` under `@theme inline`
-2. Document in `docs/design-system-colors.md`
-3. Use immediately via Tailwind classes (e.g., `bg-new-color-500`)
+2. Use immediately via Tailwind classes (e.g., `bg-new-color-500`)
 
 ### When to Create a Feature vs Shared Component
 
@@ -373,22 +375,9 @@ export { Badge } from './Badge';
 - Part of the design system
 - Example: `/src/shared/ui/Button`
 
-### Testing Components
+## Configuration Notes
 
-Use the `/test-*` routes to view components in isolation:
-- `/test-buttons` - Button variants
-- `/test-badges` - Badge styles
-- `/test-colors` - Color palette
-- `/test-input` - Input states
-- `/test-dropdown` - Select/dropdown
-- `/test-tooltip` - Tooltip positions
-- `/test-topmenu` - Navigation component
-- `/test-interactive` - Interactive elements
-
-## Notes
-
-- The design system is synchronized with Figma designs
-- All components support full accessibility (keyboard navigation, ARIA, focus states)
-- PWA icons need to be generated (see `public/icons/README.md`)
-- The project uses the Geist font family from Next.js by default
-- Service Worker is disabled in development for easier debugging
+- **TypeScript:** Strict mode enabled with path aliases configured in `tsconfig.json`
+- **ESLint:** Configured to ignore errors during builds (temporary during development)
+- **Service Worker:** Disabled in development mode for easier debugging, enabled in production
+- **Accessibility:** All components support keyboard navigation, ARIA attributes, and focus states

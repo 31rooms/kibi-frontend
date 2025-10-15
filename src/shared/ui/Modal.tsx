@@ -17,6 +17,8 @@ export interface ModalProps {
   onConfirm?: () => void;
   showCloseButton?: boolean;
   className?: string;
+  /** Show only the confirm button (hides cancel button) */
+  singleButton?: boolean;
 }
 
 export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
@@ -34,6 +36,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
       onConfirm,
       showCloseButton = false,
       className,
+      singleButton = false,
     },
     ref
   ) => {
@@ -157,25 +160,28 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
           </div>
 
           {/* Actions */}
-          <div className="flex gap-[18px] w-full">
-            <button
-              onClick={handleCancel}
-              className={cn(
-                'flex-1 bg-white border border-[#dee2e6] text-[#373737]',
-                'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
-                'hover:bg-gray-50',
-                size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5'
-              )}
-            >
-              {cancelText}
-            </button>
+          <div className={cn('flex gap-[18px] w-full', singleButton && 'justify-center')}>
+            {!singleButton && (
+              <button
+                onClick={handleCancel}
+                className={cn(
+                  'flex-1 bg-white border border-[#dee2e6] text-[#373737]',
+                  'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
+                  'hover:bg-gray-50',
+                  size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5'
+                )}
+              >
+                {cancelText}
+              </button>
+            )}
             <button
               onClick={handleConfirm}
               className={cn(
-                'flex-1 bg-[#20263d] text-white',
+                'bg-[#20263d] text-white',
                 'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
                 'hover:bg-[#2a3149]',
-                size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5'
+                size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5',
+                singleButton ? 'min-w-[200px]' : 'flex-1'
               )}
             >
               {confirmText}

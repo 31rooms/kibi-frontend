@@ -18,6 +18,7 @@ import {
   SelectItem,
   ToggleWithText,
   CircleButton,
+  SidebarButton,
   Tag,
   Alert,
   AlertTitle,
@@ -66,7 +67,7 @@ export default function DesignSystemPage() {
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Calendar', 'Menú', 'Colores', 'Tipografía'].map((section) => (
+            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía'].map((section) => (
               <a
                 key={section}
                 href={`#${section.toLowerCase()}`}
@@ -659,6 +660,74 @@ export default function DesignSystemPage() {
                 <CircleButton variant="primary" color="green" size="large" />
                 <CircleButton variant="secondary" color="blue" size="medium" icon={<Settings className="h-5 w-5" />} />
                 <CircleButton variant="elevated" color="green" size="medium" icon={<User className="h-5 w-5" />} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Sidebar Buttons Section */}
+        <section id="sidebar" className="mb-16 bg-white rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+            Sidebar Buttons
+          </h2>
+
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Estados Seleccionados
+              </h3>
+              <div className="space-y-3 max-w-sm">
+                <SidebarButton type="inicio" selected={true} />
+                <SidebarButton type="progreso" selected={true} />
+                <SidebarButton type="clase-libre" selected={true} />
+                <SidebarButton type="examen" selected={true} />
+                <SidebarButton type="cuenta" selected={true} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Estados No Seleccionados
+              </h3>
+              <div className="space-y-3 max-w-sm">
+                <SidebarButton type="inicio" selected={false} />
+                <SidebarButton type="progreso" selected={false} />
+                <SidebarButton type="clase-libre" selected={false} />
+                <SidebarButton type="examen" selected={false} />
+                <SidebarButton type="cuenta" selected={false} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Ejemplo Interactivo
+              </h3>
+              <div className="space-y-3 max-w-sm">
+                <SidebarButton
+                  type="inicio"
+                  selected={true}
+                  onClick={() => console.log('Inicio clicked')}
+                />
+                <SidebarButton
+                  type="progreso"
+                  selected={false}
+                  onClick={() => console.log('Progreso clicked')}
+                />
+                <SidebarButton
+                  type="clase-libre"
+                  selected={false}
+                  onClick={() => console.log('Clase Libre clicked')}
+                />
+                <SidebarButton
+                  type="examen"
+                  selected={false}
+                  onClick={() => console.log('Examen clicked')}
+                />
+                <SidebarButton
+                  type="cuenta"
+                  selected={false}
+                  onClick={() => console.log('Cuenta clicked')}
+                />
               </div>
             </div>
           </div>
