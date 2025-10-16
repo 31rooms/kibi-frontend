@@ -80,7 +80,6 @@ export const useLoginForm = () => {
       // Call login function from AuthContext
       // Using username field as email (as per backend requirement)
       await login(formData.username, formData.password);
-
       console.log('✅ Login successful!');
 
       // If rememberMe is false, we might want to handle session storage differently

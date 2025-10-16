@@ -23,7 +23,7 @@ export const SidebarNavigation = React.forwardRef<
       )}
     >
       {/* Navigation Buttons with 24px gap */}
-      <div className="flex-1 flex flex-col gap-6">
+      <div className="flex-1 flex flex-col gap-6" style={{marginTop:'40px'}}>
         <SidebarButton
           type="inicio"
           selected={selectedSection === 'inicio'}

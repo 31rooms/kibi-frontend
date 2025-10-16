@@ -61,12 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await authAPI.loginUser(email, password);
       handleAuthSuccess(response);
 
-      // Redirect to onboarding or dashboard
-      if (response.user.profileComplete) {
-        router.push('/dashboard');
-      } else {
-        router.push('/onboarding');
-      }
+      // Redirect to form diagnostic test after successful login
+      router.push('/form-diagnostic-test');
     } catch (error) {
       setIsLoading(false);
       throw error; // Re-throw to handle in component

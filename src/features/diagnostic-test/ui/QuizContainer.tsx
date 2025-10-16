@@ -13,9 +13,12 @@ import {
   QuizProgress,
   QuizQuestion,
   QuizOption,
+  QuizTextInput,
   QuizNavigator,
   FeedbackToast,
   Modal,
+  ModalInfo,
+  Tag,
 } from '@/shared/ui';
 import { cn } from '@/shared/lib/utils';
 import { CourseSelectionForm } from './CourseSelectionForm';
@@ -37,6 +40,9 @@ export interface QuizContainerProps {
 
   /** Show progress */
   showProgress?: boolean;
+
+  /** Subject name to display in tag */
+  subjectName?: string;
 }
 
 /**
@@ -54,8 +60,10 @@ export function QuizContainer({
   className,
   showTimer = config.showTimer ?? true,
   showProgress = config.showProgress ?? true,
+  subjectName,
 }: QuizContainerProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
+  const [textAnswer, setTextAnswer] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isAutoAdvancingRef = React.useRef(false); // Track if auto-advancing to prevent double navigation
 
@@ -64,6 +72,7 @@ export function QuizContainer({
   const [showCourseSelection, setShowCourseSelection] = useState(false);
   const [showFinalResults, setShowFinalResults] = useState(false);
   const [courseSelectionData, setCourseSelectionData] = useState<CourseSelectionData | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Feedback management
   const feedbackHook = useFeedback();
@@ -96,19 +105,18 @@ export function QuizContainer({
   const handleTimeUp = React.useCallback(() => {
     // Prevent double navigation
     if (isAutoAdvancingRef.current) {
-      console.log('⚠️ Already auto-advancing, skipping');
       return;
     }
 
-    console.log('⏰ Time up! Current question:', quiz.currentQuestionIndex + 1);
     isAutoAdvancingRef.current = true;
 
     // Save current answer (always as array) - even if empty
-    quiz.setCurrentAnswer(selectedAnswers);
+    const isTextResponse = quiz.currentQuestion.type === QuestionType.TEXT_RESPONSE;
+    const answerToSave = isTextResponse ? [textAnswer] : selectedAnswers;
+    quiz.setCurrentAnswer(answerToSave);
 
     // Move to next or complete
     if (navigation.isLastQuestion) {
-      console.log('✅ Last question - completing quiz');
       setIsSubmitting(true);
 
       // Small delay to show loading state
@@ -124,7 +132,7 @@ export function QuizContainer({
       quiz.goToNext();
       // Reset flag will happen in useEffect when question changes
     }
-  }, [selectedAnswers, quiz, navigation.isLastQuestion]); // Dependencies
+  }, [selectedAnswers, textAnswer, quiz, navigation.isLastQuestion]); // Dependencies
 
   // Timer management
   const timer = useQuizTimer({
@@ -140,6 +148,9 @@ export function QuizContainer({
     // Reset auto-advance flag when question changes
     isAutoAdvancingRef.current = false;
 
+    // Close help modal when question changes
+    setShowHelpModal(false);
+
     const newTime =
       quiz.currentQuestion.timeLimit ||
       config.defaultTimePerQuestion ||
@@ -150,12 +161,21 @@ export function QuizContainer({
 
     // Load previously selected answer if exists
     const existingAnswer = quiz.getAnswer(quiz.currentQuestion.id);
+    const isTextResponse = quiz.currentQuestion.type === QuestionType.TEXT_RESPONSE;
+
     if (existingAnswer) {
       console.log('📝 Loading existing answer:', existingAnswer.selectedAnswer);
-      setSelectedAnswers(existingAnswer.selectedAnswer);
+      if (isTextResponse) {
+        setTextAnswer(existingAnswer.selectedAnswer[0] || '');
+        setSelectedAnswers([]);
+      } else {
+        setSelectedAnswers(existingAnswer.selectedAnswer);
+        setTextAnswer('');
+      }
     } else {
       console.log('🆕 New question - no existing answer');
       setSelectedAnswers([]);
+      setTextAnswer('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quiz.currentQuestionIndex, quiz.currentQuestion.id]);
@@ -180,6 +200,11 @@ export function QuizContainer({
 
   // Helper function to check if answer is correct
   const isAnswerCorrect = (selected: string[]): boolean => {
+    // For TEXT_RESPONSE questions, always return true (for now)
+    if (quiz.currentQuestion.type === QuestionType.TEXT_RESPONSE) {
+      return true;
+    }
+
     const correctAnswers = quiz.currentQuestion.correctAnswers;
 
     // Both arrays must have same length
@@ -197,12 +222,15 @@ export function QuizContainer({
   // Handle next/submit with feedback
   const handleNext = async () => {
     // Save current answer (always as array)
-    if (selectedAnswers.length > 0) {
-      quiz.setCurrentAnswer(selectedAnswers);
+    const isTextResponse = quiz.currentQuestion.type === QuestionType.TEXT_RESPONSE;
+    const answerToSave = isTextResponse ? [textAnswer] : selectedAnswers;
+
+    if (isTextResponse ? textAnswer.length > 0 : selectedAnswers.length > 0) {
+      quiz.setCurrentAnswer(answerToSave);
     }
 
     // Check if answer is correct and show feedback
-    const isCorrect = isAnswerCorrect(selectedAnswers);
+    const isCorrect = isAnswerCorrect(answerToSave);
 
     if (isCorrect) {
       await feedbackHook.showSuccess();
@@ -249,7 +277,8 @@ export function QuizContainer({
     setShowFinalResults(true);
   };
 
-  const isAnswered = selectedAnswers.length > 0;
+  const isTextResponse = quiz.currentQuestion.type === QuestionType.TEXT_RESPONSE;
+  const isAnswered = isTextResponse ? textAnswer.trim().length > 0 : selectedAnswers.length > 0;
 
   // If quiz is completed and should show course selection form
   if (quiz.isCompleted && showCourseSelection) {
@@ -302,9 +331,9 @@ export function QuizContainer({
 
   // Continue with normal quiz flow
   return (
-    <div className={cn('w-full max-w-3xl mx-auto flex flex-col min-h-[calc(100vh-8rem)]', className)}>
+    <div className={cn('w-full max-w-3xl mx-auto flex flex-col min-h-[calc(100vh-10rem)]', className)}>
       {/* Header Section - Timer and Progress in same line */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-4">
         {/* Timer - Left */}
         {showTimer && (
           <QuizTimer
@@ -325,6 +354,41 @@ export function QuizContainer({
         )}
       </div>
 
+      {/* Subject Tag and Focus Button */}
+      {(subjectName || quiz.currentQuestion.helpDescription) && (
+        <div className="flex items-center justify-between mb-4">
+          {/* Subject Tag - Left */}
+          {subjectName && (
+            <div className="flex items-center gap-2">
+              <Tag variant="subtle" color="success">
+                {subjectName}
+              </Tag>
+            </div>
+          )}
+
+          {/* Focus Button - Right */}
+          {quiz.currentQuestion.helpDescription && (
+            <button
+              type="button"
+              className={cn(
+                'flex items-center justify-center w-10 h-10 rounded-full bg-white border border-grey-300 hover:bg-grey-50 transition-colors',
+                !subjectName && 'ml-auto'
+              )}
+              aria-label="Ayuda"
+              onClick={() => setShowHelpModal(true)}
+            >
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" fill="white"/>
+                <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" stroke="#DEE2E6"/>
+                <path d="M20 16.918L19.1975 18.313C19.0175 18.6205 19.1675 18.8755 19.52 18.8755H20.4725C20.8325 18.8755 20.975 19.1305 20.795 19.438L20 20.833" stroke="#47830E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M17.225 24.5301V23.6601C15.5 22.6176 14.0825 20.5851 14.0825 18.4251C14.0825 14.7126 17.495 11.8026 21.35 12.6426C23.045 13.0176 24.53 14.1426 25.3025 15.6951C26.87 18.8451 25.22 22.1901 22.7975 23.6526V24.5226C22.7975 24.7401 22.88 25.2426 22.0775 25.2426H17.945C17.12 25.2501 17.225 24.9276 17.225 24.5301Z" stroke="#47830E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M17.375 27.5004C19.0925 27.0129 20.9075 27.0129 22.625 27.5004" stroke="#47830E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Question Card */}
       <QuizQuestion
         question={quiz.currentQuestion.statement}
@@ -332,22 +396,31 @@ export function QuizContainer({
         className="mb-6"
       />
 
-      {/* Options List - Takes available space */}
-      <div className="space-y-3 mb-8 flex-1">
-        {quiz.currentQuestion.options.map((option) => {
-          const isMultipleChoice = quiz.currentQuestion.type === QuestionType.MULTIPLE_CHOICE;
+      {/* Options List or Text Input - Takes available space */}
+      <div className="space-y-3 flex-1">
+        {isTextResponse ? (
+          <QuizTextInput
+            value={textAnswer}
+            onChange={setTextAnswer}
+            placeholder="Escriba su respuesta"
+            maxLength={200}
+          />
+        ) : (
+          quiz.currentQuestion.options.map((option) => {
+            const isMultipleChoice = quiz.currentQuestion.type === QuestionType.MULTIPLE_CHOICE;
 
-          return (
-            <QuizOption
-              key={option.id}
-              id={`option-${option.id}`}
-              text={option.text}
-              selected={selectedAnswers.includes(option.id)}
-              multipleChoice={isMultipleChoice}
-              onSelect={() => handleSelectOption(option.id)}
-            />
-          );
-        })}
+            return (
+              <QuizOption
+                key={option.id}
+                id={`option-${option.id}`}
+                text={option.text}
+                selected={selectedAnswers.includes(option.id)}
+                multipleChoice={isMultipleChoice}
+                onSelect={() => handleSelectOption(option.id)}
+              />
+            );
+          })
+        )}
       </div>
 
       {/* Navigation Section - Always at bottom */}
@@ -391,6 +464,18 @@ export function QuizContainer({
           setShowCourseSelection(true);
         }}
       />
+
+      {/* Modal de Ayuda - Se muestra al hacer click en el botón de ayuda */}
+      {quiz.currentQuestion.helpDescription && (
+        <ModalInfo
+          open={showHelpModal}
+          onOpenChange={setShowHelpModal}
+          title="Ayuda"
+          description={quiz.currentQuestion.helpDescription}
+          confirmText="Entendido"
+          onConfirm={() => setShowHelpModal(false)}
+        />
+      )}
     </div>
   );
 }

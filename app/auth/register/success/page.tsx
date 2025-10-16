@@ -9,7 +9,7 @@ export default function RegisterSuccessPage() {
 
   const handleStartTest = () => {
     // TODO: Update this route when diagnostic test page is created
-    router.push('/form-diagnostic-test');
+    router.push('/diagnostic-test');
   };
 
   return (

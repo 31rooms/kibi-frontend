@@ -9,6 +9,7 @@ import {
   Toggle,
   Logo,
   Modal,
+  ModalInfo,
   Tooltip,
   TopMenu,
   Select,
@@ -34,6 +35,7 @@ export default function DesignSystemPage() {
   const [toggleValue, setToggleValue] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalInfoOpen, setModalInfoOpen] = useState(false);
   const [selectValue, setSelectValue] = useState('');
   const [toggleWithTextValue, setToggleWithTextValue] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -337,6 +339,9 @@ export default function DesignSystemPage() {
                 <Button variant="primary" color="blue" onClick={() => setModalOpen(true)}>
                   Abrir Modal
                 </Button>
+                <Button variant="primary" color="green" onClick={() => setModalInfoOpen(true)}>
+                  Abrir Modal Info
+                </Button>
               </div>
             </div>
 
@@ -350,6 +355,27 @@ export default function DesignSystemPage() {
               cancelText="Cancelar"
               onConfirm={() => console.log('Confirmed')}
               onCancel={() => console.log('Cancelled')}
+            />
+
+            <ModalInfo
+              open={modalInfoOpen}
+              onOpenChange={setModalInfoOpen}
+              title="Ayuda"
+              description={`Para encontrar el valor de xxx en una ecuación lineal como ax+b=cax + b = cax+b=c, sigue estos pasos:
+
+Aísla el término con xxx → Resta o suma el número que está junto a xxx en el lado izquierdo de la ecuación, haciendo lo mismo en ambos lados.
+
+Fórmula:
+ax+b=c⇒ax=c−bax + b = c ⇒ ax = c - bax+b=c⇒ax=c−b
+
+Despeja xxx → Divide ambos lados de la ecuación entre el número que multiplica a xxx (el coeficiente aaa).
+
+Fórmula:
+x=c−bax = \\frac{c - b}{a}x=ac−b
+
+Con este método podrás resolver cualquier ecuación de primer grado con una incógnita.`}
+              confirmText="Entendido"
+              onConfirm={() => console.log('Modal Info confirmed')}
             />
           </div>
         </section>

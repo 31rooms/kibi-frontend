@@ -18,7 +18,7 @@ export const HomeLayout = React.forwardRef<HTMLDivElement, HomeLayoutProps>(
       useHomeNavigation();
 
     return (
-      <div ref={ref} className={cn('min-h-screen bg-grey-50 flex flex-col', className)}>
+      <div ref={ref} className={cn('h-screen bg-grey-50 flex flex-col', className)}>
         {/* Top Navigation */}
         <HomeTopMenu
           logoSrc="/illustrations/logo.svg"

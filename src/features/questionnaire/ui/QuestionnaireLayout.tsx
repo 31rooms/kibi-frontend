@@ -6,42 +6,36 @@ import { cn } from '@/shared/lib/utils';
 import { Modal } from '@/shared/ui';
 import Image from 'next/image';
 
-export interface DiagnosticTestLayoutProps {
-  /** Main content (QuizContainer) */
+export interface QuestionnaireLayoutProps {
+  /** Child components to render */
   children: React.ReactNode;
 
-  /** Title of the diagnostic test */
+  /** Title of the questionnaire */
   title?: string;
 
-  /** Whether to show the exit button */
+  /** Whether to show exit button */
   showExitButton?: boolean;
 
   /** Callback when exit button is clicked */
   onExit?: () => void;
 
-  /** Custom className for the layout */
+  /** Custom className for the container */
   className?: string;
-
-  /** Background color variant */
-  background?: 'white' | 'gray';
 }
 
 /**
- * Layout wrapper for diagnostic tests
+ * QuestionnaireLayout Component
  *
- * Provides:
- * - Exit button
- * - Consistent padding and background
- * - Mobile-responsive design
+ * Layout wrapper for subject-specific questionnaires.
+ * Provides consistent styling and exit functionality.
  */
-export function DiagnosticTestLayout({
+export function QuestionnaireLayout({
   children,
   title,
   showExitButton = true,
   onExit,
   className,
-  background = 'gray',
-}: DiagnosticTestLayoutProps) {
+}: QuestionnaireLayoutProps) {
   const router = useRouter();
   const [showExitModal, setShowExitModal] = useState(false);
 
@@ -54,7 +48,7 @@ export function DiagnosticTestLayout({
       onExit();
     } else {
       // Redirect to home (default behavior)
-      router.push('/');
+      router.push('/home');
     }
   };
 
@@ -63,20 +57,14 @@ export function DiagnosticTestLayout({
   };
 
   return (
-    <div
-      className={cn(
-        'min-h-screen',
-        background === 'gray' ? 'bg-grey-50' : 'bg-white',
-        className
-      )}
-    >
-      {/* Exit Button Only - Top Left */}
+    <div className={cn('min-h-screen bg-grey-50', className)}>
+      {/* Exit Button - Top Left */}
       {showExitButton && (
-        <div className="max-w-3xl mx-auto px-4 pt-8 pb-8 md:pt-6 pb-8">
+        <div className="max-w-3xl mx-auto px-4 pt-8 pb-8 md:pt-6">
           <button
             onClick={handleExitClick}
             className="flex items-center gap-2 text-grey-700 hover:text-grey-900 transition-colors mb-4 cursor-pointer"
-            aria-label="Salir del test"
+            aria-label="Salir del cuestionario"
           >
             <Image
               src="/icons/close-square.svg"
@@ -94,8 +82,8 @@ export function DiagnosticTestLayout({
         open={showExitModal}
         onOpenChange={setShowExitModal}
         state="alert"
-        title="¿Seguro que desea abandonar el test?"
-        description="Para poder obtener una ruta de aprendizaje acorde con tus necesidades, requerimos que finalices el test de diagnostico. ¿Aun asi deseas abandonar?"
+        title="¿Seguro que desea abandonar el cuestionario?"
+        description="Si abandonas ahora, perderás tu progreso en este cuestionario. ¿Aún así deseas salir?"
         cancelText="Cancelar"
         confirmText="Continuar"
         onCancel={handleCancelExit}

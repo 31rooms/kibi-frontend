@@ -4,6 +4,7 @@ import type {
   QuizResults,
   QuestionResult,
 } from '../types/quiz.types';
+import { QuestionType } from '../types/quiz.types';
 import { isAnswerCorrect } from './quizValidation';
 
 /**
@@ -14,7 +15,16 @@ export function calculateQuestionScore(
   question: Question,
   userAnswer: string[]
 ): { isCorrect: boolean; points: number } {
-  const isCorrect = isAnswerCorrect(userAnswer, question.correctAnswers);
+  // For TEXT_RESPONSE questions, always consider as correct (for now)
+  let isCorrect: boolean;
+
+  if (question.type === QuestionType.TEXT_RESPONSE) {
+    // Consider TEXT_RESPONSE as correct if user provided any answer
+    isCorrect = userAnswer.length > 0 && userAnswer[0].trim().length > 0;
+  } else {
+    isCorrect = isAnswerCorrect(userAnswer, question.correctAnswers);
+  }
+
   return {
     isCorrect,
     points: isCorrect ? 1 : 0,
