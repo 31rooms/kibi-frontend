@@ -7,28 +7,40 @@ import type { MySubjectsResponse, SubjectWithState } from '../types/careers.type
 /**
  * Local subjects array - matches the subjects in HomeContent.tsx
  * This serves as the master list of all possible subjects
+ *
+ * SVG Naming Convention:
+ * - Materia-0.svg = Literatura (id: 23)
+ * - Materia-1.svg = Filosofía (id: 22)
+ * - ...
+ * - Materia-19.svg = Inglés (id: 4)
+ * - Materia-20.svg = Redacción Indirecta (id: 3)
+ * - Materia-21.svg = Pensamiento Matemático (id: 2)
+ * - Materia-22.svg = Comprensión Lectora (id: 1)
  */
 const LOCAL_SUBJECTS = [
-  { id: 20, name: '20literatura.svg', displayName: 'Literatura' },
-  { id: 19, name: '19filosofia.svg', displayName: 'Filosofía' },
-  { id: 18, name: '18premedicina.svg', displayName: 'Premedicina' },
-  { id: 17, name: '17calculo.svg', displayName: 'Cálculo' },
-  { id: 16, name: '16biologia.svg', displayName: 'Biología' },
-  { id: 15, name: '15fisica.svg', displayName: 'Física' },
-  { id: 14, name: '14economia.svg', displayName: 'Economía' },
-  { id: 13, name: '13historiamexico.svg', displayName: 'Historia de México' },
-  { id: 12, name: '12calculointegral.svg', displayName: 'Cálculo Integral' },
-  { id: 11, name: '11administracion.svg', displayName: 'Administración' },
-  { id: 10, name: '10quimica.svg', displayName: 'Química' },
-  { id: 9, name: '9historiauniversal.svg', displayName: 'Historia Universal' },
-  { id: 8, name: '8geografia.svg', displayName: 'Geografía' },
-  { id: 7, name: '7cienciasdesalud.svg', displayName: 'Ciencias de la Salud' },
-  { id: 6, name: '6algebra.svg', displayName: 'Álgebra' },
-  { id: 5, name: '5finanzas.svg', displayName: 'Finanzas' },
-  { id: 4, name: '4derecho.svg', displayName: 'Derecho' },
-  { id: 3, name: '3estadistica.svg', displayName: 'Estadística' },
-  { id: 2, name: '2aritmetica.svg', displayName: 'Aritmética' },
-  { id: 1, name: '1ingles.svg', displayName: 'Inglés' },
+  { id: 23, name: 'Materia-0.svg', displayName: 'Literatura' },
+  { id: 22, name: 'Materia-1.svg', displayName: 'Filosofía' },
+  { id: 21, name: 'Materia-2.svg', displayName: 'Premedicina' },
+  { id: 20, name: 'Materia-3.svg', displayName: 'Cálculo' },
+  { id: 19, name: 'Materia-4.svg', displayName: 'Biología' },
+  { id: 18, name: 'Materia-5.svg', displayName: 'Física' },
+  { id: 17, name: 'Materia-6.svg', displayName: 'Economía' },
+  { id: 16, name: 'Materia-7.svg', displayName: 'Historia de México' },
+  { id: 15, name: 'Materia-8.svg', displayName: 'Cálculo Integral' },
+  { id: 14, name: 'Materia-9.svg', displayName: 'Administración' },
+  { id: 13, name: 'Materia-10.svg', displayName: 'Química' },
+  { id: 12, name: 'Materia-11.svg', displayName: 'Historia Universal' },
+  { id: 11, name: 'Materia-12.svg', displayName: 'Geografía' },
+  { id: 10, name: 'Materia-13.svg', displayName: 'Ciencias de la Salud' },
+  { id: 9, name: 'Materia-14.svg', displayName: 'Álgebra' },
+  { id: 8, name: 'Materia-15.svg', displayName: 'Finanzas' },
+  { id: 7, name: 'Materia-16.svg', displayName: 'Derecho' },
+  { id: 6, name: 'Materia-17.svg', displayName: 'Estadística' },
+  { id: 5, name: 'Materia-18.svg', displayName: 'Aritmética' },
+  { id: 4, name: 'Materia-19.svg', displayName: 'Inglés' },
+  { id: 3, name: 'Materia-20.svg', displayName: 'Redacción Indirecta' },
+  { id: 2, name: 'Materia-21.svg', displayName: 'Pensamiento Matemático' },
+  { id: 1, name: 'Materia-22.svg', displayName: 'Comprensión Lectora' },
 ];
 
 interface UseMySubjectsReturn {
@@ -46,8 +58,8 @@ interface UseMySubjectsReturn {
  * Business Logic:
  * 1. Fetches subjects from API (GET /careers/my-subjects)
  * 2. Matches API subjects with local subjects by displayName
- * 3. If a subject is in the API response -> enabled: true, use /public/subjects/light/open/
- * 4. If a subject is NOT in the API response -> enabled: false, use /public/subjects/light/disabled/
+ * 3. Only shows subjects that are in the API response (enabled: true)
+ * 4. Uses /public/subjects/light/open/ for all displayed subjects
  *
  * @returns Object with subjects array, career info, loading state, error, and refetch function
  */
@@ -65,30 +77,34 @@ export function useMySubjects(): UseMySubjectsReturn {
 
       const response = await careersAPI.getMySubjects();
 
-      // Create a map of API subjects by name for quick lookup
-      const apiSubjectsMap = new Map(
-        response.subjects.map((subject) => [subject.name, subject])
+      // Create a map of local subjects by displayName for quick lookup
+      const localSubjectsMap = new Map(
+        LOCAL_SUBJECTS.map((subject) => [subject.displayName, subject])
       );
 
-      // Merge local subjects with API data
-      const mergedSubjects: SubjectWithState[] = LOCAL_SUBJECTS.map((localSubject) => {
-        const apiSubject = apiSubjectsMap.get(localSubject.displayName);
-        const enabled = !!apiSubject;
+      // Map API subjects to local subjects (only show subjects from API)
+      const mappedSubjects: SubjectWithState[] = response.subjects
+        .map((apiSubject) => {
+          const localSubject = localSubjectsMap.get(apiSubject.name);
 
-        return {
-          id: localSubject.id,
-          name: localSubject.name,
-          displayName: localSubject.displayName,
-          enabled,
-          iconPath: enabled
-            ? `/subjects/light/open/${localSubject.name}`
-            : `/subjects/light/disabled/${localSubject.name}`,
-          questionsInExam: apiSubject?.questionsInExam,
-          apiId: apiSubject?._id,
-        };
-      });
+          if (!localSubject) {
+            console.warn(`Subject "${apiSubject.name}" from API not found in local subjects`);
+            return null;
+          }
 
-      setSubjects(mergedSubjects);
+          return {
+            id: localSubject.id,
+            name: localSubject.name,
+            displayName: localSubject.displayName,
+            enabled: true,
+            iconPath: `/subjects/light/open/${localSubject.name}`,
+            questionsInExam: apiSubject.questionsInExam,
+            apiId: apiSubject._id,
+          };
+        })
+        .filter((subject): subject is SubjectWithState => subject !== null) as SubjectWithState[];
+
+      setSubjects(mappedSubjects);
       setCareer(response.career);
       setTotalQuestions(response.totalQuestions);
     } catch (err: any) {
@@ -96,16 +112,8 @@ export function useMySubjects(): UseMySubjectsReturn {
       setError(errorMessage);
       console.error('useMySubjects error:', err);
 
-      // Set all subjects as disabled on error
-      const disabledSubjects: SubjectWithState[] = LOCAL_SUBJECTS.map((localSubject) => ({
-        id: localSubject.id,
-        name: localSubject.name,
-        displayName: localSubject.displayName,
-        enabled: false,
-        iconPath: `/subjects/light/disabled/${localSubject.name}`,
-      }));
-
-      setSubjects(disabledSubjects);
+      // Set empty subjects array on error
+      setSubjects([]);
     } finally {
       setIsLoading(false);
     }
