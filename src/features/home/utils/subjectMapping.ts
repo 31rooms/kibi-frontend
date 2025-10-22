@@ -99,10 +99,10 @@ export const SUBJECTS: Record<number, Subject> = {
   },
   12: {
     id: 12,
-    name: 'Historia Universal',
-    slug: 'historia-universal',
+    name: 'Historia',
+    slug: 'Historia',
     iconFilename: 'Materia-11.svg',
-    description: 'Historia universal',
+    description: 'Historia',
   },
   11: {
     id: 11,
@@ -113,7 +113,7 @@ export const SUBJECTS: Record<number, Subject> = {
   },
   10: {
     id: 10,
-    name: 'Ciencias de la Salud',
+    name: 'Ciencias de la salud',
     slug: 'ciencias-salud',
     iconFilename: 'Materia-13.svg',
     description: 'Ciencias de la salud',
@@ -141,10 +141,10 @@ export const SUBJECTS: Record<number, Subject> = {
   },
   6: {
     id: 6,
-    name: 'Estadística',
-    slug: 'estadistica',
+    name: 'Probabilidad y Estadística',
+    slug: 'Probabilidad y Estadística',
     iconFilename: 'Materia-17.svg',
-    description: 'Estadística y probabilidad',
+    description: 'Probabilidad y Estadística',
   },
   5: {
     id: 5,
@@ -164,21 +164,21 @@ export const SUBJECTS: Record<number, Subject> = {
     id: 3,
     name: 'Redacción Indirecta',
     slug: 'redaccion-indirecta',
-    iconFilename: 'Materia-20.svg',
+    iconFilename: 'Materia-19.svg',
     description: 'Redacción indirecta',
   },
   2: {
     id: 2,
     name: 'Pensamiento Matemático',
     slug: 'pensamiento-matematico',
-    iconFilename: 'Materia-21.svg',
+    iconFilename: 'Materia-19.svg',
     description: 'Pensamiento matemático',
   },
   1: {
     id: 1,
     name: 'Comprensión Lectora',
     slug: 'comprension-lectora',
-    iconFilename: 'Materia-22.svg',
+    iconFilename: 'Materia-19.svg',
     description: 'Comprensión lectora',
   },
 };

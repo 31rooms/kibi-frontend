@@ -29,18 +29,18 @@ const LOCAL_SUBJECTS = [
   { id: 15, name: 'Materia-8.svg', displayName: 'Cálculo Integral' },
   { id: 14, name: 'Materia-9.svg', displayName: 'Administración' },
   { id: 13, name: 'Materia-10.svg', displayName: 'Química' },
-  { id: 12, name: 'Materia-11.svg', displayName: 'Historia Universal' },
+  { id: 12, name: 'Materia-11.svg', displayName: 'Historia' },
   { id: 11, name: 'Materia-12.svg', displayName: 'Geografía' },
-  { id: 10, name: 'Materia-13.svg', displayName: 'Ciencias de la Salud' },
+  { id: 10, name: 'Materia-13.svg', displayName: 'Ciencias de la salud' },
   { id: 9, name: 'Materia-14.svg', displayName: 'Álgebra' },
   { id: 8, name: 'Materia-15.svg', displayName: 'Finanzas' },
   { id: 7, name: 'Materia-16.svg', displayName: 'Derecho' },
-  { id: 6, name: 'Materia-17.svg', displayName: 'Estadística' },
+  { id: 6, name: 'Materia-17.svg', displayName: 'Probabilidad y Estadística' },
   { id: 5, name: 'Materia-18.svg', displayName: 'Aritmética' },
   { id: 4, name: 'Materia-19.svg', displayName: 'Inglés' },
-  { id: 3, name: 'Materia-20.svg', displayName: 'Redacción Indirecta' },
-  { id: 2, name: 'Materia-21.svg', displayName: 'Pensamiento Matemático' },
-  { id: 1, name: 'Materia-22.svg', displayName: 'Comprensión Lectora' },
+  { id: 3, name: 'Materia-19.svg', displayName: 'Redacción Indirecta' },
+  { id: 2, name: 'Materia-19.svg', displayName: 'Pensamiento Matemático' },
+  { id: 1, name: 'Materia-19.svg', displayName: 'Comprensión Lectora' },
 ];
 
 interface UseMySubjectsReturn {
@@ -77,18 +77,28 @@ export function useMySubjects(): UseMySubjectsReturn {
 
       const response = await careersAPI.getMySubjects();
 
-      // Create a map of local subjects by displayName for quick lookup
-      const localSubjectsMap = new Map(
-        LOCAL_SUBJECTS.map((subject) => [subject.displayName, subject])
-      );
+      // Normalize function: lowercase, remove accents, normalize spaces/hyphens
+      const normalize = (str: string): string => {
+        return str
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove accents
+          .replace(/[-\s]+/g, '') // Remove hyphens and spaces
+          .trim();
+      };
 
+      // Create a map of local subjects by normalized displayName for flexible lookup
+      const localSubjectsMap = new Map(
+        LOCAL_SUBJECTS.map((subject) => [normalize(subject.displayName), subject])
+      );
       // Map API subjects to local subjects (only show subjects from API)
       const mappedSubjects: SubjectWithState[] = response.subjects
         .map((apiSubject) => {
-          const localSubject = localSubjectsMap.get(apiSubject.name);
+          const normalizedApiName = normalize(apiSubject.name);
+          const localSubject = localSubjectsMap.get(normalizedApiName);
 
           if (!localSubject) {
-            console.warn(`Subject "${apiSubject.name}" from API not found in local subjects`);
+            console.warn(`Subject "${apiSubject.name}" (normalized: "${normalizedApiName}") from API not found in local subjects`);
             return null;
           }
 
@@ -100,9 +110,9 @@ export function useMySubjects(): UseMySubjectsReturn {
             iconPath: `/subjects/light/open/${localSubject.name}`,
             questionsInExam: apiSubject.questionsInExam,
             apiId: apiSubject._id,
-          };
+          } as SubjectWithState;
         })
-        .filter((subject): subject is SubjectWithState => subject !== null) as SubjectWithState[];
+        .filter((subject): subject is SubjectWithState => subject !== null);
 
       setSubjects(mappedSubjects);
       setCareer(response.career);

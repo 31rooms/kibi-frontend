@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useLayoutEffect, useRef } from 'react';
+import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
@@ -15,6 +15,9 @@ import { useMySubjects } from '../hooks/useMySubjects';
 export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
   ({ selectedSection }, ref) => {
     const [initialLoading, setInitialLoading] = useState(true);
+    const [imagesLoaded, setImagesLoaded] = useState(false);
+    const [showContent, setShowContent] = useState(false);
+    const loadedCountRef = useRef(0);
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
 
@@ -23,6 +26,24 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
 
     // Combine external ref with internal ref
     React.useImperativeHandle(ref, () => internalRef.current as HTMLElement);
+
+    // Reset image tracking when subjects change
+    useLayoutEffect(() => {
+      if (subjects.length > 0) {
+        loadedCountRef.current = 0;
+        setImagesLoaded(false);
+        setShowContent(false);
+      }
+    }, [subjects.length]);
+
+    // Track image loads
+    const handleImageLoad = useCallback(() => {
+      loadedCountRef.current += 1;
+
+      if (loadedCountRef.current === subjects.length) {
+        setImagesLoaded(true);
+      }
+    }, [subjects.length]);
 
     // Handle subject action button click - Navigate to questionnaire only if enabled
     const handleSubjectAction = (subjectId: number, enabled: boolean) => {
@@ -34,23 +55,30 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
       router.push(`/questionnaire/${subjectId}`);
     };
 
-    // Auto-scroll to bottom when data is loaded
+    // Scroll to bottom when all images are loaded
     useLayoutEffect(() => {
       const mainElement = internalRef.current;
 
-      // Only execute scroll when data is loaded (isLoading is false and subjects exist)
-      if (mainElement && !isLoading && subjects.length > 0) {
-        // Wait for content to render, then scroll and hide loader
+      if (mainElement && !isLoading && subjects.length > 0 && imagesLoaded && initialLoading) {
+        // Scroll to bottom with all images loaded (accurate scrollHeight)
+        mainElement.scrollTop = mainElement.scrollHeight;
+
+        // Verify scroll position
         requestAnimationFrame(() => {
           mainElement.scrollTop = mainElement.scrollHeight;
 
-          // Hide loader after scroll completes
-          setTimeout(() => {
-            setInitialLoading(false);
-          }, 100);
+          // Fade in content smoothly
+          requestAnimationFrame(() => {
+            setShowContent(true);
+
+            // Hide loading overlay after fade starts
+            setTimeout(() => {
+              setInitialLoading(false);
+            }, 50);
+          });
         });
       }
-    }, [isLoading, subjects.length]);
+    }, [isLoading, subjects.length, imagesLoaded, initialLoading]);
 
     return (
       <main
@@ -73,8 +101,14 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
           </div>
         )}
 
-        {/* Content with subjects (always rendered, hidden by loader overlay) */}
-        <div className="max-w-7xl mx-auto min-h-full flex flex-col justify-end">
+        {/* Content with fade-in transition */}
+        <div
+          className={cn(
+            "max-w-7xl mx-auto min-h-full flex flex-col justify-end",
+            "transition-opacity duration-300",
+            showContent ? "opacity-100" : "opacity-0"
+          )}
+        >
           {/* Container for vertically stacked subjects with curved S-wave layout */}
           {/* Width: 350px, SVGs follow 8-position wave pattern for pronounced symmetric curve */}
           <div className="w-[350px] mx-auto flex flex-col gap-2 pb-6">
@@ -120,6 +154,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
                       height={90}
                       className="w-full h-auto"
                       priority={index < 5} // Prioritize first 5 images
+                      onLoad={handleImageLoad} // Track each image load
                     />
                   </div>
                 );
