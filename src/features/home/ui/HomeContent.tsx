@@ -1,40 +1,12 @@
 'use client';
 
-import React, { useState, useLayoutEffect, useRef } from 'react';
+import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
+import { Alert } from '@/shared/ui';
 import type { HomeContentProps } from '../types/home.types';
-
-// Subject interface
-interface Subject {
-  id: number;
-  name: string;
-}
-
-// Array of subjects with id and filename (reverse order: Literatura first, Inglés last)
-const subjects: Subject[] = [
-  { id: 20, name: '20literatura.svg' },
-  { id: 19, name: '19filosofia.svg' },
-  { id: 18, name: '18premedicina.svg' },
-  { id: 17, name: '17calculo.svg' },
-  { id: 16, name: '16biologia.svg' },
-  { id: 15, name: '15fisica.svg' },
-  { id: 14, name: '14economia.svg' },
-  { id: 13, name: '13historiamexico.svg' },
-  { id: 12, name: '12calculointegral.svg' },
-  { id: 11, name: '11administracion.svg' },
-  { id: 10, name: '10quimica.svg' },
-  { id: 9, name: '9historiauniversal.svg' },
-  { id: 8, name: '8geografia.svg' },
-  { id: 7, name: '7cienciasdesalud.svg' },
-  { id: 6, name: '6algebra.svg' },
-  { id: 5, name: '5finanzas.svg' },
-  { id: 4, name: '4derecho.svg' },
-  { id: 3, name: '3estadistica.svg' },
-  { id: 2, name: '2aritmetica.svg' },
-  { id: 1, name: '1ingles.svg' },
-];
+import { useMySubjects } from '../hooks/useMySubjects';
 
 /**
  * Home Content Component
@@ -42,35 +14,71 @@ const subjects: Subject[] = [
  */
 export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
   ({ selectedSection }, ref) => {
-    const [isLoading, setIsLoading] = useState(true);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [imagesLoaded, setImagesLoaded] = useState(false);
+    const [showContent, setShowContent] = useState(false);
+    const loadedCountRef = useRef(0);
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
+
+    // Fetch subjects with enabled/disabled state from API
+    const { subjects, career, totalQuestions, isLoading, error } = useMySubjects();
 
     // Combine external ref with internal ref
     React.useImperativeHandle(ref, () => internalRef.current as HTMLElement);
 
-    // Handle subject action button click - Navigate to questionnaire
-    const handleSubjectAction = (subjectId: number) => {
+    // Reset image tracking when subjects change
+    useLayoutEffect(() => {
+      if (subjects.length > 0) {
+        loadedCountRef.current = 0;
+        setImagesLoaded(false);
+        setShowContent(false);
+      }
+    }, [subjects.length]);
+
+    // Track image loads
+    const handleImageLoad = useCallback(() => {
+      loadedCountRef.current += 1;
+
+      if (loadedCountRef.current === subjects.length) {
+        setImagesLoaded(true);
+      }
+    }, [subjects.length]);
+
+    // Handle subject action button click - Navigate to questionnaire only if enabled
+    const handleSubjectAction = (subjectId: number, enabled: boolean) => {
+      if (!enabled) {
+        console.log(`Subject ID ${subjectId} is disabled`);
+        return;
+      }
       console.log(`Navigating to questionnaire for subject ID: ${subjectId}`);
       router.push(`/questionnaire/${subjectId}`);
     };
 
-    // Auto-scroll to bottom on mount
+    // Scroll to bottom when all images are loaded
     useLayoutEffect(() => {
       const mainElement = internalRef.current;
 
-      if (mainElement) {
-        // Wait for content to render, then scroll and hide loader
+      if (mainElement && !isLoading && subjects.length > 0 && imagesLoaded && initialLoading) {
+        // Scroll to bottom with all images loaded (accurate scrollHeight)
+        mainElement.scrollTop = mainElement.scrollHeight;
+
+        // Verify scroll position
         requestAnimationFrame(() => {
           mainElement.scrollTop = mainElement.scrollHeight;
 
-          // Hide loader after scroll
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 100);
+          // Fade in content smoothly
+          requestAnimationFrame(() => {
+            setShowContent(true);
+
+            // Hide loading overlay after fade starts
+            setTimeout(() => {
+              setInitialLoading(false);
+            }, 50);
+          });
         });
       }
-    }, []);
+    }, [isLoading, subjects.length, imagesLoaded, initialLoading]);
 
     return (
       <main
@@ -86,43 +94,72 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
           msOverflowStyle: 'none',
         } as React.CSSProperties}
       >
-        {/* Loader overlay */}
-        {isLoading && (
+        {/* Loader overlay - show while initial loading or fetching data */}
+        {(initialLoading || isLoading) && (
           <div className="absolute inset-0 flex items-center justify-center bg-background-white z-50">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
           </div>
         )}
 
-        {/* Content with subjects (always rendered, hidden by loader overlay) */}
-        <div className="max-w-7xl mx-auto">
-            {/* Container for vertically stacked subjects (Literatura top, Inglés bottom) */}
-            <div className="flex flex-col items-center gap-3">
-              {subjects.map((subject, index) => {
-                // Extract subject name from filename (e.g., "1ingles.svg" -> "Inglés")
-                const subjectName = subject.name
-                  .replace(/^\d+/, '') // Remove leading number
-                  .replace('.svg', '') // Remove extension
-                  .replace(/([A-Z])/g, ' $1') // Add space before capitals
-                  .trim();
+        {/* Content with fade-in transition */}
+        <div
+          className={cn(
+            "max-w-7xl mx-auto min-h-full flex flex-col justify-end",
+            "transition-opacity duration-300",
+            showContent ? "opacity-100" : "opacity-0"
+          )}
+        >
+          {/* Container for vertically stacked subjects with curved S-wave layout */}
+          {/* Width: 350px, SVGs follow 8-position wave pattern for pronounced symmetric curve */}
+          <div className="w-[350px] mx-auto flex flex-col gap-2 pb-6">
+            {/* Display all subjects from API (all are enabled) */}
+            {subjects.map((subject, index) => {
+                // S-wave pattern: 8 positions per cycle for fast symmetric movement
+                const wavePosition = index % 8;
+
+                // Calculate horizontal offset based on wave position
+                // Creates pronounced curve: right (160px) → left (10px) → right (160px)
+                // Positions 0-3: Move from right to left (4 steps)
+                // Position 4: Stay at left (extended left peak)
+                // Positions 5-7: Return from left to right (3 steps)
+                // All positions shifted +10px to the right for better visualization
+                const getHorizontalOffset = (position: number): string => {
+                  switch(position) {
+                    case 0: return 'ml-[220px]';   // Derecha completa (Inglés/inicio) - 150 
+                    case 1: return 'ml-[150px]';   // Transición - 100 
+                    case 2: return 'ml-[100px]';    // Transición - 50 
+                    case 3: return 'ml-[30px]';    // Izquierda completa (Derecho) - 0 
+                    case 4: return 'ml-[0px]';    // Izquierda completa (Finanzas - extended left peak) - 0 
+                    case 5: return 'ml-[50px]';    // Regresando - 50 
+                    case 6: return 'ml-[130px]';   // Regresando - 100 
+                    case 7: return 'ml-[180px]';   // Derecha completa - 150 
+                    default: return 'ml-[105px]';   // 75 
+                  }
+                };
 
                 return (
                   <div
                     key={subject.id}
-                    onClick={() => handleSubjectAction(subject.id)}
-                    className="relative w-[351px] h-auto cursor-pointer"
+                    onClick={() => handleSubjectAction(subject.id, subject.enabled)}
+                    className={cn(
+                      "relative w-[150px] h-auto transition-transform hover:scale-105",
+                      subject.enabled ? "cursor-pointer" : "cursor-not-allowed opacity-70",
+                      getHorizontalOffset(wavePosition)
+                    )}
                   >
                     <Image
-                      src={`/subjects/light/open/${subject.name}`}
-                      alt={`${subjectName} subject`}
-                      width={351}
-                      height={200}
+                      src={subject.iconPath}
+                      alt={`${subject.displayName} subject`}
+                      width={150}
+                      height={90}
                       className="w-full h-auto"
                       priority={index < 5} // Prioritize first 5 images
+                      onLoad={handleImageLoad} // Track each image load
                     />
                   </div>
                 );
               })}
-            </div>
+          </div>
         </div>
       </main>
     );
