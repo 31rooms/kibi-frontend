@@ -12,7 +12,7 @@ Screaming Architecture means your codebase structure "screams" what the applicat
 
 Not: "controllers", "services", "models" (technical layers).
 
-## Directory Structure
+## Directory Structure  ds
 
 Each feature follows this standard structure:
 
