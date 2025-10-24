@@ -8,10 +8,11 @@ import { LessonView } from '@/features/lesson';
  * This is a thin wrapper that extracts the subjectId from route params
  * and passes it to the LessonView feature component
  */
-export default function LessonPage({
+export default async function LessonPage({
   params,
 }: {
-  params: { subjectId: string };
+  params: Promise<{ subjectId: string }>;
 }) {
-  return <LessonView subjectId={params.subjectId} />;
+  const { subjectId } = await params;
+  return <LessonView subjectId={subjectId} />;
 }
