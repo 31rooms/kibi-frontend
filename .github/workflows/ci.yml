@@ -22,8 +22,8 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Instalar dependencias
         run: npm ci
@@ -49,21 +49,21 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Instalar dependencias
         run: npm ci
 
       - name: Configurar variables de entorno para build
         run: |
-          echo "NEXT_PUBLIC_API_URL=http://localhost:3000" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_URL=http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com" >> $GITHUB_ENV
           echo "NODE_ENV=production" >> $GITHUB_ENV
 
       - name: Build del proyecto
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:3000
+          NEXT_PUBLIC_API_URL: http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com
 
       - name: Verificar archivos de salida
         run: |
@@ -97,7 +97,7 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Ejecutar npm audit
         run: npm audit --audit-level=moderate
