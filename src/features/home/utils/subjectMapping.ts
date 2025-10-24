@@ -171,7 +171,7 @@ export const SUBJECTS: Record<number, Subject> = {
     id: 2,
     name: 'Pensamiento Matemático',
     slug: 'pensamiento-matematico',
-    iconFilename: 'Materia-19.svg',
+    iconFilename: 'Materia-12.svg',
     description: 'Pensamiento matemático',
   },
   1: {

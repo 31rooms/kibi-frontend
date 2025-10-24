@@ -43,5 +43,5 @@ export interface SubjectWithState {
   enabled: boolean;
   iconPath: string;
   questionsInExam?: number;
-  apiId?: string;
+  apiId: string; // MongoDB _id from API (required for navigation)
 }

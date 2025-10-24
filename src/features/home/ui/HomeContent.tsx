@@ -45,14 +45,14 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
       }
     }, [subjects.length]);
 
-    // Handle subject action button click - Navigate to questionnaire only if enabled
-    const handleSubjectAction = (subjectId: number, enabled: boolean) => {
+    // Handle subject card click - Navigate to lesson page
+    const handleSubjectClick = (subjectApiId: string, enabled: boolean) => {
       if (!enabled) {
-        console.log(`Subject ID ${subjectId} is disabled`);
+        console.log(`Subject is disabled`);
         return;
       }
-      console.log(`Navigating to questionnaire for subject ID: ${subjectId}`);
-      router.push(`/questionnaire/${subjectId}`);
+      console.log(`Navigating to lesson for subject API ID: ${subjectApiId}`);
+      router.push(`/lesson/${subjectApiId}`);
     };
 
     // Scroll to bottom when all images are loaded
@@ -140,7 +140,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
                 return (
                   <div
                     key={subject.id}
-                    onClick={() => handleSubjectAction(subject.id, subject.enabled)}
+                    onClick={() => handleSubjectClick(subject.apiId, subject.enabled)}
                     className={cn(
                       "relative w-[150px] h-auto transition-transform hover:scale-105",
                       subject.enabled ? "cursor-pointer" : "cursor-not-allowed opacity-70",
