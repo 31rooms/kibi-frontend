@@ -75,7 +75,7 @@ export interface AccordionItemData {
 }
 
 export interface AccordionProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>, 'type'>,
+  extends Omit<React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>, 'type' | 'value' | 'defaultValue'>,
     VariantProps<typeof accordionVariants> {
   items: AccordionItemData[];
   defaultOpenIndex?: number;
@@ -85,18 +85,58 @@ export interface AccordionProps
 export const Accordion = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Root>,
   AccordionProps
->(({ className, variant, items, defaultOpenIndex, allowMultiple = false, ...props }, ref) => {
-  const type = allowMultiple ? 'multiple' : 'single';
+>(({ className, variant, items, defaultOpenIndex, allowMultiple = false }, ref) => {
   const defaultValue = defaultOpenIndex !== undefined ? `item-${defaultOpenIndex}` : undefined;
 
-  return (
+  return allowMultiple ? (
     <AccordionPrimitive.Root
       ref={ref}
-      type={type}
-      collapsible={!allowMultiple}
+      type="multiple"
+      defaultValue={defaultValue ? [defaultValue] : undefined}
+      className={cn(accordionVariants({ variant }), className)}
+    >
+      {items.map((item, index) => (
+        <AccordionPrimitive.Item
+          key={`item-${index}`}
+          value={`item-${index}`}
+          className={cn(accordionItemVariants({ variant }))}
+        >
+          <AccordionPrimitive.Trigger
+            className={cn(accordionTriggerVariants({ variant }))}
+          >
+            <div className="flex-1 text-left">
+              <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)] mb-1">
+                {item.title}
+              </h3>
+              {item.subtitle && (
+                <p className="text-[14px] text-dark-700 font-[family-name:var(--font-rubik)]">
+                  {item.subtitle}
+                </p>
+              )}
+            </div>
+            <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+          </AccordionPrimitive.Trigger>
+          <AccordionPrimitive.Content
+            className={cn(accordionContentVariants({ variant }))}
+          >
+            <div className="px-6 pb-6 pt-2">
+              <div className="text-[16px] text-dark-800 font-[family-name:var(--font-rubik)] leading-relaxed prose prose-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {item.content}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </AccordionPrimitive.Content>
+        </AccordionPrimitive.Item>
+      ))}
+    </AccordionPrimitive.Root>
+  ) : (
+    <AccordionPrimitive.Root
+      ref={ref}
+      type="single"
+      collapsible
       defaultValue={defaultValue}
       className={cn(accordionVariants({ variant }), className)}
-      {...props}
     >
       {items.map((item, index) => (
         <AccordionPrimitive.Item

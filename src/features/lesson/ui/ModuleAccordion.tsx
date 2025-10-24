@@ -28,11 +28,11 @@ export const ModuleAccordion: React.FC<ModuleAccordionProps> = ({
       collapsible
       className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
     >
-      {modules.map((module, moduleIndex) => {
+      {modules.map((module) => {
         // Filter questions for lesson content only
-        const lessonQuestions = module.questions.filter(q =>
-          q.purpose.includes('LESSON_CONTENT')
-        );
+        const lessonQuestions = module.questions?.filter(q =>
+          q.purpose?.includes('LESSON_CONTENT')
+        ) || [];
 
         if (lessonQuestions.length === 0) return null;
 
