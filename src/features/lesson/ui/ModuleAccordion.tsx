@@ -24,7 +24,8 @@ export const ModuleAccordion: React.FC<ModuleAccordionProps> = ({
 
   return (
     <AccordionPrimitive.Root
-      type="multiple"
+      type="single"
+      collapsible
       className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
     >
       {modules.map((module, moduleIndex) => {

@@ -35,8 +35,8 @@ Los siguientes secrets ya están configurados en:
 ### GitHub Actions Workflows ✓
 
 - `.github/workflows/ci.yml` - Validación (lint, type-check, build, security)
-- `.github/workflows/vercel-production.yml` - Deploy automático a producción
-- `.github/workflows/vercel-preview.yml` - Preview deployments para PRs
+
+**Nota:** Los deployments son manejados automáticamente por Vercel a través de su integración nativa con GitHub. Los workflows de Vercel están deshabilitados para evitar conflictos.
 
 ### Configuración Vercel ✓
 
@@ -61,8 +61,7 @@ git push origin main
 
 # 3. Automáticamente se ejecuta:
 # ✓ GitHub Actions CI (lint, type-check, build)
-# ✓ GitHub Actions Deploy (vercel deploy --prod)
-# ✓ Vercel deployment
+# ✓ Vercel detecta el push y hace deployment automático
 # ✓ App actualizada en https://kibi-five.vercel.app
 ```
 
@@ -82,12 +81,12 @@ git push origin feature/nueva-funcionalidad
 
 # 4. Crear Pull Request en GitHub
 # → GitHub Actions valida código
-# → Vercel crea preview deployment
-# → Bot comenta URL de preview en el PR
+# → Vercel crea preview deployment automáticamente
+# → Vercel bot comenta URL de preview en el PR
 # → URL temporal: https://kibi-git-feature-*.vercel.app
 
 # 5. Revisar, aprobar y mergear PR
-# → Deploy automático a producción
+# → Vercel hace deploy automático a producción
 ```
 
 ---
