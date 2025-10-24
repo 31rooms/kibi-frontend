@@ -1,7 +1,11 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 // API Base URL - configurable via environment variable
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// En producción, usamos /api que será proxy-ed por Next.js al backend
+// En desarrollo local, apuntamos directamente al backend
+export const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api'
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
 
 // Create axios instance with base configuration
 export const apiClient: AxiosInstance = axios.create({
@@ -44,6 +48,8 @@ apiClient.interceptors.response.use(
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refreshToken: refreshToken,
+          }, {
+            baseURL: API_BASE_URL,
           });
 
           const { access_token } = response.data;
