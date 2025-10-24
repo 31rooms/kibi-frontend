@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { Alert, Button } from '@/shared/ui';
 import { useSubjectHierarchy } from '../hooks/useSubjectHierarchy';
-import type { LessonViewProps } from '../types/lesson.types';
+import type { LessonViewProps, Module, Lesson } from '../types/lesson.types';
 import { ArrowLeft } from 'lucide-react';
 import { LessonContent } from './LessonContent';
 
@@ -91,7 +91,7 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
     }
 
     // Collect all lessons from the hierarchy
-    const lessonsWithModules: Array<{ module: { _id: string; order?: number; lessons?: unknown[] }; lesson: unknown }> = [];
+    const lessonsWithModules: Array<{ module: Module; lesson: Lesson }> = [];
 
     if (hierarchy && hierarchy.topics) {
       hierarchy.topics
