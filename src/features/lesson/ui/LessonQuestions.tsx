@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { QuizOption } from '@/shared/ui';
 import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { Question } from '../types/lesson.types';
 
 interface QuestionState {
@@ -79,13 +81,13 @@ export const LessonQuestions = React.forwardRef<HTMLDivElement, LessonQuestionsP
       });
     };
 
-    // Clean step-by-step explanation HTML to remove "Respuesta correcta" line
-    const cleanStepByStepExplanation = (html: string): string => {
-      // Remove paragraphs that contain "Respuesta correcta" with or without checkmark
-      return html
-        .replace(/<p[^>]*>.*?✅.*?Respuesta correcta.*?<\/p>/gi, '')
-        .replace(/<p[^>]*>.*?Respuesta correcta.*?<\/p>/gi, '')
-        .replace(/<p[^>]*>.*?<strong>Respuesta correcta.*?<\/strong>.*?<\/p>/gi, '');
+    // Clean step-by-step explanation markdown to remove "Respuesta correcta" line
+    const cleanStepByStepExplanation = (markdown: string): string => {
+      // Remove lines that contain "Respuesta correcta" with or without checkmark
+      return markdown
+        .split('\n')
+        .filter(line => !line.includes('Respuesta correcta') && !line.includes('✅'))
+        .join('\n');
     };
 
     // Validate answer
@@ -237,10 +239,40 @@ export const LessonQuestions = React.forwardRef<HTMLDivElement, LessonQuestionsP
               {/* Step-by-step Explanation (permanently shown after first incorrect validation) */}
               {state.isValidated && !state.isCorrect && question.stepByStepExplanation && (
                 <div className="mt-4 p-4 border border-grey-300 rounded-lg bg-white">
-                  <div
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: cleanStepByStepExplanation(question.stepByStepExplanation) }}
-                  />
+                  <div className="prose prose-sm max-w-none font-[family-name:var(--font-rubik)]">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => (
+                          <p className="text-[14px] text-dark-800 leading-relaxed mb-3 last:mb-0">
+                            {children}
+                          </p>
+                        ),
+                        strong: ({ children }) => (
+                          <strong className="font-bold text-dark-900">{children}</strong>
+                        ),
+                        em: ({ children }) => (
+                          <em className="italic text-dark-800">{children}</em>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>
+                        ),
+                        li: ({ children }) => (
+                          <li className="text-[14px] text-dark-800">{children}</li>
+                        ),
+                        code: ({ children }) => (
+                          <code className="bg-grey-100 px-2 py-1 rounded text-[13px] font-mono text-dark-900">
+                            {children}
+                          </code>
+                        ),
+                      }}
+                    >
+                      {cleanStepByStepExplanation(question.stepByStepExplanation)}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               )}
             </div>
