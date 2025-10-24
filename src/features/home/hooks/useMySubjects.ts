@@ -39,7 +39,7 @@ const LOCAL_SUBJECTS = [
   { id: 5, name: 'Materia-18.svg', displayName: 'Aritmética' },
   { id: 4, name: 'Materia-19.svg', displayName: 'Inglés' },
   { id: 3, name: 'Materia-19.svg', displayName: 'Redacción Indirecta' },
-  { id: 2, name: 'Materia-19.svg', displayName: 'Pensamiento Matemático' },
+  { id: 2, name: 'Materia-12.svg', displayName: 'Pensamiento Matemático' },
   { id: 1, name: 'Materia-19.svg', displayName: 'Comprensión Lectora' },
 ];
 

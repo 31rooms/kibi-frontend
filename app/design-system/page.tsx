@@ -26,7 +26,8 @@ import {
   AlertDescription,
   ListDropdown,
   PageIndicator,
-  Calendar
+  Calendar,
+  Accordion
 } from '@/shared/ui';
 import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
 
@@ -69,7 +70,7 @@ export default function DesignSystemPage() {
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía'].map((section) => (
+            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Accordeones', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía'].map((section) => (
               <a
                 key={section}
                 href={`#${section.toLowerCase()}`}
@@ -527,6 +528,179 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
                   </AlertDescription>
                 </Alert>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Accordeones Section */}
+        <section id="accordeones" className="mb-16 bg-white rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+            Accordeones
+          </h2>
+
+          <div className="space-y-8">
+            {/* Basic Accordion */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Acordeón Básico (Cápsula de Ciencia)
+              </h3>
+              <Accordion
+                items={[
+                  {
+                    title: 'Cápsula de ciencia',
+                    subtitle: '¿Qué aprenderás hoy?',
+                    content: `## Leyes de la conservación de la energía
+
+La **energía cinética** es la energía asociada al movimiento de los objetos. Cuando un objeto se mueve, posee energía cinética que depende de su masa y velocidad.
+
+La fórmula de la energía cinética es:
+
+\`Ec = 1/2 × m × v²\`
+
+Donde:
+- **m** es la masa del objeto (en kilogramos)
+- **v** es la velocidad del objeto (en metros por segundo)
+
+### Principio de conservación
+
+La energía no se crea ni se destruye, solo se transforma. Este es uno de los principios fundamentales de la física.
+
+Por ejemplo, cuando un objeto cae, su [energía potencial](https://es.wikipedia.org/wiki/Energ%C3%ADa_potencial) se convierte en energía cinética.`,
+                  },
+                ]}
+                defaultOpenIndex={0}
+              />
+            </div>
+
+            {/* Multiple Items Accordion */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Múltiples Items (Solo uno abierto)
+              </h3>
+              <Accordion
+                items={[
+                  {
+                    title: 'Introducción a la física',
+                    subtitle: 'Conceptos básicos',
+                    content: `La **física** es la ciencia natural que estudia las propiedades de la materia y la energía, así como las relaciones entre ambas.
+
+Algunas ramas principales incluyen:
+
+- Mecánica clásica
+- Termodinámica
+- Electromagnetismo
+- Óptica
+- Física cuántica
+
+> "La física es el intento de hacer que las cosas complicadas sean simples." - E. Rutherford`,
+                  },
+                  {
+                    title: 'Fuerzas y movimiento',
+                    subtitle: 'Leyes de Newton',
+                    content: `### Primera Ley de Newton (Inercia)
+
+Un objeto en reposo permanecerá en reposo, y un objeto en movimiento continuará en movimiento a velocidad constante, a menos que actúe sobre él una fuerza externa.
+
+### Segunda Ley de Newton
+
+La aceleración de un objeto es directamente proporcional a la fuerza neta que actúa sobre él e inversamente proporcional a su masa.
+
+**Fórmula:** \`F = m × a\`
+
+### Tercera Ley de Newton
+
+Para cada acción, hay una reacción igual y opuesta.`,
+                  },
+                  {
+                    title: 'Trabajo y energía',
+                    subtitle: 'Transformaciones energéticas',
+                    content: `El **trabajo** se realiza cuando una fuerza mueve un objeto a cierta distancia.
+
+**Fórmula del trabajo:** \`W = F × d × cos(θ)\`
+
+La energía puede presentarse en diferentes formas:
+
+1. Energía cinética (movimiento)
+2. Energía potencial (posición)
+3. Energía térmica (calor)
+4. Energía química (enlaces)
+5. Energía eléctrica
+
+Todas estas formas pueden transformarse entre sí, pero la energía total se conserva.`,
+                  },
+                ]}
+              />
+            </div>
+
+            {/* Multiple Open Accordion */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Múltiples Items (Varios abiertos simultáneamente)
+              </h3>
+              <Accordion
+                allowMultiple
+                items={[
+                  {
+                    title: 'Matemáticas básicas',
+                    content: `Las **matemáticas** son el lenguaje de la ciencia. Algunos conceptos fundamentales:
+
+- Aritmética: suma, resta, multiplicación, división
+- Álgebra: ecuaciones y variables
+- Geometría: formas y espacios
+- Cálculo: derivadas e integrales
+
+Las matemáticas nos ayudan a modelar y entender el mundo que nos rodea.`,
+                  },
+                  {
+                    title: 'Química elemental',
+                    content: `La **química** estudia la composición, estructura y propiedades de la materia.
+
+**Elementos químicos:** Los bloques de construcción de toda la materia.
+
+La tabla periódica organiza todos los elementos conocidos según sus propiedades químicas.
+
+Algunos elementos comunes:
+- Hidrógeno (H)
+- Oxígeno (O)
+- Carbono (C)
+- Nitrógeno (N)`,
+                  },
+                  {
+                    title: 'Biología general',
+                    content: `La **biología** es el estudio de los seres vivos y sus procesos vitales.
+
+Las características de los seres vivos:
+1. Organización celular
+2. Metabolismo
+3. Crecimiento y desarrollo
+4. Reproducción
+5. Respuesta a estímulos
+6. Adaptación y evolución
+
+> "Nada en biología tiene sentido si no es a la luz de la evolución." - Theodosius Dobzhansky`,
+                  },
+                ]}
+              />
+            </div>
+
+            {/* Minimal Variant */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Variante Minimal (Sin bordes)
+              </h3>
+              <Accordion
+                variant="minimal"
+                items={[
+                  {
+                    title: 'Pregunta frecuente 1',
+                    content: 'Esta es la respuesta a la primera pregunta frecuente con **texto en negrita** y un enlace a [más información](https://example.com).',
+                  },
+                  {
+                    title: 'Pregunta frecuente 2',
+                    content: 'Esta es la respuesta a la segunda pregunta frecuente. Puedes incluir listas, enlaces y formato de texto.',
+                  },
+                ]}
+              />
             </div>
           </div>
         </section>
