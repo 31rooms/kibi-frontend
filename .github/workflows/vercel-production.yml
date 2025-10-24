@@ -1,0 +1,62 @@
+name: Vercel Production Deployment
+
+# Este workflow maneja el deployment a producción de forma explícita
+# usando la CLI de Vercel desde GitHub Actions
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-production:
+    name: Deploy a Producción en Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull de configuración de Vercel
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build de artefactos del proyecto
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy a Producción
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployment exitoso: $DEPLOYMENT_URL"
+
+      - name: Comentar URL de deployment en PR (si aplica)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 Deployment en Vercel: ${{ steps.deploy.outputs.deployment_url }}'
+            })
+
+      - name: Verificar estado del deployment
+        run: |
+          echo "Deployment URL: ${{ steps.deploy.outputs.deployment_url }}"
+          echo "Estado: Producción"
+          echo "Rama: ${{ github.ref_name }}"
