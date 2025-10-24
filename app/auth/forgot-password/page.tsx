@@ -46,17 +46,18 @@ export default function ForgotPasswordPage() {
     try {
       console.log('📧 Sending password reset request for:', email);
 
-      const response = await authAPI.forgotPassword(email.trim().toLowerCase());
+      await authAPI.forgotPassword(email.trim().toLowerCase());
 
       console.log('✅ Password reset email sent successfully');
       setSuccess(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Forgot password error:', error);
-      setError(error.message || 'Ocurrió un error al enviar el correo de recuperación');
+      const errorMessage = error instanceof Error ? error.message : 'Ocurrió un error al enviar el correo de recuperación';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [email]);
+  }, [email, validateEmail]);
 
   const handleBackToLogin = useCallback(() => {
     router.push('/auth/login');

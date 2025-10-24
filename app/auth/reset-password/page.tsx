@@ -92,13 +92,14 @@ function ResetPasswordContent() {
 
       console.log('✅ Password reset successful');
       setSuccess(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Reset password error:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
-      if (error.message.includes('expired') || error.message.includes('invalid')) {
+      if (errorMessage.includes('expired') || errorMessage.includes('invalid')) {
         setError('El enlace de recuperación ha expirado o es inválido. Por favor solicita uno nuevo.');
       } else {
-        setError(error.message || 'Ocurrió un error al restablecer la contraseña');
+        setError(errorMessage || 'Ocurrió un error al restablecer la contraseña');
       }
     } finally {
       setIsLoading(false);

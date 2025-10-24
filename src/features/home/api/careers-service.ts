@@ -17,9 +17,10 @@ export const careersAPI = {
     try {
       const response = await apiClient.get<MySubjectsResponse>('/careers/my-subjects');
       return response.data;
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+    } catch (error) {
+      const errorResponse = error as { response?: { data?: { message?: string } } };
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to fetch subjects. Please try again.');
     }

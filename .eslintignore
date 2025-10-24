@@ -1,0 +1,19 @@
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Service Workers (auto-generated)
+public/sw.js
+public/swe-worker-*.js
+public/workbox-*.js
+
+# Vercel
+.vercel/
+
+# Environment files
+.env*.local

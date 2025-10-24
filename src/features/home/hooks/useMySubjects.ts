@@ -117,8 +117,8 @@ export function useMySubjects(): UseMySubjectsReturn {
       setSubjects(mappedSubjects);
       setCareer(response.career);
       setTotalQuestions(response.totalQuestions);
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to load subjects';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load subjects';
       setError(errorMessage);
       console.error('useMySubjects error:', err);
 

@@ -35,8 +35,8 @@ export function useSubjectHierarchy(subjectId: string): UseSubjectHierarchyRetur
 
       const data = await lessonAPI.getSubjectHierarchy(subjectId);
       setHierarchy(data);
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to load subject hierarchy';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load subject hierarchy';
       setError(errorMessage);
       console.error('useSubjectHierarchy error:', err);
       setHierarchy(null);

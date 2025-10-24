@@ -24,13 +24,14 @@ export const lessonAPI = {
       console.log('📊 Topics count:', response.data.topics?.length || 0);
 
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ API: Failed to fetch subject hierarchy');
-      console.error('Status:', error.response?.status);
-      console.error('Response:', error.response?.data);
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string } } };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
 
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
       }
 
       throw new Error('Failed to load subject hierarchy. Please try again.');

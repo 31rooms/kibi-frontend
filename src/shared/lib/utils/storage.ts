@@ -67,7 +67,7 @@ export const tokenStorage = {
   /**
    * Store user data
    */
-  setUser(user: any): void {
+  setUser(user: unknown): void {
     if (typeof window === 'undefined') return;
 
     try {
@@ -80,7 +80,7 @@ export const tokenStorage = {
   /**
    * Get user data
    */
-  getUser(): any | null {
+  getUser(): unknown | null {
     if (typeof window === 'undefined') return null;
 
     try {

@@ -141,23 +141,25 @@ export default function RegisterPage() {
 
       // Redirect to success page instead of onboarding
       router.push('/auth/register/success');
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Registration error:', error);
-      console.error('Error response:', error.response?.data);
+
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorCode = (error as {code?: string}).code;
 
       // Set user-friendly error message based on error type
-      if (error.message.includes('already exists') || error.message.includes('duplicate') || error.message.includes('already registered')) {
+      if (errorMessage.includes('already exists') || errorMessage.includes('duplicate') || errorMessage.includes('already registered')) {
         setError('Ya existe una cuenta con este correo electrónico');
-      } else if (error.message.includes('password')) {
+      } else if (errorMessage.includes('password')) {
         setError('La contraseña debe tener al menos 8 caracteres con mayúsculas, minúsculas y números');
-      } else if (error.message.includes('email')) {
+      } else if (errorMessage.includes('email')) {
         setError('Por favor ingresa un correo electrónico válido');
-      } else if (error.message.includes('Career not found')) {
+      } else if (errorMessage.includes('Career not found')) {
         setError('La carrera seleccionada no es válida. Por favor selecciona otra.');
-      } else if (error.message.includes('network') || error.message.includes('fetch') || error.code === 'ERR_NETWORK') {
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorCode === 'ERR_NETWORK') {
         setError('Error de conexión. Verifica que el backend esté corriendo en http://localhost:3000');
       } else {
-        setError(error.message || 'Ocurrió un error durante el registro');
+        setError(errorMessage || 'Ocurrió un error durante el registro');
       }
     } finally {
       setIsLoading(false);

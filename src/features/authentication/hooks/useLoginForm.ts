@@ -86,17 +86,19 @@ export const useLoginForm = () => {
       // For now, the tokens are always stored in localStorage
 
       // Redirect is handled in AuthContext
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Login error:', error);
-      console.error('Error response:', error.response?.data);
+      const errorResponse = error as { response?: { data?: unknown }; code?: string };
+      console.error('Error response:', errorResponse.response?.data);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       // Set user-friendly error message
-      if (error.message.includes('credentials') || error.message.includes('Invalid') || error.message.includes('Unauthorized')) {
+      if (errorMessage.includes('credentials') || errorMessage.includes('Invalid') || errorMessage.includes('Unauthorized')) {
         setError('Correo electrónico o contraseña incorrectos');
-      } else if (error.message.includes('network') || error.message.includes('fetch') || error.code === 'ERR_NETWORK') {
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorResponse.code === 'ERR_NETWORK') {
         setError('Error de conexión. Verifica que el backend esté corriendo en http://localhost:3000');
       } else {
-        setError(error.message || 'Ocurrió un error al iniciar sesión');
+        setError(errorMessage || 'Ocurrió un error al iniciar sesión');
       }
     } finally {
       setIsLoading(false);

@@ -31,13 +31,14 @@ export const authAPI = {
 
       console.log('✅ API: Login successful, received tokens');
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ API: Login failed');
-      console.error('Status:', error.response?.status);
-      console.error('Response:', error.response?.data);
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string } } };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
 
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to login. Please check your credentials.');
     }
@@ -59,16 +60,17 @@ export const authAPI = {
 
       console.log('✅ API: Registration successful, received tokens');
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ API: Registration failed');
-      console.error('Status:', error.response?.status);
-      console.error('Response:', error.response?.data);
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string | string[] } } };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
 
-      if (error.response?.data?.message) {
-        if (Array.isArray(error.response.data.message)) {
-          throw new Error(error.response.data.message.join(', '));
+      if (errorResponse.response?.data?.message) {
+        if (Array.isArray(errorResponse.response.data.message)) {
+          throw new Error(errorResponse.response.data.message.join(', '));
         }
-        throw new Error(error.response.data.message);
+        throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to register. Please try again.');
     }
@@ -84,7 +86,7 @@ export const authAPI = {
       } as RefreshTokenDto);
 
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error('Failed to refresh token');
     }
   },
@@ -97,7 +99,7 @@ export const authAPI = {
       await apiClient.post('/auth/logout', {
         refreshToken: refreshToken,
       } as LogoutDto);
-    } catch (error: any) {
+    } catch (error) {
       // Even if logout fails on server, we clear local storage
       console.error('Logout error:', error);
     }
@@ -114,9 +116,11 @@ export const authAPI = {
 
       // Extract careers array from response object
       return response.data.careers || [];
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ Failed to fetch careers:', error);
-      console.error('Error details:', error.response?.data || error.message);
+      const errorResponse = error as { response?: { data?: unknown }; message?: string };
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('Error details:', errorResponse.response?.data || errorMessage);
       return [];
     }
   },
@@ -135,13 +139,14 @@ export const authAPI = {
 
       console.log('✅ API: Password reset email request successful');
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ API: Forgot password failed');
-      console.error('Status:', error.response?.status);
-      console.error('Response:', error.response?.data);
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string } } };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
 
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to request password reset. Please try again.');
     }
@@ -160,13 +165,14 @@ export const authAPI = {
 
       console.log('✅ API: Password reset successful');
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ API: Reset password failed');
-      console.error('Status:', error.response?.status);
-      console.error('Response:', error.response?.data);
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string } } };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
 
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to reset password. The link may be expired.');
     }
@@ -185,13 +191,14 @@ export const authAPI = {
 
       console.log('✅ API: Email verification successful');
       return response.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('❌ API: Email verification failed');
-      console.error('Status:', error.response?.status);
-      console.error('Response:', error.response?.data);
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string } } };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
 
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to verify email. The link may be expired.');
     }

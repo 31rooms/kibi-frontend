@@ -91,7 +91,7 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
     }
 
     // Collect all lessons from the hierarchy
-    const lessonsWithModules: Array<{ module: any; lesson: any }> = [];
+    const lessonsWithModules: Array<{ module: { _id: string; order?: number; lessons?: unknown[] }; lesson: unknown }> = [];
 
     if (hierarchy && hierarchy.topics) {
       hierarchy.topics
