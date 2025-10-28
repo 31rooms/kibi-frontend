@@ -12,6 +12,7 @@ import type {
   ResetPasswordDto,
   VerifyEmailDto,
   SuccessResponse,
+  Theme,
 } from '../types/auth.types';
 
 // API functions
@@ -201,6 +202,23 @@ export const authAPI = {
         throw new Error(errorResponse.response.data.message);
       }
       throw new Error('Failed to verify email. The link may be expired.');
+    }
+  },
+
+  /**
+   * Update user profile (including theme)
+   */
+  async updateProfile(updates: { theme?: Theme }): Promise<User> {
+    try {
+      const response = await apiClient.patch<User>('/users/me', updates);
+      return response.data;
+    } catch (error) {
+      const errorResponse = error as { response?: { status?: number; data?: { message?: string } } };
+
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
+      }
+      throw new Error('Failed to update profile. Please try again.');
     }
   },
 };

@@ -28,7 +28,7 @@ export const ListDropdown = React.forwardRef<HTMLDivElement, ListDropdownProps>(
       <div
         ref={ref}
         className={cn(
-          'rounded-lg border border-grey-200 bg-white p-1 shadow-sm',
+          'rounded-lg border border-grey-200 bg-white dark:bg-[#171B22] p-1 shadow-sm',
           className
         )}
       >
@@ -38,7 +38,7 @@ export const ListDropdown = React.forwardRef<HTMLDivElement, ListDropdownProps>(
             onClick={() => handleItemClick(item.value, item.disabled)}
             disabled={item.disabled}
             className={cn(
-              'w-full text-left px-3 py-2 text-sm rounded-md transition-colors',
+              'w-full text-left px-3 py-2 text-sm rounded-md transition-colors text-dark-900 dark:text-white',
               'hover:bg-grey-100',
               'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent',
               value === item.value && 'bg-blue-500 text-white hover:bg-blue-600'

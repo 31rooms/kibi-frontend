@@ -18,7 +18,8 @@ export const SidebarNavigation = React.forwardRef<
     <aside
       ref={ref}
       className={cn(
-        'w-64 bg-white border-r border-grey-200 p-4 flex flex-col',
+        'w-full max-w-[240px] bg-white dark:bg-[#1E242D] p-4 flex flex-col',
+        'border-r border-[#DEE2E6] dark:border-[#374151]',
         'hidden md:flex' // Hidden on mobile, visible on tablet+
       )}
     >
@@ -52,12 +53,12 @@ export const SidebarNavigation = React.forwardRef<
       </div>
 
       {/* Simple Logout Button */}
-      <div className="pt-4 border-t border-grey-200">
+      <div className="pt-4 border-t border-grey-200 dark:border-grey-700">
         <button
           onClick={onLogout}
           className={cn(
             'flex items-center gap-2',
-            'text-dark-700 hover:text-primary-blue',
+            'text-dark-700 dark:text-white hover:text-primary-blue',
             'transition-colors duration-200',
             'font-[family-name:var(--font-rubik)] text-[14px] font-medium'
           )}

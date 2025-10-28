@@ -4,6 +4,7 @@ import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/lib/context';
 import { Alert } from '@/shared/ui';
 import type { HomeContentProps } from '../types/home.types';
 import { useMySubjects } from '../hooks/useMySubjects';
@@ -20,6 +21,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
     const loadedCountRef = useRef(0);
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
+    const { isDarkMode } = useTheme();
 
     // Fetch subjects with enabled/disabled state from API
     const { subjects, career, totalQuestions, isLoading, error } = useMySubjects();
@@ -85,7 +87,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
         ref={internalRef}
         className={cn(
           "flex-1 overflow-y-auto p-6 md:p-8",
-          "bg-background-white",
+          "bg-white dark:bg-[#171B22]",
           "relative",
           "scrollbar-hide"
         )}
@@ -96,7 +98,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
       >
         {/* Loader overlay - show while initial loading or fetching data */}
         {(initialLoading || isLoading) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background-white z-50">
+          <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#171B22] z-50">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
           </div>
         )}
@@ -137,6 +139,11 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
                   }
                 };
 
+                // Construct icon path based on theme
+                const iconPath = isDarkMode
+                  ? subject.iconPath.replace('/subjects/light/', '/subjects/dark/')
+                  : subject.iconPath;
+
                 return (
                   <div
                     key={subject.id}
@@ -148,7 +155,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
                     )}
                   >
                     <Image
-                      src={subject.iconPath}
+                      src={iconPath}
                       alt={`${subject.displayName} subject`}
                       width={150}
                       height={90}

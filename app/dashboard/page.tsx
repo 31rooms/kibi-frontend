@@ -22,7 +22,7 @@ function DashboardContent() {
       }
     >
       <div className="mb-8">
-        <h1 className="text-[32px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-2">
+        <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
           Dashboard
         </h1>
         <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">

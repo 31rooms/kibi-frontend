@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:is(.dark, .dark *));
+
 @theme inline {
   /* Kibi Design System - Color Palette */
 
@@ -160,7 +162,7 @@
   /* Background Colors */
   --color-background-white: #ffffff;
   --color-background-gray: #f8f8ff;
-  --color-background-blue: #20263d;
+  --color-background-blue: #171B22;
   --color-background-helper: #e7ffe7;
   --color-background-elevated: #ffffff;
 
@@ -177,7 +179,7 @@
   --color-icon-white: #ffffff;
 
   /* Primary Brand Colors */
-  --color-primary-blue: #20263d;
+  --color-primary-blue: #171B22;
   --color-primary-green: #95c16b;
 
   /* Button Colors */
@@ -198,6 +200,12 @@ body {
   background: var(--color-background-white);
   color: var(--color-text-dark);
   font-family: var(--font-rubik);
+}
+
+/* Dark Mode Styles */
+.dark body {
+  background: #171B22;
+  color: #ffffff;
 }
 
 /* Animations */

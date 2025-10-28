@@ -9,7 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 const accordionVariants = cva(
-  'w-full rounded-lg border border-grey-300 bg-white overflow-hidden',
+  'w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden',
   {
     variants: {
       variant: {
@@ -24,7 +24,7 @@ const accordionVariants = cva(
 );
 
 const accordionItemVariants = cva(
-  'border-b border-grey-300 last:border-0',
+  'border-b border-grey-300 dark:border-[#374151] last:border-0',
   {
     variants: {
       variant: {
@@ -39,7 +39,7 @@ const accordionItemVariants = cva(
 );
 
 const accordionTriggerVariants = cva(
-  'flex w-full items-center justify-between py-4 px-6 text-left transition-all hover:bg-grey-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&[data-state=open]>svg]:rotate-180',
+  'flex w-full items-center justify-between py-4 px-6 text-left transition-all hover:bg-grey-50 dark:hover:bg-[#272E3A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&[data-state=open]>svg]:rotate-180',
   {
     variants: {
       variant: {
@@ -109,18 +109,18 @@ export const Accordion = React.forwardRef<
                 {item.title}
               </h3>
               {item.subtitle && (
-                <p className="text-[14px] text-dark-700 font-[family-name:var(--font-rubik)]">
+                <p className="text-[14px] text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
                   {item.subtitle}
                 </p>
               )}
             </div>
-            <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+            <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
           </AccordionPrimitive.Trigger>
           <AccordionPrimitive.Content
             className={cn(accordionContentVariants({ variant }))}
           >
             <div className="px-6 pb-6 pt-2">
-              <div className="text-[16px] text-dark-800 font-[family-name:var(--font-rubik)] leading-relaxed prose prose-sm max-w-none">
+              <div className="text-[16px] text-dark-800 dark:text-white font-[family-name:var(--font-rubik)] leading-relaxed prose prose-sm max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {item.content}
                 </ReactMarkdown>
@@ -150,12 +150,12 @@ export const Accordion = React.forwardRef<
                 {item.title}
               </h3>
               {item.subtitle && (
-                <p className="text-[14px] text-dark-700 font-[family-name:var(--font-rubik)]">
+                <p className="text-[14px] text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
                   {item.subtitle}
                 </p>
               )}
             </div>
-            <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+            <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
           </AccordionPrimitive.Trigger>
           <AccordionPrimitive.Content className={accordionContentVariants({ variant })}>
             <div className="px-6 pb-6 pt-2">
@@ -164,7 +164,7 @@ export const Accordion = React.forwardRef<
                   remarkPlugins={[remarkGfm]}
                   components={{
                   p: ({ children }) => (
-                    <p className="text-[14px] text-dark-800 leading-relaxed mb-3 last:mb-0">
+                    <p className="text-[14px] text-dark-800 dark:text-white leading-relaxed mb-3 last:mb-0">
                       {children}
                     </p>
                   ),
@@ -179,10 +179,10 @@ export const Accordion = React.forwardRef<
                     </a>
                   ),
                   strong: ({ children }) => (
-                    <strong className="font-bold text-dark-900">{children}</strong>
+                    <strong className="font-bold text-dark-900 dark:text-white">{children}</strong>
                   ),
                   em: ({ children }) => (
-                    <em className="italic text-dark-800">{children}</em>
+                    <em className="italic text-dark-800 dark:text-white">{children}</em>
                   ),
                   ul: ({ children }) => (
                     <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>
@@ -191,20 +191,20 @@ export const Accordion = React.forwardRef<
                     <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>
                   ),
                   li: ({ children }) => (
-                    <li className="text-[14px] text-dark-800">{children}</li>
+                    <li className="text-[14px] text-dark-800 dark:text-white">{children}</li>
                   ),
                   h1: ({ children }) => (
-                    <h1 className="text-[20px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-3">
+                    <h1 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-3">
                       {children}
                     </h1>
                   ),
                   h2: ({ children }) => (
-                    <h2 className="text-[18px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-2">
+                    <h2 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-2">
                       {children}
                     </h2>
                   ),
                   h3: ({ children }) => (
-                    <h3 className="text-[16px] font-semibold text-dark-900 font-[family-name:var(--font-quicksand)] mb-2">
+                    <h3 className="text-[16px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-2">
                       {children}
                     </h3>
                   ),
@@ -216,7 +216,7 @@ export const Accordion = React.forwardRef<
                     />
                   ),
                   code: ({ children }) => (
-                    <code className="bg-grey-100 px-2 py-1 rounded text-[13px] font-mono text-dark-900">
+                    <code className="bg-grey-100 px-2 py-1 rounded text-[13px] font-mono text-dark-900 dark:text-white">
                       {children}
                     </code>
                   ),
@@ -226,7 +226,7 @@ export const Accordion = React.forwardRef<
                     </pre>
                   ),
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-primary-green pl-4 italic text-dark-700 my-3">
+                    <blockquote className="border-l-4 border-primary-green pl-4 italic text-dark-700 dark:text-white my-3">
                       {children}
                     </blockquote>
                   ),

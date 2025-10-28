@@ -43,7 +43,7 @@ export const TopMenu = React.forwardRef<HTMLDivElement, TopMenuProps>(
       <div
         ref={ref}
         className={cn(
-          'w-full bg-white border-b border-grey-200 px-4 py-3',
+          'w-full bg-white dark:bg-[#171B22] border-b border-grey-200 px-4 py-3',
           'flex items-center justify-between gap-4',
           className
         )}
@@ -88,7 +88,7 @@ export const TopMenu = React.forwardRef<HTMLDivElement, TopMenuProps>(
             {logoSrc ? (
               <img src={logoSrc} alt={logoText} className="h-8" />
             ) : (
-              <span className="text-xl font-bold text-dark-900">{logoText}</span>
+              <span className="text-xl font-bold text-dark-900 dark:text-white">{logoText}</span>
             )}
           </div>
         )}

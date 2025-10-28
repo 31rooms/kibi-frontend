@@ -12,11 +12,11 @@ export const SocialLoginButtons = React.forwardRef<HTMLDivElement, SocialLoginBu
       <div ref={ref} className="flex flex-col gap-4">
         {/* Divider */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-grey-300" />
-          <span className="text-[14px] text-dark-600 font-[family-name:var(--font-rubik)]">
+          <div className="flex-1 h-px bg-grey-300 dark:bg-grey-600" />
+          <span className="text-[14px] text-dark-600 dark:text-grey-300 font-[family-name:var(--font-rubik)]">
             O ingresa con:
           </span>
-          <div className="flex-1 h-px bg-grey-300" />
+          <div className="flex-1 h-px bg-grey-300 dark:bg-grey-600" />
         </div>
 
         {/* Social login buttons */}
@@ -25,7 +25,7 @@ export const SocialLoginButtons = React.forwardRef<HTMLDivElement, SocialLoginBu
           <button
             type="button"
             onClick={() => onSocialLogin('google')}
-            className="w-12 h-12 rounded-full border border-grey-300 flex items-center justify-center hover:bg-grey-100 transition-colors disabled:opacity-50"
+            className="w-12 h-12 rounded-full border border-grey-300 dark:border-grey-600 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-grey-800 transition-colors disabled:opacity-50"
             aria-label="Continuar con Google"
             disabled={disabled}
           >
@@ -53,7 +53,7 @@ export const SocialLoginButtons = React.forwardRef<HTMLDivElement, SocialLoginBu
           <button
             type="button"
             onClick={() => onSocialLogin('apple')}
-            className="w-12 h-12 rounded-full border border-grey-300 flex items-center justify-center hover:bg-grey-100 transition-colors disabled:opacity-50"
+            className="w-12 h-12 rounded-full border border-grey-300 dark:border-grey-600 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-grey-800 transition-colors disabled:opacity-50"
             aria-label="Continuar con Apple"
             disabled={disabled}
           >
@@ -66,7 +66,7 @@ export const SocialLoginButtons = React.forwardRef<HTMLDivElement, SocialLoginBu
           <button
             type="button"
             onClick={() => onSocialLogin('facebook')}
-            className="w-12 h-12 rounded-full border border-grey-300 flex items-center justify-center hover:bg-grey-100 transition-colors disabled:opacity-50"
+            className="w-12 h-12 rounded-full border border-grey-300 dark:border-grey-600 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-grey-800 transition-colors disabled:opacity-50"
             aria-label="Continuar con Facebook"
             disabled={disabled}
           >

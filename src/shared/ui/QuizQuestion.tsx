@@ -29,10 +29,9 @@ export const QuizQuestion = React.forwardRef<HTMLDivElement, QuizQuestionProps>(
       <div
         ref={ref}
         className={cn(
-          'rounded-lg p-6 bg-white',
+          'rounded-lg p-6 bg-white dark:bg-[#171B22] border border-[#DEE2E6] dark:border-[#374151]',
           className
         )}
-        style={{ border: '1px solid #DEE2E6' }}
         role="region"
         aria-label="Question"
         {...props}
@@ -45,7 +44,7 @@ export const QuizQuestion = React.forwardRef<HTMLDivElement, QuizQuestionProps>(
           </div>
         )}
 
-        <p className="text-base md:text-lg font-medium text-primary-blue leading-relaxed">
+        <p className="text-base md:text-lg font-medium text-primary-blue dark:text-white leading-relaxed">
           {question}
         </p>
       </div>

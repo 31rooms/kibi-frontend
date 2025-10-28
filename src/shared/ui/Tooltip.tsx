@@ -18,7 +18,7 @@ const tooltipContentVariants = cva(
       variant: {
         default: 'bg-primary-blue text-white',
         dark: 'bg-dark-900 text-white',
-        light: 'bg-white text-dark-900 border border-grey-300',
+        light: 'bg-white dark:bg-[#171B22] text-dark-900 dark:text-white border border-grey-300',
         success: 'bg-success-500 text-white',
         warning: 'bg-warning-500 text-white',
         danger: 'bg-error-500 text-white',

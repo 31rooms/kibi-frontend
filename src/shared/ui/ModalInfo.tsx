@@ -51,7 +51,7 @@ export const ModalInfo = React.forwardRef<HTMLDivElement, ModalInfoProps>(
           ref={ref}
           onClick={(e) => e.stopPropagation()}
           className={cn(
-            'relative bg-white rounded-2xl shadow-lg flex flex-col w-[90%] max-w-[880px] max-h-[90vh]',
+            'relative bg-white dark:bg-[#171B22] rounded-2xl shadow-lg flex flex-col w-[90%] max-w-[880px] max-h-[90vh]',
             'border border-[#DEE2E6]',
             className
           )}
@@ -71,15 +71,15 @@ export const ModalInfo = React.forwardRef<HTMLDivElement, ModalInfoProps>(
 
           {/* Title */}
           <div className="px-8 pt-8 pb-4">
-            <h2 className="text-center text-[#000000] font-['Quicksand',sans-serif] font-bold text-[24px]">
+            <h2 className="text-center text-[#000000] dark:text-white font-['Quicksand',sans-serif] font-bold text-[24px]">
               {title}
             </h2>
           </div>
 
           {/* Description - Scrollable */}
           <div className="px-8 pb-6 flex-1 overflow-y-auto">
-            <div className="bg-white rounded-lg border border-[#DEE2E6] p-6">
-              <p className="text-[#000000] font-['Rubik',sans-serif] text-[16px] leading-relaxed whitespace-pre-wrap">
+            <div className="bg-white dark:bg-[#171B22] rounded-lg border border-[#DEE2E6] p-6">
+              <p className="text-[#000000] dark:text-white font-['Rubik',sans-serif] text-[16px] leading-relaxed whitespace-pre-wrap">
                 {description}
               </p>
             </div>

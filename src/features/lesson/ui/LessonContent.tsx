@@ -25,7 +25,7 @@ const MarkdownContent = ({ content }: { content: string }) => (
       remarkPlugins={[remarkGfm]}
       components={{
         p: ({ children }) => (
-          <p className="text-[14px] text-dark-800 leading-relaxed mb-3 last:mb-0">
+          <p className="text-[14px] text-dark-800 dark:text-white leading-relaxed mb-3 last:mb-0">
             {children}
           </p>
         ),
@@ -40,10 +40,10 @@ const MarkdownContent = ({ content }: { content: string }) => (
           </a>
         ),
         strong: ({ children }) => (
-          <strong className="font-bold text-dark-900">{children}</strong>
+          <strong className="font-bold text-dark-900 dark:text-white">{children}</strong>
         ),
         em: ({ children }) => (
-          <em className="italic text-dark-800">{children}</em>
+          <em className="italic text-dark-800 dark:text-white">{children}</em>
         ),
         ul: ({ children }) => (
           <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>
@@ -52,39 +52,39 @@ const MarkdownContent = ({ content }: { content: string }) => (
           <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>
         ),
         li: ({ children }) => (
-          <li className="text-[14px] text-dark-800">{children}</li>
+          <li className="text-[14px] text-dark-800 dark:text-white">{children}</li>
         ),
         h1: ({ children }) => (
-          <h1 className="text-[20px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-3">
+          <h1 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-3">
             {children}
           </h1>
         ),
         h2: ({ children }) => (
-          <h2 className="text-[18px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-2">
+          <h2 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-2">
             {children}
           </h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-[16px] font-semibold text-dark-900 font-[family-name:var(--font-quicksand)] mb-2">
+          <h3 className="text-[16px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-2">
             {children}
           </h3>
         ),
         code: ({ children }) => (
-          <code className="bg-grey-100 px-2 py-1 rounded text-[13px] font-mono text-dark-900">
+          <code className="bg-grey-100 dark:bg-[#272E3A] px-2 py-1 rounded text-[13px] font-mono text-dark-900 dark:text-white">
             {children}
           </code>
         ),
         pre: ({ children }) => (
-          <pre className="bg-grey-100 p-4 rounded-lg overflow-x-auto mb-3">
+          <pre className="bg-grey-100 dark:bg-[#272E3A] p-4 rounded-lg overflow-x-auto mb-3">
             {children}
           </pre>
         ),
         blockquote: ({ children }) => (
-          <blockquote className="border-l-4 border-primary-green pl-4 italic text-dark-700 my-3">
+          <blockquote className="border-l-4 border-primary-green pl-4 italic text-dark-700 dark:text-white my-3">
             {children}
           </blockquote>
         ),
-        hr: () => <hr className="border-grey-300 my-4" />,
+        hr: () => <hr className="border-grey-300 dark:border-[#374151] my-4" />,
       }}
     >
       {content}
@@ -118,7 +118,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
             {module.name}
           </h2>
           {lesson.description && (
-            <p className="text-[14px] md:text-[16px] text-dark-700 font-[family-name:var(--font-rubik)]">
+            <p className="text-[14px] md:text-[16px] text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
               {lesson.description}
             </p>
           )}
@@ -134,12 +134,12 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
           {lesson.whatYouWillLearn && (
             <AccordionPrimitive.Item
               value="what-you-will-learn"
-              className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
+              className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
             >
               <AccordionPrimitive.Trigger
                 className={cn(
                   'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                  'hover:bg-grey-50',
+                  'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
                   '[&[data-state=open]>svg]:rotate-180'
                 )}
@@ -147,7 +147,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
                 <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                   ¿Qué aprenderás hoy?
                 </h3>
-                <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+                <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
               </AccordionPrimitive.Trigger>
               <AccordionPrimitive.Content
                 className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
@@ -163,12 +163,12 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
           {lesson.whatMattersForExam && (
             <AccordionPrimitive.Item
               value="what-matters-for-exam"
-              className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
+              className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
             >
               <AccordionPrimitive.Trigger
                 className={cn(
                   'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                  'hover:bg-grey-50',
+                  'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
                   '[&[data-state=open]>svg]:rotate-180'
                 )}
@@ -176,7 +176,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
                 <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                   Lo que importa para tu examen
                 </h3>
-                <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+                <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
               </AccordionPrimitive.Trigger>
               <AccordionPrimitive.Content
                 className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
@@ -192,12 +192,12 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
           {lesson.tips && (
             <AccordionPrimitive.Item
               value="tips"
-              className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
+              className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
             >
               <AccordionPrimitive.Trigger
                 className={cn(
                   'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                  'hover:bg-grey-50',
+                  'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
                   '[&[data-state=open]>svg]:rotate-180'
                 )}
@@ -205,7 +205,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
                 <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                   Tips
                 </h3>
-                <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+                <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
               </AccordionPrimitive.Trigger>
               <AccordionPrimitive.Content
                 className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
@@ -221,12 +221,12 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
           {lesson.summary && (
             <AccordionPrimitive.Item
               value="summary"
-              className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
+              className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
             >
               <AccordionPrimitive.Trigger
                 className={cn(
                   'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                  'hover:bg-grey-50',
+                  'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
                   '[&[data-state=open]>svg]:rotate-180'
                 )}
@@ -234,7 +234,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
                 <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                   Resumen
                 </h3>
-                <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+                <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
               </AccordionPrimitive.Trigger>
               <AccordionPrimitive.Content
                 className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
@@ -250,12 +250,12 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
           {lesson.learnMoreResources && (
             <AccordionPrimitive.Item
               value="learn-more"
-              className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
+              className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
             >
               <AccordionPrimitive.Trigger
                 className={cn(
                   'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                  'hover:bg-grey-50',
+                  'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
                   '[&[data-state=open]>svg]:rotate-180'
                 )}
@@ -263,7 +263,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
                 <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                   Aprende más
                 </h3>
-                <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+                <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
               </AccordionPrimitive.Trigger>
               <AccordionPrimitive.Content
                 className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
@@ -279,12 +279,12 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
           {lesson.questions && lesson.questions.length > 0 && (
             <AccordionPrimitive.Item
               value="practice-questions"
-              className="w-full rounded-lg border border-grey-300 bg-white overflow-hidden"
+              className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
             >
               <AccordionPrimitive.Trigger
                 className={cn(
                   'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                  'hover:bg-grey-50',
+                  'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
                   '[&[data-state=open]>svg]:rotate-180'
                 )}
@@ -292,7 +292,7 @@ export const LessonContent = React.forwardRef<HTMLDivElement, LessonContentProps
                 <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                   Practica como en el examen real
                 </h3>
-                <ChevronDown className="h-5 w-5 text-dark-600 transition-transform duration-200 shrink-0 ml-4" />
+                <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
               </AccordionPrimitive.Trigger>
               <AccordionPrimitive.Content
                 className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"

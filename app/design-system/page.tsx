@@ -47,11 +47,11 @@ export default function DesignSystemPage() {
   return (
     <div className="min-h-screen bg-grey-50">
       {/* Header */}
-      <header className="bg-white border-b border-grey-300 sticky top-0 z-10">
+      <header className="bg-white dark:bg-[#171B22] border-b border-grey-300 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-[36px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-1">
+              <h1 className="text-[36px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-1">
                 Sistema de Diseño Kibi
               </h1>
               <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">
@@ -65,8 +65,8 @@ export default function DesignSystemPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Navigation */}
-        <nav className="mb-12 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-[20px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-4">
+        <nav className="mb-12 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-6">
+          <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-4">
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -83,8 +83,8 @@ export default function DesignSystemPage() {
         </nav>
 
         {/* Botones Section */}
-        <section id="botones" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="botones" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Botones
           </h2>
 
@@ -140,8 +140,8 @@ export default function DesignSystemPage() {
         </section>
 
         {/* Badges Section */}
-        <section id="badges" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="badges" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Badges
           </h2>
 
@@ -189,8 +189,8 @@ export default function DesignSystemPage() {
         </section>
 
         {/* Inputs Section */}
-        <section id="inputs" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="inputs" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Inputs
           </h2>
 
@@ -242,8 +242,8 @@ export default function DesignSystemPage() {
         </section>
 
         {/* Checkboxes & Toggles Section */}
-        <section id="checkboxes" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="checkboxes" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Checkboxes y Toggles
           </h2>
 
@@ -326,8 +326,8 @@ export default function DesignSystemPage() {
         </section>
 
         {/* Modales Section */}
-        <section id="modales" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="modales" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Modales
           </h2>
 
@@ -382,8 +382,8 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
         </section>
 
         {/* Tooltips Section */}
-        <section id="tooltips" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="tooltips" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Tooltips
           </h2>
 
@@ -411,8 +411,8 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
         </section>
 
         {/* Select Section */}
-        <section id="select" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="select" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Select (Dropdown)
           </h2>
 
@@ -436,8 +436,8 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
         </section>
 
         {/* Tags Section */}
-        <section id="tags" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="tags" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Tags
           </h2>
 
@@ -489,8 +489,8 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
         </section>
 
         {/* Alerts Section */}
-        <section id="alerts" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="alerts" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Alerts
           </h2>
 
@@ -533,8 +533,8 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
         </section>
 
         {/* Accordeones Section */}
-        <section id="accordeones" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="accordeones" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Accordeones
           </h2>
 
@@ -706,8 +706,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Calendar Section */}
-        <section id="calendar" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="calendar" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Calendar
           </h2>
 
@@ -739,8 +739,8 @@ Las características de los seres vivos:
         </section>
 
         {/* List Dropdown Section */}
-        <section className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             List Dropdown
           </h2>
 
@@ -765,8 +765,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Page Indicator Section */}
-        <section className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Page Indicator
           </h2>
 
@@ -807,8 +807,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Menú Section */}
-        <section id="menú" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="menú" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Top Menu
           </h2>
 
@@ -844,8 +844,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Botones Circulares */}
-        <section className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Botones Circulares
           </h2>
 
@@ -866,8 +866,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Sidebar Buttons Section */}
-        <section id="sidebar" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="sidebar" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Sidebar Buttons
           </h2>
 
@@ -934,8 +934,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Colores Section */}
-        <section id="colores" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="colores" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Paleta de Colores
           </h2>
 
@@ -949,7 +949,7 @@ Las características de los seres vivos:
                 <div className="space-y-2">
                   <div className="w-full h-24 bg-primary-blue rounded-lg shadow-sm"></div>
                   <p className="text-sm text-dark-700 font-medium">Primary Blue</p>
-                  <p className="text-xs text-dark-500">#20263D</p>
+                  <p className="text-xs text-dark-500">#171B22</p>
                 </div>
                 <div className="space-y-2">
                   <div className="w-full h-24 bg-primary-green rounded-lg shadow-sm"></div>
@@ -983,8 +983,8 @@ Las características de los seres vivos:
         </section>
 
         {/* Tipografía Section */}
-        <section id="tipografía" className="mb-16 bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 font-[family-name:var(--font-quicksand)] mb-6">
+        <section id="tipografía" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
             Tipografía
           </h2>
 
@@ -1023,7 +1023,7 @@ Las características de los seres vivos:
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-grey-300 py-6">
+      <footer className="bg-white dark:bg-[#171B22] border-t border-grey-300 py-6">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-sm text-dark-600 font-[family-name:var(--font-rubik)]">
             Sistema de Diseño Kibi • Construido con Next.js 15 y Tailwind CSS v4

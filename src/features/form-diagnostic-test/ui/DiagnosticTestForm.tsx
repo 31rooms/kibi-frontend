@@ -12,6 +12,7 @@ import {
   Calendar,
 } from '@/shared/ui';
 import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/lib/context';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -19,6 +20,7 @@ import { useDiagnosticForm } from '../hooks/useDiagnosticForm';
 
 export function DiagnosticTestForm() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const {
     formData,
     errors,
@@ -44,7 +46,7 @@ export function DiagnosticTestForm() {
   };
 
   return (
-    <div className="w-full max-w-xl bg-white rounded-3xl shadow-lg p-6 md:p-10">
+    <div className="w-full max-w-xl bg-white dark:bg-[#171B22] rounded-3xl shadow-lg p-6 md:p-10 border border-grey-200 dark:border-[#374151]">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -53,8 +55,8 @@ export function DiagnosticTestForm() {
         className="flex flex-col items-center gap-6"
       >
         {/* Info Box */}
-        <div className="w-full bg-success-50 rounded-2xl py-4 px-5 md:py-5 md:px-6">
-          <p className="text-[14px] md:text-[16px] text-dark-900 text-center font-[family-name:var(--font-rubik)] leading-relaxed">
+        <div className="w-full bg-success-50 dark:bg-[#1E242D] rounded-2xl py-4 px-5 md:py-5 md:px-6 border border-success-200 dark:border-[#374151]  ">
+          <p className="text-[14px] md:text-[16px] text-dark-900 dark:text-white text-center font-[family-name:var(--font-rubik)] leading-relaxed">
             Antes de tomar tu Test Gratis de 20 Preguntas, completa los siguientes datos
           </p>
         </div>
@@ -62,7 +64,7 @@ export function DiagnosticTestForm() {
         {/* Kibi Robot Icon */}
         <div className="flex justify-center">
           <Image
-            src="/illustrations/Kibi Icon.svg"
+            src={isDarkMode ? "/illustrations/Kibi Icon blanco.svg" : "/illustrations/Kibi Icon.svg"}
             alt="Kibi Robot"
             width={100}
             height={100}
@@ -94,7 +96,7 @@ export function DiagnosticTestForm() {
 
           {/* Gender Select */}
           <div className="w-full">
-            <label className="mb-2 block text-sm font-medium text-grey-700">
+            <label className="mb-2 block text-sm font-medium text-grey-700 dark:text-grey-300">
               Género
             </label>
             <Select
@@ -117,7 +119,7 @@ export function DiagnosticTestForm() {
 
           {/* Birth Date */}
           <div className="w-full relative">
-            <label className="mb-2 block text-sm font-medium text-grey-700">
+            <label className="mb-2 block text-sm font-medium text-grey-700 dark:text-grey-300">
               Fecha de nacimiento
             </label>
             <button
@@ -125,18 +127,19 @@ export function DiagnosticTestForm() {
               type="button"
               onClick={() => setShowCalendar(!showCalendar)}
               className={cn(
-                'flex h-11 w-full items-center justify-between rounded-lg border border-grey-300 bg-white px-3 py-2 text-sm',
-                'hover:border-grey-400 transition-colors',
+                'flex h-11 w-full items-center justify-between rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#171B22] px-3 py-2 text-sm',
+                'hover:border-grey-400 dark:hover:border-grey-600 transition-colors',
                 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+                'text-dark-900 dark:text-white',
                 showErrors && errors.birthDate && 'border-error-500',
-                !formData.birthDate && 'text-grey-400'
+                !formData.birthDate && 'text-grey-400 dark:text-grey-500'
               )}
             >
               {formData.birthDate
                 ? format(formData.birthDate, 'dd/MM/yyyy', { locale: es })
                 : 'Selecciona tu fecha de nacimiento'}
               <svg
-                className="h-4 w-4 text-grey-400"
+                className="h-4 w-4 text-grey-400 dark:text-grey-500"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -198,7 +201,7 @@ export function DiagnosticTestForm() {
         <button
           type="button"
           onClick={handleSkip}
-          className="text-[14px] md:text-[16px] font-medium text-[var(--color-primary-green)] hover:underline transition-all font-[family-name:var(--font-rubik)]"
+          className="text-[14px] md:text-[16px] font-medium text-primary-green hover:underline transition-all font-[family-name:var(--font-rubik)]"
         >
           Omitir test por ahora
         </button>

@@ -69,7 +69,7 @@ function VerifyEmailContent() {
         </div>
 
         {/* RIGHT COLUMN - Loading */}
-        <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+        <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
           <div className="w-full max-w-md">
             <div className="lg:hidden mb-8 flex justify-center">
               <Logo size="medium" />
@@ -78,7 +78,7 @@ function VerifyEmailContent() {
             <div className="flex flex-col items-center gap-6">
               <Loader2 className="w-16 h-16 text-primary-green animate-spin" />
               <div className="text-center">
-                <h1 className="text-[28px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-2">
+                <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
                   Verificando tu correo...
                 </h1>
                 <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">
@@ -108,7 +108,7 @@ function VerifyEmailContent() {
         </div>
 
         {/* RIGHT COLUMN - Success */}
-        <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+        <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
           <div className="w-full max-w-md">
             <div className="lg:hidden mb-8 flex justify-center">
               <Logo size="medium" />
@@ -126,7 +126,7 @@ function VerifyEmailContent() {
 
               {/* Success Message */}
               <div className="text-center">
-                <h1 className="text-[28px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-3">
+                <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-3">
                   ¡Correo verificado!
                 </h1>
                 <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)] leading-relaxed">
@@ -167,7 +167,7 @@ function VerifyEmailContent() {
       </div>
 
       {/* RIGHT COLUMN - Error */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8 flex justify-center">
             <Logo size="medium" />
@@ -176,7 +176,7 @@ function VerifyEmailContent() {
           <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-[28px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-2">
+              <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
                 Error de verificación
               </h1>
             </div>

@@ -13,6 +13,7 @@ interface AuthContextType {
   register: (data: RegisterDto) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
+  updateUser: (updatedUser: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -122,6 +123,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [logout]);
 
+  const updateUser = useCallback((updatedUser: User) => {
+    // Create a new object to ensure React detects the change
+    const newUser = { ...updatedUser };
+
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
+  }, [user]);
+
   // Set up token refresh interval
   useEffect(() => {
     if (!user) return;
@@ -142,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     refreshToken,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

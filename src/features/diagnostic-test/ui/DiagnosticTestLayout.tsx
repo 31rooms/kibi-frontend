@@ -66,7 +66,7 @@ export function DiagnosticTestLayout({
     <div
       className={cn(
         'min-h-screen',
-        background === 'gray' ? 'bg-grey-50' : 'bg-white',
+        background === 'gray' ? 'bg-grey-50 dark:bg-[#171B22]' : 'bg-white dark:bg-[#171B22]',
         className
       )}
     >

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/shared/ui';
 import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/lib/context';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
@@ -78,6 +79,7 @@ export const ResultsSummary = React.forwardRef<
     ref
   ) => {
     const router = useRouter();
+    const { isDarkMode } = useTheme();
 
     const handleGoToPreparation = () => {
       router.push('/home');
@@ -95,7 +97,7 @@ export const ResultsSummary = React.forwardRef<
         {/* Hands Icon with green background */}
         <div className="relative flex justify-center items-center mb-2">
           <Image
-            src="/illustrations/hands.svg"
+            src={isDarkMode ? "/illustrations/hands-dark.svg" : "/illustrations/hands.svg"}
             alt="Hands"
             width={113}
             height={113}
@@ -105,7 +107,7 @@ export const ResultsSummary = React.forwardRef<
         </div>
 
         {/* Progress Message */}
-        <p className="text-[14px] md:text-[16px] text-dark-900 text-center font-[family-name:var(--font-rubik)] leading-relaxed px-4">
+        <p className="text-[14px] md:text-[16px] text-dark-900 dark:text-white text-center font-[family-name:var(--font-rubik)] leading-relaxed px-4">
           Con tu nivel actual, estás a un{' '}
           <span className="font-semibold">{progressPercentage}%</span> del
           objetivo. Sigamos trabajando para llegar al 100% antes del examen.
@@ -114,7 +116,7 @@ export const ResultsSummary = React.forwardRef<
         {/* Cards Section */}
         <div className="w-full flex flex-col gap-3 mt-2">
           {/* Current Level Card - Yellow */}
-          <div className="w-full bg-warning-50 rounded-2xl py-4 px-5 md:py-5 md:px-6 flex items-center gap-4">
+          <div className="w-full bg-warning-50 dark:bg-[#FFD33333] rounded-2xl py-4 px-5 md:py-5 md:px-6 flex items-center gap-4">
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
               <Image
                 src="/icons/trend-up.svg"
@@ -124,7 +126,7 @@ export const ResultsSummary = React.forwardRef<
               />
             </div>
             <div className="flex-1">
-              <p className="text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900">
+              <p className="text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900 dark:text-white">
                 <span className="font-semibold">Tu nivel actual:</span>{' '}
                 {currentLevel}
               </p>
@@ -132,7 +134,7 @@ export const ResultsSummary = React.forwardRef<
           </div>
 
           {/* Strengths Card - Blue */}
-          <div className="w-full bg-blue-50 rounded-2xl py-4 px-5 md:py-5 md:px-6 flex items-center gap-4">
+          <div className="w-full bg-blue-50 dark:bg-[#2D68F833] rounded-2xl py-4 px-5 md:py-5 md:px-6 flex items-center gap-4">
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
               <Image
                 src="/icons/share.svg"
@@ -142,7 +144,7 @@ export const ResultsSummary = React.forwardRef<
               />
             </div>
             <div className="flex-1">
-              <p className="text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900">
+              <p className="text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900 dark:text-white">
                 <span className="font-semibold">Fortalezas:</span>{' '}
                 {strengths.join(', ')}
               </p>
@@ -150,7 +152,7 @@ export const ResultsSummary = React.forwardRef<
           </div>
 
           {/* Areas to Reinforce Card - Purple/Violet */}
-          <div className="w-full bg-purple-50 rounded-2xl py-4 px-5 md:py-5 md:px-6 flex items-center gap-4">
+          <div className="w-full bg-purple-50 dark:bg-[#8646F433] rounded-2xl py-4 px-5 md:py-5 md:px-6 flex items-center gap-4">
             <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
               <Image
                 src="/icons/task-square.svg"
@@ -160,7 +162,7 @@ export const ResultsSummary = React.forwardRef<
               />
             </div>
             <div className="flex-1">
-              <p className="text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900">
+              <p className="text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900 dark:text-white">
                 <span className="font-semibold">Áreas a reforzar:</span>{' '}
                 {areasToReinforce.join(', ')}
               </p>
@@ -169,7 +171,7 @@ export const ResultsSummary = React.forwardRef<
         </div>
 
         {/* Bottom Message */}
-        <p className="text-[14px] md:text-[16px] text-dark-900 text-center font-[family-name:var(--font-rubik)] font-semibold leading-relaxed px-4 mt-2">
+        <p className="text-[14px] md:text-[16px] text-dark-900 dark:text-white text-center font-[family-name:var(--font-rubik)] font-semibold leading-relaxed px-4 mt-2">
           ¡Con tus resultados he creado una ruta de materias personal para ti!
         </p>
 

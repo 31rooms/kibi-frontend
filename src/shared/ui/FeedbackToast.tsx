@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/lib/context';
 
 const feedbackVariants = cva(
-  'relative flex items-center gap-3 px-6 py-4 bg-white rounded-[20px] shadow-[0px_12px_40px_15px_#0000001A] transition-opacity duration-300',
+  'relative flex items-center gap-3 px-6 py-4 bg-white dark:bg-[#272E3A] rounded-[20px] shadow-[0px_12px_40px_15px_#0000001A] transition-opacity duration-300',
   {
     variants: {
       variant: {
@@ -35,6 +36,7 @@ export const FeedbackToast = ({
   onHide,
   duration = 1000,
 }: FeedbackToastProps) => {
+  const { isDarkMode } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export const FeedbackToast = ({
         </div>
 
         {/* Message */}
-        <p className="text-dark-900 font-medium text-base leading-snug max-w-sm">
+        <p className="text-dark-900 dark:text-white font-medium text-base leading-snug max-w-sm">
           {message}
         </p>
 
@@ -84,7 +86,7 @@ export const FeedbackToast = ({
           style={{
             borderLeft: '12px solid transparent',
             borderRight: '12px solid transparent',
-            borderTop: '12px solid white',
+            borderTop: isDarkMode ? '12px solid #272E3A' : '12px solid white',
             filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.05))',
           }}
         />
@@ -93,7 +95,7 @@ export const FeedbackToast = ({
       {/* Kibi Icon */}
       <div className="flex-shrink-0">
         <Image
-          src="/illustrations/Kibi Icon.svg"
+          src={isDarkMode ? "/illustrations/Kibi Icon blanco.svg" : "/illustrations/Kibi Icon.svg"}
           alt="Kibi"
           width={80}
           height={80}

@@ -1,5 +1,11 @@
 // Authentication Types
 
+export enum Theme {
+  LIGHT = 'LIGHT',
+  DARK = 'DARK',
+  SYSTEM = 'SYSTEM',
+}
+
 export interface LoginFormData {
   username: string; // Used as email for backend
   password: string;
@@ -35,6 +41,7 @@ export interface RegisterDto {
   lastName: string;
   phoneNumber?: string;
   desiredCareer: string;
+  theme?: Theme;
 }
 
 export interface User {
@@ -43,8 +50,19 @@ export interface User {
   firstName: string;
   lastName: string;
   phoneNumber?: string;
-  desiredCareer: string;
-  profileComplete: boolean;
+  dateOfBirth?: string;
+  gender?: string;
+  profilePhotoUrl?: string;
+  desiredCareer?: string | { _id: string; name: string; category: string };
+  role?: string;
+  subscriptionPlan?: string;
+  emailVerified?: boolean;
+  onboardingCompleted?: boolean;
+  diagnosticCompleted?: boolean;
+  profileComplete?: boolean;
+  theme: Theme;
+  referralCode?: string;
+  lastLoginAt?: string;
   createdAt: string;
   updatedAt: string;
 }

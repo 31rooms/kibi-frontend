@@ -22,6 +22,9 @@ export { AuthProvider } from './context/AuthContext';
 // Types
 export type * from './types/auth.types';
 
+// Enums (exported as values)
+export { Theme } from './types/auth.types';
+
 // API Service (for internal use or specific cases)
 export { authAPI } from './api/auth-service';
 
