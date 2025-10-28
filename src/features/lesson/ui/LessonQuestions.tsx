@@ -147,7 +147,7 @@ export const LessonQuestions = React.forwardRef<HTMLDivElement, LessonQuestionsP
           return (
             <div key={question._id} className="space-y-4">
               {/* Question Statement */}
-              <h4 className="text-[16px] font-semibold text-dark-900 font-[family-name:var(--font-quicksand)]">
+              <h4 className="text-[16px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
                 Ejercicio {questionIndex + 1} - {question.statement}
               </h4>
 

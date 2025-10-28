@@ -100,7 +100,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
           ref={ref}
           onClick={(e) => e.stopPropagation()}
           className={cn(
-            'relative bg-white rounded-lg shadow-lg flex flex-col gap-6 p-6',
+            'relative bg-white dark:bg-[#171B22] rounded-lg shadow-lg flex flex-col gap-6 p-6',
             size === 'default' ? 'w-[500px]' : 'w-[360px]',
             className
           )}
@@ -134,7 +134,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
             {/* Title */}
             <h2
               className={cn(
-                'text-center text-[#373737]',
+                'text-center text-[#373737] dark:text-white',
                 size === 'default'
                   ? "font-['Quicksand',sans-serif] font-bold text-[20px]"
                   : "font-['Rubik',sans-serif] text-[16px] leading-[22px]"
@@ -149,7 +149,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
             {/* Description */}
             <p
               className={cn(
-                'text-center text-[#7b7b7b]',
+                'text-center text-[#7b7b7b] dark:text-grey-400',
                 size === 'default'
                   ? "font-['Inter',sans-serif] text-[16px] w-full max-w-[430px]"
                   : "font-['Rubik',sans-serif] text-[14px] w-full"
@@ -165,7 +165,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
               <button
                 onClick={handleCancel}
                 className={cn(
-                  'flex-1 bg-white border border-[#dee2e6] text-[#373737]',
+                  'flex-1 bg-white dark:bg-[#171B22] border border-[#dee2e6] dark:border-grey-700 text-[#373737] dark:text-white',
                   'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
                   'hover:bg-gray-50',
                   size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5'
@@ -177,7 +177,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
             <button
               onClick={handleConfirm}
               className={cn(
-                'bg-[#20263d] text-white',
+                'bg-[#171B22] text-white',
                 'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
                 'hover:bg-[#2a3149]',
                 size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5',

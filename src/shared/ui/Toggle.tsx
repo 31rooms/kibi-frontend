@@ -47,7 +47,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
           >
             <div
               className={cn(
-                'absolute top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-white transition-all duration-200',
+                'absolute top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-white dark:bg-[#171B22] transition-all duration-200',
                 checked ? 'left-[calc(100%-2px)] -translate-x-full' : 'left-[2px]'
               )}
             />
@@ -62,7 +62,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
             <div
               className={cn(
                 'absolute top-0 h-full w-[50.91%] rounded-full transition-all duration-200',
-                checked ? 'left-[49.09%] bg-[#47830e]' : 'left-0 bg-white'
+                checked ? 'left-[49.09%] bg-[#47830e]' : 'left-0 bg-white dark:bg-[#171B22]'
               )}
             />
           </div>
@@ -76,13 +76,13 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
             <div
               className={cn(
                 'absolute top-1/2 -translate-y-1/2 h-7 w-7 rounded-full transition-all duration-200 flex items-center justify-center',
-                checked ? 'left-[calc(100%-2px)] -translate-x-full bg-[#47830e]' : 'left-[2px] bg-white'
+                checked ? 'left-[calc(100%-2px)] -translate-x-full bg-[#47830e]' : 'left-[2px] bg-white dark:bg-[#171B22]'
               )}
             >
               {checked ? (
                 <Check className="h-4 w-4 text-white" strokeWidth={3} />
               ) : (
-                <X className="h-4 w-4 text-grey-500" strokeWidth={3} />
+                <X className="h-4 w-4 text-grey-500 dark:text-grey-400" strokeWidth={3} />
               )}
             </div>
           </div>
@@ -114,7 +114,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
           <div className={cn(baseClasses, 'bg-gray-200')}>
             <div
               className={cn(
-                'absolute top-0 h-full w-[50.91%] rounded-full bg-white transition-all duration-200 flex items-center',
+                'absolute top-0 h-full w-[50.91%] rounded-full bg-white dark:bg-[#171B22] transition-all duration-200 flex items-center',
                 checked ? 'left-[49.09%] justify-start pl-3' : 'left-0 justify-end pr-3'
               )}
             >
@@ -135,7 +135,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
           <div className={cn(baseClasses, 'bg-[#47830e]')}>
             <div
               className={cn(
-                'absolute top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-white transition-all duration-200',
+                'absolute top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-white dark:bg-[#171B22] transition-all duration-200',
                 checked ? 'left-[calc(100%-2px)] -translate-x-full opacity-100' : 'left-[2px] opacity-40'
               )}
             />
@@ -185,7 +185,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
             <div
               className={cn(
                 'absolute top-1/2 -translate-y-1/2 h-7 w-7 rounded-full transition-all duration-200 flex items-center justify-center',
-                checked ? 'left-[calc(100%-2px)] -translate-x-full bg-[#6b7cff]' : 'left-[2px] bg-white'
+                checked ? 'left-[calc(100%-2px)] -translate-x-full bg-[#6b7cff]' : 'left-[2px] bg-white dark:bg-[#171B22]'
               )}
             >
               {checked ? (
@@ -223,11 +223,11 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
       return (
         <div className="flex items-center gap-3">
           {labelPosition === 'left' && (
-            <span className="text-sm text-grey-700">{label}</span>
+            <span className="text-sm text-grey-700 dark:text-grey-300">{label}</span>
           )}
           {toggleButton}
           {labelPosition === 'right' && (
-            <span className="text-sm text-grey-700">{label}</span>
+            <span className="text-sm text-grey-700 dark:text-grey-300">{label}</span>
           )}
         </div>
       );

@@ -19,10 +19,10 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-[32px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-2">
+          <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
             ¡Hola!
           </h1>
-          <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">
+          <p className="text-[16px] text-dark-600 dark:text-grey-300 font-[family-name:var(--font-rubik)]">
             Inicia sesión para continuar
           </p>
         </div>
@@ -67,7 +67,7 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
                 onCheckedChange={onCheckboxChange}
                 disabled={isLoading}
               />
-              <span className="text-[14px] text-dark-700 font-[family-name:var(--font-rubik)]">
+              <span className="text-[14px] text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
                 Recordarme
               </span>
             </label>
@@ -75,7 +75,7 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
             <button
               type="button"
               onClick={onForgotPassword}
-              className="text-[14px] text-primary-blue hover:underline font-[family-name:var(--font-rubik)] disabled:opacity-50"
+              className="text-[14px] text-primary-blue dark:text-primary-green hover:underline font-[family-name:var(--font-rubik)] disabled:opacity-50"
               disabled={isLoading}
             >
               ¿Olvidaste tu contraseña?

@@ -104,7 +104,7 @@ export const CalendarMobile = React.forwardRef<HTMLDivElement, CalendarMobilePro
       <div
         ref={ref}
         className={cn(
-          'w-full bg-white rounded-lg border border-grey-200 shadow-sm p-4',
+          'w-full bg-white dark:bg-[#171B22] rounded-lg border border-grey-200 shadow-sm p-4',
           variant === 'default' ? 'max-w-sm' : 'max-w-xs',
           className
         )}
@@ -150,7 +150,7 @@ export const CalendarMobile = React.forwardRef<HTMLDivElement, CalendarMobilePro
             <div
               key={day}
               className={cn(
-                'text-center font-medium text-grey-600 py-1',
+                'text-center font-medium text-grey-600 dark:text-grey-400 py-1',
                 variant === 'compact' ? 'text-[10px]' : 'text-xs'
               )}
             >
@@ -176,7 +176,7 @@ export const CalendarMobile = React.forwardRef<HTMLDivElement, CalendarMobilePro
                   variant === 'compact' ? 'text-xs' : 'text-sm',
                   'hover:bg-grey-100',
                   !isCurrentMonth && 'text-grey-300 cursor-not-allowed',
-                  isCurrentMonth && 'text-grey-900',
+                  isCurrentMonth && 'text-grey-900 dark:text-white',
                   isSelected &&
                     'bg-primary-green text-white hover:bg-[#7da855] font-semibold',
                   isTodayDate &&
@@ -197,7 +197,7 @@ export const CalendarMobile = React.forwardRef<HTMLDivElement, CalendarMobilePro
               <button
                 onClick={onCancel}
                 className={cn(
-                  'flex-1 px-4 py-2 font-medium text-grey-700 bg-white border border-grey-300 hover:bg-grey-50 rounded-lg transition-colors',
+                  'flex-1 px-4 py-2 font-medium text-grey-700 dark:text-grey-300 bg-white dark:bg-[#171B22] border border-grey-300 hover:bg-grey-50 rounded-lg transition-colors',
                   variant === 'compact' ? 'text-xs' : 'text-sm'
                 )}
               >

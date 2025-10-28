@@ -79,7 +79,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
       <div
         ref={ref}
         className={cn(
-          'w-full max-w-sm bg-white rounded-lg border border-grey-200 shadow-sm p-4',
+          'w-full max-w-sm bg-white dark:bg-[#171B22] rounded-lg border border-grey-200 shadow-sm p-4',
           className
         )}
       >
@@ -91,9 +91,9 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
             className="p-2 hover:bg-grey-100 rounded-md transition-colors"
             aria-label="Previous month"
           >
-            <ChevronLeft className="h-5 w-5 text-grey-600" />
+            <ChevronLeft className="h-5 w-5 text-grey-600 dark:text-grey-400" />
           </button>
-          <h2 className="text-base font-medium text-grey-900">
+          <h2 className="text-base font-medium text-grey-900 dark:text-white">
             {format(currentMonth, dateFormat)}
           </h2>
           <button
@@ -102,7 +102,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
             className="p-2 hover:bg-grey-100 rounded-md transition-colors"
             aria-label="Next month"
           >
-            <ChevronRight className="h-5 w-5 text-grey-600" />
+            <ChevronRight className="h-5 w-5 text-grey-600 dark:text-grey-400" />
           </button>
         </div>
 
@@ -111,7 +111,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
           {weekDays.map((day) => (
             <div
               key={day}
-              className="text-center text-xs font-medium text-grey-600 py-2"
+              className="text-center text-xs font-medium text-grey-600 dark:text-grey-400 py-2"
             >
               {day}
             </div>
@@ -132,14 +132,14 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
                 onClick={(e) => handleDateClick(day, e)}
                 className={cn(
                   'h-9 w-full text-sm rounded-md transition-colors',
-                  'hover:bg-grey-100',
+                  'hover:bg-grey-100 dark:hover:text-grey-900',
                   !isCurrentMonth && 'text-grey-400',
-                  isCurrentMonth && 'text-grey-900',
+                  isCurrentMonth && 'text-grey-900 dark:text-white',
                   isSelected &&
                     'bg-blue-500 text-white hover:bg-blue-600 font-medium',
                   isTodayDate &&
                     !isSelected &&
-                    'font-semibold text-blue-500 bg-blue-50'
+                    'font-semibold text-blue-500 dark:text-grey-900 bg-blue-50'
                 )}
               >
                 {format(day, 'd')}
@@ -154,7 +154,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
             <button
               type="button"
               onClick={onRemove}
-              className="flex-1 px-4 py-2 text-sm font-medium text-grey-700 bg-dark hover:bg-grey-800 rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium text-grey-700 dark:text-grey-300 bg-dark hover:bg-grey-800 rounded-lg transition-colors"
             >
               {removeLabel}
             </button>

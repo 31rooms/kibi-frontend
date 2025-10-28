@@ -6,17 +6,17 @@ import { cn } from '@/shared/lib/utils';
 import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 
 const inputVariants = cva(
-  'w-full rounded-lg px-3 py-2 text-sm transition-all duration-200 placeholder:text-grey-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+  'w-full h-[48px] rounded-lg px-3 text-sm transition-all duration-200 placeholder:text-grey-400 dark:placeholder:text-grey-600 dark:text-grey-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'border border-grey-300 bg-white text-grey-900 hover:border-grey-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100',
+          'border border-grey-300 bg-white text-grey-900 hover:border-grey-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:bg-[#171B22] dark:text-white dark:border-[#374151] dark:hover:border-grey-600',
         error:
-          'border border-error-500 bg-white text-grey-900 focus:border-error-500 focus:ring-2 focus:ring-error-100',
+          'border border-error-500 bg-white text-grey-900 focus:border-error-500 focus:ring-2 focus:ring-error-100 dark:bg-[#171B22] dark:text-white dark:border-error-400',
         success:
-          'border border-success-500 bg-white text-grey-900 focus:border-success-500 focus:ring-2 focus:ring-success-100',
-        disabled: 'border border-dashed border-grey-300 bg-grey-50 text-grey-500',
+          'border border-success-500 bg-white text-grey-900 focus:border-success-500 focus:ring-2 focus:ring-success-100 dark:bg-[#171B22] dark:text-white dark:border-success-400',
+        disabled: 'border border-dashed border-grey-300 bg-grey-50 text-grey-500 dark:text-grey-400 dark:bg-grey-800 dark:text-grey-400 dark:border-[#374151]',
       },
     },
     defaultVariants: {
@@ -74,7 +74,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       ? 'text-error-500'
       : success
         ? 'text-success-500'
-        : 'text-grey-600';
+        : 'text-grey-600 dark:text-grey-400';
 
     // Determine trailing icon
     const defaultTrailingIcon = error ? (
@@ -88,7 +88,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={cn('w-full', containerClassName)}>
         {label && (
-          <label className="mb-2 block text-sm font-medium text-grey-700">
+          <label className="mb-2 block text-sm font-medium text-grey-700 dark:text-grey-300">
             {label}
           </label>
         )}
@@ -116,7 +116,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <button
                   type="button"
                   onClick={onClear}
-                  className="text-grey-400 hover:text-grey-600 transition-colors"
+                  className="text-grey-400 hover:text-grey-600 dark:text-grey-400 transition-colors"
                   tabIndex={-1}
                 >
                   <X className="h-4 w-4" />

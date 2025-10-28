@@ -33,7 +33,7 @@ export const AuthLayout = React.forwardRef<HTMLDivElement, AuthLayoutProps>(
         </div>
 
         {/* RIGHT COLUMN - Form Content */}
-        <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+        <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
           <div className="w-full max-w-md">
             {/* Mobile logo */}
             {showLogo && (

@@ -135,7 +135,7 @@ This project follows **Screaming Architecture** principles, organizing code by b
 
 The project uses a comprehensive color system defined in `app/globals.css` with Tailwind CSS v4's `@theme inline` directive:
 
-- **Brand Colors:** `primary-blue` (#20263D), `primary-green` (#95C16B)
+- **Brand Colors:** `primary-blue` (#171B22), `primary-green` (#95C16B)
 - **Semantic Colors:** `error-*`, `success-*`, `warning-*` (50-900 scale)
 - **UI Colors:** `grey-*`, `dark-*` (50-900 scale)
 - **Accent Colors:** `blue-*`, `cyan-*`, `teal-*`, `orange-*`, `violet-*`, `rose-*`, `purple-*`
@@ -217,7 +217,7 @@ This project uses Tailwind CSS v4 with the new `@theme inline` directive in `app
 
 ```css
 @theme inline {
-  --color-primary-blue: #20263d;
+  --color-primary-blue: #171B22;
   --color-grey-500: #dee2e6;
   /* etc */
 }
@@ -280,7 +280,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 The Kibi brand features:
 - **Logo:** Robot character with graduation cap
-- **Colors:** Blue (#20263D) and Green (#95C16B)
+- **Colors:** Blue (#171B22) and Green (#95C16B)
 - **Fonts:** Geist (default Next.js font)
 
 ## Common Development Patterns

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { cn } from '@/shared/lib/utils';
-import Image from 'next/image';
 
 export interface QuizTimerProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Time remaining in seconds */
@@ -19,9 +18,6 @@ export interface QuizTimerProps extends React.HTMLAttributes<HTMLDivElement> {
 
   /** Show progress bar below timer */
   showProgress?: boolean;
-
-  /** Custom color for the timer (defaults to green) */
-  color?: 'green' | 'orange' | 'red';
 }
 
 export const QuizTimer = React.forwardRef<HTMLDivElement, QuizTimerProps>(
@@ -33,14 +29,10 @@ export const QuizTimer = React.forwardRef<HTMLDivElement, QuizTimerProps>(
       isRunning = true,
       onTimeUp,
       showProgress = false, // Changed default to false
-      color = 'green',
       ...props
     },
     ref
   ) => {
-    // Calculate progress percentage
-    const progress = initialTime > 0 ? (timeRemaining / initialTime) * 100 : 0;
-
     // Format time as MM:SS
     const formatTime = (seconds: number): string => {
       const mins = Math.floor(seconds / 60);
@@ -55,39 +47,45 @@ export const QuizTimer = React.forwardRef<HTMLDivElement, QuizTimerProps>(
       }
     }, [timeRemaining, onTimeUp]);
 
-    // Determine color based on time remaining
-    // Color: always #373737 except when ≤15 seconds (use strong red #DC2626)
-    const getTimerColor = () => {
-      if (timeRemaining <= 15) return '#DC2626'; // Strong red
-      return '#373737'; // Default dark gray
-    };
-
     return (
       <div
         ref={ref}
         className={cn(
-          'inline-flex items-center gap-2 px-3 py-2 rounded-lg',
+          'inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#E7FFE7] dark:bg-[#1E242D]',
           className
         )}
-        style={{ backgroundColor: '#E7FFE7' }}
         {...props}
       >
         {/* Timer Display */}
-        <Image
-          src="/icons/timer.svg"
-          alt="Timer"
-          width={20}
-          height={20}
-        />
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="flex-shrink-0"
+        >
+          <path
+            d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
+            className="stroke-[#47830E] dark:stroke-[#95C16B]"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M10 6V10L13 13"
+            className="stroke-[#47830E] dark:stroke-[#95C16B]"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
         <span
           className={cn(
-            'text-base font-rubik tabular-nums',
+            'text-base font-rubik tabular-nums font-bold',
+            timeRemaining <= 15 ? 'text-[#DC2626]' : 'text-[#373737] dark:text-white',
             !isRunning && 'opacity-50'
           )}
-          style={{
-            color: getTimerColor(),
-            fontWeight: 'bold'
-          }}
         >
           {formatTime(timeRemaining)}
         </span>

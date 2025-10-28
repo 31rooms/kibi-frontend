@@ -6,7 +6,7 @@ import { Input, Button } from '@/shared/ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/Select';
 import { Alert, AlertDescription } from '@/shared/ui/Alert';
 import { Eye, EyeOff } from 'lucide-react';
-import { useAuth, authAPI, type RegisterDto, type Career } from '@/features/authentication';
+import { useAuth, authAPI, type RegisterDto, type Career, Theme } from '@/features/authentication';
 import Image from 'next/image';
 
 export default function RegisterPage() {
@@ -119,6 +119,24 @@ export default function RegisterPage() {
       const emailUsername = formData.email.split('@')[0];
       const nameParts = emailUsername.split(/[._-]/);
 
+      // Detect browser theme preference
+      const detectBrowserTheme = (): Theme => {
+        if (typeof window === 'undefined') {
+          return Theme.SYSTEM;
+        }
+
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+
+        if (prefersDark) {
+          return Theme.DARK;
+        } else if (prefersLight) {
+          return Theme.LIGHT;
+        }
+
+        return Theme.SYSTEM;
+      };
+
       const registrationData: RegisterDto = {
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
@@ -127,6 +145,7 @@ export default function RegisterPage() {
         lastName: nameParts[1] || 'Kibi',
         phoneNumber: formData.phone.trim() || undefined,
         desiredCareer: formData.desiredCareer,
+        theme: detectBrowserTheme(),
       };
 
       console.log('📤 Sending registration request with data:', {
@@ -194,13 +213,13 @@ export default function RegisterPage() {
       </div>
 
       {/* RIGHT COLUMN - Registration Form */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
         <div className="w-full max-w-md">
           {/* Form card */}
           <div className="flex flex-col gap-6">
             {/* Header with green background */}
             <div className="text-center bg-success-50 rounded-2xl py-4 px-6">
-              <h1 className="text-[28px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)]">
+              <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)]">
                 ¡Bienvenido al registro!
               </h1>
               <p className="text-[14px] text-dark-600 font-[family-name:var(--font-rubik)] mt-1">

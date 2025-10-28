@@ -1,18 +1,22 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/lib/context';
 
 /**
  * Logo - Componente de logo de Kibi
  *
  * Muestra el logo de Kibi con el robot y el texto.
  * Usa Next.js Image para optimización automática.
+ * Automáticamente cambia entre logo claro y oscuro según el tema.
  */
 
 export interface LogoProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Tamaño del logo */
   size?: 'small' | 'medium' | 'large';
-  /** Usar versión blanca del logo */
+  /** Usar versión blanca del logo (anula detección automática) */
   white?: boolean;
 }
 
@@ -23,7 +27,12 @@ const sizeClasses = {
 };
 
 export const Logo = React.forwardRef<HTMLDivElement, LogoProps>(
-  ({ className, size = 'medium', white = false, ...props }, ref) => {
+  ({ className, size = 'medium', white, ...props }, ref) => {
+    const { isDarkMode } = useTheme();
+
+    // Si white está explícitamente definido, úsalo; si no, usa isDarkMode
+    const shouldUseWhiteLogo = white !== undefined ? white : isDarkMode;
+
     return (
       <div
         ref={ref}
@@ -31,7 +40,7 @@ export const Logo = React.forwardRef<HTMLDivElement, LogoProps>(
         {...props}
       >
         <Image
-          src={white ? '/illustrations/kibi logo blanco.svg' : '/illustrations/logo.svg'}
+          src={shouldUseWhiteLogo ? '/illustrations/logo-dark.svg' : '/illustrations/logo.svg'}
           alt="Kibi Logo"
           width={300}
           height={150}

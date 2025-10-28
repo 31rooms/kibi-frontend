@@ -60,7 +60,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             'h-5 w-5 shrink-0 rounded border-2 transition-all duration-200',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#47830e]',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            'border-[#dee2e6] hover:border-[#5f6774]',
+            'border-[#dee2e6] dark:border-[#374151] hover:border-[#5f6774] dark:hover:border-[#4b5563]',
             'flex items-center justify-center',
             className
           )}
@@ -81,7 +81,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             {checkboxElement}
             <label
               className={cn(
-                'text-sm leading-none cursor-pointer select-none',
+                'text-sm leading-none cursor-pointer select-none text-dark-900 dark:text-white',
                 disabled && 'cursor-not-allowed opacity-50',
                 labelClassName
               )}
@@ -112,7 +112,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             'disabled:cursor-not-allowed disabled:opacity-50',
             state === 'checked' || state === 'indeterminate'
               ? 'bg-[#47830e] border-[#47830e]'
-              : 'border-[#dee2e6] hover:border-[#5f6774]',
+              : 'border-[#dee2e6] dark:border-[#374151] hover:border-[#5f6774] dark:hover:border-[#4b5563]',
             'flex items-center justify-center',
             className
           )}
@@ -133,7 +133,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             {checkboxElement}
             <label
               className={cn(
-                'text-sm leading-none cursor-pointer select-none',
+                'text-sm leading-none cursor-pointer select-none text-dark-900 dark:text-white',
                 disabled && 'cursor-not-allowed opacity-50',
                 labelClassName
               )}
@@ -163,8 +163,8 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#47830e]',
             'disabled:cursor-not-allowed disabled:opacity-50',
             state === 'checked' || state === 'indeterminate'
-              ? 'bg-[#f1f4ff] border-[#dee2e6]'
-              : 'border-[#dee2e6] hover:border-[#5f6774]',
+              ? 'bg-[#f1f4ff] border-[#dee2e6] dark:border-[#374151]'
+              : 'border-[#dee2e6] dark:border-[#374151] hover:border-[#5f6774] dark:hover:border-[#4b5563]',
             'flex items-center justify-center',
             className
           )}
@@ -185,7 +185,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             {checkboxElement}
             <label
               className={cn(
-                'text-sm leading-none cursor-pointer select-none',
+                'text-sm leading-none cursor-pointer select-none text-dark-900 dark:text-white',
                 disabled && 'cursor-not-allowed opacity-50',
                 labelClassName
               )}
@@ -216,7 +216,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             'disabled:cursor-not-allowed disabled:opacity-50',
             state === 'checked' || state === 'indeterminate'
               ? 'bg-[#47830e] border-[#47830e]'
-              : 'border-[#dee2e6] hover:border-[#5f6774]',
+              : 'border-[#dee2e6] dark:border-[#374151] hover:border-[#5f6774] dark:hover:border-[#4b5563]',
             'flex items-center justify-center',
             className
           )}
@@ -237,7 +237,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             {checkboxElement}
             <label
               className={cn(
-                'text-sm leading-none cursor-pointer select-none',
+                'text-sm leading-none cursor-pointer select-none text-dark-900 dark:text-white',
                 disabled && 'cursor-not-allowed opacity-50',
                 labelClassName
               )}
@@ -266,7 +266,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             'h-5 w-5 shrink-0 rounded-full border-2 transition-all duration-200',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#47830e]',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            'border-[#dee2e6] hover:border-[#5f6774]',
+            'border-[#dee2e6] dark:border-[#374151] hover:border-[#5f6774] dark:hover:border-[#4b5563]',
             'flex items-center justify-center',
             className
           )}
@@ -287,7 +287,7 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             {checkboxElement}
             <label
               className={cn(
-                'text-sm leading-none cursor-pointer select-none',
+                'text-sm leading-none cursor-pointer select-none text-dark-900 dark:text-white',
                 disabled && 'cursor-not-allowed opacity-50',
                 labelClassName
               )}

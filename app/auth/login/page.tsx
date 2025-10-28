@@ -46,7 +46,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={handleRegisterRedirect}
-          className="text-[14px] text-primary-blue hover:underline font-[family-name:var(--font-rubik)] disabled:opacity-50"
+          className="text-[14px] text-primary-blue dark:text-primary-green hover:underline font-[family-name:var(--font-rubik)] disabled:opacity-50"
           disabled={isLoading}
         >
           ¿No tienes una cuenta? Regístrate

@@ -283,7 +283,7 @@ export function QuizContainer({
   // If quiz is completed and should show course selection form
   if (quiz.isCompleted && showCourseSelection) {
     return (
-      <div className="fixed inset-0 bg-grey-50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-grey-50 dark:bg-[#171B22] flex items-center justify-center z-50">
         <CourseSelectionForm
           onSubmit={handleCourseSelectionSubmit}
         />
@@ -317,7 +317,7 @@ export function QuizContainer({
     };
 
     return (
-      <div className="fixed inset-0 bg-grey-50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-grey-50 dark:bg-[#171B22] flex items-center justify-center z-50">
         <ResultsSummary
           currentLevel={currentLevel}
           progressPercentage={progressPercentage}

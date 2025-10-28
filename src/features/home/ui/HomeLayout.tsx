@@ -18,16 +18,16 @@ export const HomeLayout = React.forwardRef<HTMLDivElement, HomeLayoutProps>(
       useHomeNavigation();
 
     return (
-      <div ref={ref} className={cn('h-screen bg-grey-50 flex flex-col', className)}>
+      <div ref={ref} className={cn('h-screen bg-grey-50 dark:bg-[#171B22] flex flex-col', className)}>
         {/* Top Navigation */}
         <HomeTopMenu
           logoSrc="/illustrations/logo.svg"
           logoText="Kibi"
           streakCount={5}
           onStreakClick={() => console.log('Streak clicked')}
-          onThemeToggle={() => console.log('Theme toggled')}
           onMenuClick={() => console.log('Menu clicked')}
         />
+        {/* Note: logoSrc will automatically switch to logo-dark.svg in dark mode */}
 
         {/* Main Content Area */}
         <div className="flex flex-1 overflow-hidden">

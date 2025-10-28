@@ -47,7 +47,7 @@ export function QuizTextInput({
   return (
     <div className={cn('w-full', className)}>
       {/* Label */}
-      <label className="block text-base font-medium text-grey-900 mb-3">
+      <label className="block text-base font-medium text-grey-900 dark:text-white mb-3">
         Respuesta
       </label>
 
@@ -61,18 +61,18 @@ export function QuizTextInput({
           maxLength={maxLength}
           rows={6}
           className={cn(
-            'w-full px-4 py-3 rounded-lg border border-grey-300',
-            'text-base text-grey-900 placeholder:text-grey-500',
-            'focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent',
+            'w-full px-4 py-3 rounded-lg border border-grey-300 dark:border-[#374151]',
+            'text-base text-grey-900 dark:text-white placeholder:text-grey-500 dark:placeholder:text-grey-400',
+            'focus:outline-none focus:ring-2 focus:ring-primary-blue dark:focus:ring-[#374151] focus:border-transparent dark:focus:border-[#374151]',
             'resize-none transition-colors',
             'disabled:bg-grey-100 disabled:cursor-not-allowed',
-            'bg-white'
+            'bg-white dark:bg-[#171B22]'
           )}
         />
 
         {/* Character Counter */}
         <div className="flex justify-end mt-2">
-          <span className="text-sm text-grey-600">
+          <span className="text-sm text-grey-600 dark:text-grey-400">
             {value.length}/{maxLength}
           </span>
         </div>

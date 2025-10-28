@@ -149,7 +149,7 @@ Documentación completa de todas las rutas disponibles para visualizar component
 
 **Características:**
 - ✅ **Colores Principales:**
-  - Primary Blue: `#20263D`
+  - Primary Blue: `#171B22`
   - Primary Green: `#95C16B`
 
 - ✅ **Colores Semánticos:**
@@ -385,7 +385,7 @@ Los colores y tokens están definidos en `/app/globals.css` usando Tailwind CSS 
 
 ```css
 @theme inline {
-  --color-primary-blue: #20263d;
+  --color-primary-blue: #171B22;
   --color-primary-green: #95c16b;
   /* etc... */
 }

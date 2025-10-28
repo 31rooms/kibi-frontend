@@ -126,7 +126,7 @@ function ResetPasswordContent() {
         </div>
 
         {/* RIGHT COLUMN - Success Message */}
-        <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+        <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
           <div className="w-full max-w-md">
             <div className="lg:hidden mb-8 flex justify-center">
               <Logo size="medium" />
@@ -144,7 +144,7 @@ function ResetPasswordContent() {
 
               {/* Success Message */}
               <div className="text-center">
-                <h1 className="text-[28px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-3">
+                <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-3">
                   ¡Contraseña restablecida!
                 </h1>
                 <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)] leading-relaxed">
@@ -185,7 +185,7 @@ function ResetPasswordContent() {
       </div>
 
       {/* RIGHT COLUMN - Reset Password Form */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden mb-8 flex justify-center">
@@ -196,7 +196,7 @@ function ResetPasswordContent() {
           <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-[32px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-2">
+              <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
                 Restablecer contraseña
               </h1>
               <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">
@@ -304,7 +304,7 @@ function ResetPasswordContent() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen w-full flex items-center justify-center bg-white">
+      <div className="min-h-screen w-full flex items-center justify-center bg-white dark:bg-[#171B22]">
         <div className="text-center">
           <Logo size="medium" />
           <p className="mt-4 text-dark-600">Cargando...</p>

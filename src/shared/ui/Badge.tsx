@@ -49,7 +49,7 @@ const badgeVariants = cva(
       {
         variant: 'solid',
         color: 'light',
-        className: 'bg-grey-100 text-dark-700',
+        className: 'bg-grey-100 text-dark-700 dark:text-grey-300',
       },
       {
         variant: 'solid',
@@ -86,17 +86,17 @@ const badgeVariants = cva(
       {
         variant: 'outline',
         color: 'dark',
-        className: 'border-dark-900 text-dark-900',
+        className: 'border-dark-900 text-dark-900 dark:text-white',
       },
       {
         variant: 'outline',
         color: 'gray',
-        className: 'border-grey-500 text-grey-500',
+        className: 'border-grey-500 text-grey-500 dark:text-grey-400',
       },
       {
         variant: 'outline',
         color: 'light',
-        className: 'border-grey-300 text-grey-700',
+        className: 'border-grey-300 text-grey-700 dark:text-grey-300',
       },
       {
         variant: 'outline',
@@ -133,17 +133,17 @@ const badgeVariants = cva(
       {
         variant: 'subtle',
         color: 'dark',
-        className: 'bg-dark-50 text-dark-700',
+        className: 'bg-dark-50 text-dark-700 dark:text-grey-300',
       },
       {
         variant: 'subtle',
         color: 'gray',
-        className: 'bg-grey-100 text-grey-700',
+        className: 'bg-grey-100 text-grey-700 dark:text-grey-300',
       },
       {
         variant: 'subtle',
         color: 'light',
-        className: 'bg-grey-50 text-grey-600',
+        className: 'bg-grey-50 text-grey-600 dark:text-grey-400',
       },
       {
         variant: 'subtle',
@@ -180,12 +180,12 @@ const badgeVariants = cva(
       {
         variant: 'text',
         color: 'dark',
-        className: 'text-dark-900',
+        className: 'text-dark-900 dark:text-white',
       },
       {
         variant: 'text',
         color: 'gray',
-        className: 'text-grey-500',
+        className: 'text-grey-500 dark:text-grey-400',
       },
       {
         variant: 'text',

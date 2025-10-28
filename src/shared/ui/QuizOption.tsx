@@ -76,7 +76,7 @@ export const QuizOption = React.forwardRef<HTMLDivElement, QuizOptionProps>(
         {/* Label with option text */}
         <span
           className={cn(
-            'flex-1 text-base font-normal text-primary-blue select-none',
+            'flex-1 text-base font-normal text-primary-blue dark:text-white select-none',
             disabled && 'cursor-not-allowed'
           )}
         >

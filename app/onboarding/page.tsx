@@ -103,15 +103,15 @@ export default function OnboardingPage() {
   }, [handleNext, currentSlide]);
 
   return (
-    <div className="h-screen w-full grid grid-cols-1 lg:grid-cols-2 overflow-hidden bg-[#1A1F2E]">
+    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 lg:h-screen overflow-y-auto lg:overflow-hidden bg-[#1A1F2E]">
       {/* LEFT COLUMN - Dynamic content (illustration + sheet in card container) */}
-      <div className="relative flex items-center justify-center p-4 lg:p-8">
+      <div className="relative flex items-center justify-center p-4 lg:p-8 pb-[150px] lg:pb-8">
 
         {/* Card container - phone/mockup style */}
-        <div className="relative w-full max-w-md lg:max-w-2xl xl:max-w-3xl h-[85vh] lg:h-[750px] bg-dark-900/20 rounded-[40px] overflow-hidden backdrop-blur-sm border border-white/10 shadow-2xl flex flex-col">
+        <div className="relative w-full max-w-md lg:max-w-2xl xl:max-w-3xl h-auto lg:h-[750px] bg-dark-900/20 rounded-[40px] overflow-visible lg:overflow-hidden backdrop-blur-sm border border-white/10 shadow-2xl flex flex-col">
 
-          {/* Illustration area - 60% */}
-          <div className="h-[60%] flex items-center justify-center p-6 lg:p-8">
+          {/* Illustration area */}
+          <div className="h-[350px] lg:h-[450px] flex items-center justify-center p-6 lg:p-8 flex-shrink-0">
             <div
               className={`transition-all duration-300 w-full h-full flex items-center justify-center ${
                 isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
@@ -125,9 +125,9 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          {/* Sheet area - 40% */}
+          {/* Sheet area */}
           <div
-            className={`h-[40%] transition-all duration-300 ${
+            className={`flex-1 lg:flex-none lg:h-[300px] transition-all duration-300 ${
               isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
             }`}
           >
@@ -172,7 +172,7 @@ export default function OnboardingPage() {
             color="green"
             size="large"
             onClick={handleLogin}
-            className="w-full border-white text-white hover:bg-white/10"
+            className="w-full border-white text-white hover:bg-white dark:bg-[#171B22]/10"
           >
             Ya tengo cuenta
           </Button>

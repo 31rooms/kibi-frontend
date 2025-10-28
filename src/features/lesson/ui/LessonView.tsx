@@ -39,11 +39,11 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
       return (
         <div
           ref={ref}
-          className="min-h-screen flex items-center justify-center bg-background-white"
+          className="min-h-screen flex items-center justify-center bg-background-white dark:bg-[#171B22]"
         >
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
-            <p className="text-grey-600 text-sm">Cargando lecciones...</p>
+            <p className="text-grey-600 dark:text-grey-400 text-sm">Cargando lecciones...</p>
           </div>
         </div>
       );
@@ -54,7 +54,7 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
       return (
         <div
           ref={ref}
-          className="min-h-screen flex items-center justify-center bg-background-white p-6"
+          className="min-h-screen flex items-center justify-center bg-background-white dark:bg-[#171B22] p-6"
         >
           <div className="max-w-md w-full space-y-4">
             <Alert variant="destructive">
@@ -119,7 +119,7 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
       return (
         <div
           ref={ref}
-          className="min-h-screen flex flex-col bg-grey-50"
+          className="min-h-screen flex flex-col bg-grey-50 dark:bg-[#171B22]"
         >
           {/* Simple Back Button */}
           <div className="p-6">
@@ -127,7 +127,7 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
               onClick={handleBack}
               className={cn(
                 'flex items-center gap-2',
-                'text-dark-900 hover:text-primary-blue',
+                'text-dark-900 dark:text-white hover:text-primary-blue dark:hover:text-primary-green',
                 'transition-colors'
               )}
             >
@@ -138,7 +138,7 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
 
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="max-w-md w-full space-y-4 text-center">
-              <div className="text-grey-400 mb-4">
+              <div className="text-grey-400 dark:text-grey-600 mb-4">
                 <svg
                   className="w-20 h-20 mx-auto"
                   fill="none"
@@ -153,10 +153,10 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
                   />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-grey-700">
+              <h2 className="text-xl font-semibold text-grey-700 dark:text-grey-300">
                 No hay lecciones disponibles
               </h2>
-              <p className="text-grey-500 text-sm">
+              <p className="text-grey-500 dark:text-grey-400 text-sm">
                 Este tema aún no tiene lecciones agregadas.
               </p>
             </div>
@@ -167,15 +167,15 @@ export const LessonView = React.forwardRef<HTMLDivElement, LessonViewProps>(
 
     // Success state - Display lessons with new structure
     return (
-      <div ref={ref} className="min-h-screen bg-grey-50 pb-12">
+      <div ref={ref} className="min-h-screen bg-grey-50 dark:bg-[#171B22] pb-12">
         {/* Simple Back Button - NO blue header */}
-        <div className="bg-white border-b border-grey-200 p-6 sticky top-0 z-10">
+        <div className="bg-white dark:bg-[#1E242D] border-b border-grey-200 dark:border-[#374151] p-6 sticky top-0 z-10">
           <div className="max-w-4xl mx-auto">
             <button
               onClick={handleBack}
               className={cn(
                 'flex items-center gap-2',
-                'text-dark-900 hover:text-primary-blue',
+                'text-dark-900 dark:text-white hover:text-primary-blue dark:hover:text-primary-green',
                 'transition-colors'
               )}
             >

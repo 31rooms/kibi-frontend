@@ -46,9 +46,9 @@ export const QuizProgress = React.forwardRef<HTMLDivElement, QuizProgressProps>(
         {...props}
       >
         {/* Progress Bar */}
-        <div className="flex-1 h-2 bg-grey-200 rounded-full overflow-hidden">
+        <div className="flex-1 h-2 bg-[#f0f2f4] dark:bg-[#272E3A] rounded-full overflow-hidden">
           <div
-            className="h-full bg-primary-green transition-all duration-300 ease-out rounded-full"
+            className="h-full bg-[#95c16b] dark:bg-[#95C16B] transition-all duration-300 ease-out rounded-full"
             style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
             role="progressbar"
             aria-valuenow={progress}
@@ -59,7 +59,7 @@ export const QuizProgress = React.forwardRef<HTMLDivElement, QuizProgressProps>(
         </div>
 
         {/* Progress Text at the right */}
-        <span className="text-base font-semibold text-primary-blue font-rubik tabular-nums whitespace-nowrap">
+        <span className="text-base font-semibold text-primary-blue dark:text-white font-rubik tabular-nums whitespace-nowrap">
           {getDisplayText()}
         </span>
       </div>

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Button, Input, Checkbox } from '@/shared/ui';
 import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/lib/context';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useCourseSelection } from '../hooks/useCourseSelection';
@@ -43,6 +44,7 @@ export const CourseSelectionForm = React.forwardRef<
   HTMLDivElement,
   CourseSelectionFormProps
 >(({ onSubmit, className }, ref) => {
+  const { isDarkMode } = useTheme();
   const {
     formData,
     errors,
@@ -81,8 +83,8 @@ export const CourseSelectionForm = React.forwardRef<
     >
       <form onSubmit={onFormSubmit} className="flex flex-col items-center gap-6">
         {/* Info Box */}
-        <div className="w-full bg-success-50 rounded-2xl py-4 px-5 md:py-5 md:px-6">
-          <p className="text-[14px] md:text-[16px] text-dark-900 text-center font-[family-name:var(--font-rubik)] leading-relaxed">
+        <div className="w-full bg-success-50 dark:bg-[#272E3A] rounded-2xl py-4 px-5 md:py-5 md:px-6">
+          <p className="text-[14px] md:text-[16px] text-dark-900 dark:text-white text-center font-[family-name:var(--font-rubik)] leading-relaxed">
             Antes de ver tus resultados, indícanos, ¿En qué curso estás inscrito
             actualmente?
           </p>
@@ -91,7 +93,7 @@ export const CourseSelectionForm = React.forwardRef<
         {/* Kibi Robot Icon */}
         <div className="flex justify-center">
           <Image
-            src="/illustrations/Kibi Icon.svg"
+            src={isDarkMode ? "/illustrations/Kibi Icon blanco.svg" : "/illustrations/Kibi Icon.svg"}
             alt="Kibi Robot"
             width={100}
             height={100}
@@ -118,7 +120,7 @@ export const CourseSelectionForm = React.forwardRef<
                 onCheckedChange={() => {}}
                 label={course.label}
                 labelClassName={cn(
-                  'text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900',
+                  'text-[14px] md:text-[16px] font-[family-name:var(--font-rubik)] text-dark-900 dark:text-white',
                   'cursor-pointer'
                 )}
                 disabled={isSubmitting}

@@ -79,7 +79,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* RIGHT COLUMN - Success Message */}
-        <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+        <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
           <div className="w-full max-w-md">
             <div className="lg:hidden mb-8 flex justify-center">
               <Logo size="medium" />
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
 
               {/* Success Message */}
               <div className="text-center">
-                <h1 className="text-[28px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-3">
+                <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-3">
                   ¡Correo enviado!
                 </h1>
                 <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)] leading-relaxed">
@@ -141,7 +141,7 @@ export default function ForgotPasswordPage() {
       </div>
 
       {/* RIGHT COLUMN - Forgot Password Form */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-white">
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden mb-8 flex justify-center">
@@ -163,7 +163,7 @@ export default function ForgotPasswordPage() {
 
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-[32px] font-bold text-dark-900 leading-tight font-[family-name:var(--font-quicksand)] mb-2">
+              <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
                 ¿Olvidaste tu contraseña?
               </h1>
               <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">

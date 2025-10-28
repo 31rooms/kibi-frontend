@@ -15,7 +15,7 @@ The following SVG files are needed for the onboarding screens:
 
 - **Format:** SVG (vector)
 - **Size:** Approximately 400-500px height
-- **Style:** Match Kibi brand colors (Blue #20263D, Green #95C16B)
+- **Style:** Match Kibi brand colors (Blue #171B22, Green #95C16B)
 - **Background:** Transparent
 
 ## Current Status
