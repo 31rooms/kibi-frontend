@@ -112,30 +112,31 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
           )}
         >
           {/* Container for vertically stacked subjects with curved S-wave layout */}
-          {/* Width: 350px, SVGs follow 8-position wave pattern for pronounced symmetric curve */}
-          <div className="w-[350px] mx-auto flex flex-col gap-2 pb-6">
+          {/* Width: 280px on mobile, 350px on larger screens, SVGs follow 8-position wave pattern for pronounced symmetric curve */}
+          <div className="w-[280px] sm:w-[350px] mx-auto flex flex-col gap-2 pb-6">
             {/* Display all subjects from API (all are enabled) */}
             {subjects.map((subject, index) => {
                 // S-wave pattern: 8 positions per cycle for fast symmetric movement
                 const wavePosition = index % 8;
 
                 // Calculate horizontal offset based on wave position
-                // Creates pronounced curve: right (160px) → left (10px) → right (160px)
+                // Creates pronounced curve: right → left → right
+                // Mobile (≤640px): Scaled to ~80% to fit within 280px container
+                // Desktop (>640px): Full scale for 350px container
                 // Positions 0-3: Move from right to left (4 steps)
                 // Position 4: Stay at left (extended left peak)
                 // Positions 5-7: Return from left to right (3 steps)
-                // All positions shifted +10px to the right for better visualization
                 const getHorizontalOffset = (position: number): string => {
                   switch(position) {
-                    case 0: return 'ml-[220px]';   // Derecha completa (Inglés/inicio) - 150 
-                    case 1: return 'ml-[150px]';   // Transición - 100 
-                    case 2: return 'ml-[100px]';    // Transición - 50 
-                    case 3: return 'ml-[30px]';    // Izquierda completa (Derecho) - 0 
-                    case 4: return 'ml-[0px]';    // Izquierda completa (Finanzas - extended left peak) - 0 
-                    case 5: return 'ml-[50px]';    // Regresando - 50 
-                    case 6: return 'ml-[130px]';   // Regresando - 100 
-                    case 7: return 'ml-[180px]';   // Derecha completa - 150 
-                    default: return 'ml-[105px]';   // 75 
+                    case 0: return 'ml-[176px] sm:ml-[220px]';   // Derecha completa (80% = 176px)
+                    case 1: return 'ml-[120px] sm:ml-[150px]';   // Transición (80% = 120px)
+                    case 2: return 'ml-[80px] sm:ml-[100px]';    // Transición (80% = 80px)
+                    case 3: return 'ml-[24px] sm:ml-[30px]';     // Izquierda completa (80% = 24px)
+                    case 4: return 'ml-[0px]';                   // Izquierda completa (0 stays 0)
+                    case 5: return 'ml-[40px] sm:ml-[50px]';     // Regresando (80% = 40px)
+                    case 6: return 'ml-[104px] sm:ml-[130px]';   // Regresando (80% = 104px)
+                    case 7: return 'ml-[144px] sm:ml-[180px]';   // Derecha completa (80% = 144px)
+                    default: return 'ml-[84px] sm:ml-[105px]';   // Default (80% = 84px)
                   }
                 };
 
@@ -149,7 +150,7 @@ export const HomeContent = React.forwardRef<HTMLElement, HomeContentProps>(
                     key={subject.id}
                     onClick={() => handleSubjectClick(subject.apiId, subject.enabled)}
                     className={cn(
-                      "relative w-[150px] h-auto transition-transform hover:scale-105",
+                      "relative w-[120px] sm:w-[150px] h-auto transition-transform hover:scale-105",
                       subject.enabled ? "cursor-pointer" : "cursor-not-allowed opacity-70",
                       getHorizontalOffset(wavePosition)
                     )}
