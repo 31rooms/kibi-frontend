@@ -3,10 +3,11 @@
  * Barrel export for the home dashboard feature
  */
 
-// Main Layout (primary export)
-export { HomeLayout } from './ui/HomeLayout';
+// Main Section Component (primary export)
+export { InicioSection } from './ui/InicioSection';
 
-// UI Components (if needed externally)
+// Legacy exports (deprecated - use dashboard feature instead)
+export { HomeLayout } from './ui/HomeLayout';
 export { HomeTopMenu } from './ui/HomeTopMenu';
 export { SidebarNavigation } from './ui/SidebarNavigation';
 export { HomeContent } from './ui/HomeContent';

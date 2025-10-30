@@ -1,7 +1,7 @@
 'use client';
 
-import { HomeLayout } from '@/features/home';
+import { DashboardLayout } from '@/features/dashboard';
 
 export default function HomePage() {
-  return <HomeLayout />;
+  return <DashboardLayout />;
 }

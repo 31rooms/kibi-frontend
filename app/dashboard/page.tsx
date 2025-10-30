@@ -1,59 +1,31 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { useAuth } from '@/features/authentication';
-import {
-  DashboardLayout,
-  DashboardHeader,
-  UserInfoCard,
-  PlaceholderCard
-} from '@/features/dashboard';
 
-function DashboardContent() {
-  const { user, logout } = useAuth();
+/**
+ * Legacy Dashboard Route
+ * Redirects to /home which uses the new modular dashboard layout
+ */
+function DashboardRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/home');
+  }, [router]);
 
   return (
-    <DashboardLayout
-      header={
-        <DashboardHeader
-          userName={`${user?.firstName} ${user?.lastName}`}
-          onLogout={logout}
-        />
-      }
-    >
-      <div className="mb-8">
-        <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
-          Dashboard
-        </h1>
-        <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">
-          Bienvenido a tu panel de control
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <UserInfoCard user={user} />
-        <PlaceholderCard title="Mis Cursos" />
-        <PlaceholderCard title="Progreso" />
-      </div>
-
-      {/* Info Banner */}
-      <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2 font-[family-name:var(--font-quicksand)]">
-          Autenticación Exitosa
-        </h3>
-        <p className="text-sm text-blue-800 font-[family-name:var(--font-rubik)]">
-          Has iniciado sesión correctamente. Esta es una página temporal del dashboard.
-          Las funcionalidades completas se implementarán próximamente.
-        </p>
-      </div>
-    </DashboardLayout>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
+    </div>
   );
 }
 
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <DashboardContent />
+      <DashboardRedirect />
     </ProtectedRoute>
   );
 }

@@ -10,6 +10,7 @@ import {
   Logo,
   Modal,
   ModalInfo,
+  ModalHeader,
   Tooltip,
   TopMenu,
   Select,
@@ -27,9 +28,10 @@ import {
   ListDropdown,
   PageIndicator,
   Calendar,
-  Accordion
+  Accordion,
+  Card
 } from '@/shared/ui';
-import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
+import { ChevronRight, Settings, User, Search, Heart, Star, SquarePen } from 'lucide-react';
 
 export default function DesignSystemPage() {
   const [checkboxValue, setCheckboxValue] = useState(false);
@@ -37,6 +39,7 @@ export default function DesignSystemPage() {
   const [inputValue, setInputValue] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInfoOpen, setModalInfoOpen] = useState(false);
+  const [modalHeaderOpen, setModalHeaderOpen] = useState(false);
   const [selectValue, setSelectValue] = useState('');
   const [toggleWithTextValue, setToggleWithTextValue] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -70,10 +73,10 @@ export default function DesignSystemPage() {
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {['Botones', 'Badges', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Accordeones', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía'].map((section) => (
+            {['Botones', 'Badges', 'Cards', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Accordeones', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía', 'Kibi Icons'].map((section) => (
               <a
                 key={section}
-                href={`#${section.toLowerCase()}`}
+                href={`#${section.toLowerCase().replace(' ', '-')}`}
                 className="px-4 py-2 text-sm text-primary-blue hover:bg-blue-50 rounded-md transition-colors text-center font-[family-name:var(--font-rubik)]"
               >
                 {section}
@@ -183,6 +186,67 @@ export default function DesignSystemPage() {
                 <Badge variant="outline" color="danger">Error</Badge>
                 <Badge variant="outline" color="warning">Warning</Badge>
                 <Badge variant="outline" color="info">Info</Badge>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Cards Section */}
+        <section id="cards" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
+            Cards
+          </h2>
+
+          <div className="space-y-8">
+            {/* Basic Cards */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Variantes
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card>
+                  <h3 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-2">
+                    Card Default
+                  </h3>
+                  <p className="text-dark-700 dark:text-grey-300 text-sm">
+                    Card básica con borde simple y sin sombra.
+                  </p>
+                </Card>
+
+                <Card variant="elevated">
+                  <h3 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-2">
+                    Card Elevada
+                  </h3>
+                  <p className="text-dark-700 dark:text-grey-300 text-sm">
+                    Card con sombra para dar profundidad.
+                  </p>
+                </Card>
+              </div>
+            </div>
+
+            {/* Different Padding Options */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Opciones de Padding
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card padding="small">
+                  <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                    Small Padding
+                  </h3>
+                </Card>
+
+                <Card padding="medium">
+                  <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                    Medium Padding
+                  </h3>
+                </Card>
+
+                <Card padding="large">
+                  <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                    Large Padding
+                  </h3>
+                </Card>
               </div>
             </div>
           </div>
@@ -343,6 +407,9 @@ export default function DesignSystemPage() {
                 <Button variant="primary" color="green" onClick={() => setModalInfoOpen(true)}>
                   Abrir Modal Info
                 </Button>
+                <Button variant="primary" color="blue" onClick={() => setModalHeaderOpen(true)}>
+                  Abrir Modal Header
+                </Button>
               </div>
             </div>
 
@@ -378,6 +445,55 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
               confirmText="Entendido"
               onConfirm={() => console.log('Modal Info confirmed')}
             />
+
+            <ModalHeader
+              open={modalHeaderOpen}
+              onOpenChange={setModalHeaderOpen}
+              title="Avatar"
+              subtitle="Seleccionar avatar"
+              size="default"
+            >
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-6 justify-items-center">
+                  <button className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-[#E8774A] flex items-center justify-center">
+                      <img
+                        src="/illustrations/avatar1.svg"
+                        alt="Albert Einstein"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-sm text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
+                      Albert Einstein
+                    </span>
+                  </button>
+                  <button className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-[#F4D58D] flex items-center justify-center">
+                      <img
+                        src="/illustrations/avatar2.svg"
+                        alt="Platón"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-sm text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
+                      Platón
+                    </span>
+                  </button>
+                  <button className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-[#8DA7BE] flex items-center justify-center">
+                      <img
+                        src="/illustrations/avatar1.svg"
+                        alt="Nightingale Florence"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span className="text-sm text-dark-700 dark:text-white font-[family-name:var(--font-rubik)]">
+                      Nightingale Florence
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </ModalHeader>
           </div>
         </section>
 
@@ -483,6 +599,39 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
                 <Tag variant="subtle" color="info" removable onRemove={() => console.log('Removed')}>
                   Next.js
                 </Tag>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Tag Personalizado (Aspirante a ingeniería)
+              </h3>
+              <div className="flex flex-wrap gap-6 items-center">
+                <div className="flex flex-col items-center gap-2">
+                  <span
+                    className="inline-flex items-center px-3 h-7 text-sm font-medium rounded"
+                    style={{
+                      backgroundColor: '#47830E33',
+                      color: '#47830E'
+                    }}
+                  >
+                    Aspirante a ingeniería
+                  </span>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Light Mode</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <span
+                    className="inline-flex items-center px-3 h-7 text-sm font-medium rounded"
+                    style={{
+                      backgroundColor: '#95C16B33',
+                      color: '#95C16B'
+                    }}
+                  >
+                    Aspirante a ingeniería
+                  </span>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Dark Mode</span>
+                </div>
               </div>
             </div>
           </div>
@@ -854,12 +1003,33 @@ Las características de los seres vivos:
               <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
                 Circle Buttons
               </h3>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 items-center">
                 <CircleButton variant="primary" color="green" size="small" />
                 <CircleButton variant="primary" color="green" size="medium" />
                 <CircleButton variant="primary" color="green" size="large" />
                 <CircleButton variant="secondary" color="blue" size="medium" icon={<Settings className="h-5 w-5" />} />
                 <CircleButton variant="elevated" color="green" size="medium" icon={<User className="h-5 w-5" />} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Botón con Icono SquarePen
+              </h3>
+              <div className="flex flex-wrap gap-6 items-center">
+                <div className="flex flex-col items-center gap-2">
+                  <button className="h-10 w-10 rounded-full border-2 border-grey-400 bg-white flex items-center justify-center transition-all hover:border-primary-green">
+                    <SquarePen className="h-5 w-5 text-primary-green" strokeWidth={2} />
+                  </button>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Light Mode</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <button className="h-10 w-10 rounded-full border-2 border-[#374151] bg-[#1E242D] flex items-center justify-center transition-all hover:border-primary-green">
+                    <SquarePen className="h-5 w-5 text-primary-green" strokeWidth={2} />
+                  </button>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Dark Mode</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1017,6 +1187,67 @@ Las características de los seres vivos:
               <p className="text-[14px] font-[family-name:var(--font-rubik)]">
                 Texto pequeño para notas y detalles secundarios.
               </p>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Colores de Texto Secundarios
+              </h3>
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-6 items-center">
+                  <div className="flex flex-col gap-2">
+                    <p className="text-[16px] font-[family-name:var(--font-rubik)]" style={{ color: '#7B7B7B' }}>
+                      Texto secundario en light mode (#7B7B7B)
+                    </p>
+                    <span className="text-xs text-dark-600 dark:text-grey-400">Light Mode</span>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-[16px] font-[family-name:var(--font-rubik)]" style={{ color: '#B9B9B9' }}>
+                      Texto secundario en dark mode (#B9B9B9)
+                    </p>
+                    <span className="text-xs text-dark-600 dark:text-grey-400">Dark Mode</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Kibi Icons Section */}
+        <section id="kibi-icons" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
+            Kibi Icons
+          </h2>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
+                Íconos de Marca
+              </h3>
+              <div className="flex flex-wrap gap-8 items-center">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="p-4 bg-grey-100 dark:bg-dark-800 rounded-lg">
+                    <img
+                      src="/illustrations/Kibi Icon.svg"
+                      alt="Kibi Icon Dark"
+                      className="w-20 h-20"
+                    />
+                  </div>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Kibi Icon (Dark)</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-3">
+                  <div className="p-4 bg-dark-900 rounded-lg">
+                    <img
+                      src="/illustrations/Kibi Icon blanco.svg"
+                      alt="Kibi Icon White"
+                      className="w-20 h-20"
+                    />
+                  </div>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Kibi Icon (White)</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>

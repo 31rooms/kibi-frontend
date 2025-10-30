@@ -11,3 +11,24 @@ export interface DashboardStats {
   progressPercentage: number;
   completedLessons: number;
 }
+
+/**
+ * Dashboard Layout Types
+ * Types for the main dashboard layout and navigation
+ */
+
+export type SectionType = 'inicio' | 'progreso' | 'clase-libre' | 'examen' | 'cuenta';
+
+export interface DashboardLayoutProps {
+  className?: string;
+}
+
+export interface DashboardSidebarProps {
+  selectedSection: SectionType;
+  onSectionChange: (section: SectionType) => void;
+  onLogout: () => void;
+}
+
+export interface DashboardContentProps {
+  selectedSection: SectionType;
+}

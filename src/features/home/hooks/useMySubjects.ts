@@ -8,39 +8,39 @@ import type { MySubjectsResponse, SubjectWithState } from '../types/careers.type
  * Local subjects array - matches the subjects in HomeContent.tsx
  * This serves as the master list of all possible subjects
  *
- * png Naming Convention:
- * - Materia-0.png = Literatura (id: 23)
- * - Materia-1.png = Filosofía (id: 22)
+ * svg Naming Convention:
+ * - Materia-0.svg = Literatura (id: 23)
+ * - Materia-1.svg = Filosofía (id: 22)
  * - ...
- * - Materia-19.png = Inglés (id: 4)
- * - Materia-20.png = Redacción Indirecta (id: 3)
- * - Materia-21.png = Pensamiento Matemático (id: 2)
- * - Materia-22.png = Comprensión Lectora (id: 1)
+ * - Materia-19.svg = Inglés (id: 4)
+ * - Materia-20.svg = Redacción Indirecta (id: 3)
+ * - Materia-21.svg = Pensamiento Matemático (id: 2)
+ * - Materia-22.svg = Comprensión Lectora (id: 1)
  */
 const LOCAL_SUBJECTS = [
-  { id: 23, name: 'Materia-0.png', displayName: 'Literatura' },
-  { id: 22, name: 'Materia-1.png', displayName: 'Filosofía' },
-  { id: 21, name: 'Materia-2.png', displayName: 'Premedicina' },
-  { id: 20, name: 'Materia-3.png', displayName: 'Cálculo' },
-  { id: 19, name: 'Materia-4.png', displayName: 'Biología' },
-  { id: 18, name: 'Materia-5.png', displayName: 'Física' },
-  { id: 17, name: 'Materia-6.png', displayName: 'Economía' },
-  { id: 16, name: 'Materia-7.png', displayName: 'Historia de México' },
-  { id: 15, name: 'Materia-8.png', displayName: 'Cálculo Integral' },
-  { id: 14, name: 'Materia-9.png', displayName: 'Administración' },
-  { id: 13, name: 'Materia-10.png', displayName: 'Química' },
-  { id: 12, name: 'Materia-11.png', displayName: 'Historia' },
-  { id: 11, name: 'Materia-12.png', displayName: 'Geografía' },
-  { id: 10, name: 'Materia-13.png', displayName: 'Ciencias de la salud' },
-  { id: 9, name: 'Materia-14.png', displayName: 'Álgebra' },
-  { id: 8, name: 'Materia-15.png', displayName: 'Finanzas' },
-  { id: 7, name: 'Materia-16.png', displayName: 'Derecho' },
-  { id: 6, name: 'Materia-17.png', displayName: 'Probabilidad y Estadística' },
-  { id: 5, name: 'Materia-18.png', displayName: 'Aritmética' },
-  { id: 4, name: 'Materia-19.png', displayName: 'Inglés' },
-  { id: 3, name: 'Materia-19.png', displayName: 'Redacción Indirecta' },
-  { id: 2, name: 'Materia-12.png', displayName: 'Pensamiento Matemático' },
-  { id: 1, name: 'Materia-19.png', displayName: 'Comprensión Lectora' },
+  { id: 23, name: 'Materia-0.svg', displayName: 'Literatura' },
+  { id: 22, name: 'Materia-1.svg', displayName: 'Filosofía' },
+  { id: 21, name: 'Materia-2.svg', displayName: 'Premedicina' },
+  { id: 20, name: 'Materia-3.svg', displayName: 'Cálculo' },
+  { id: 19, name: 'Materia-4.svg', displayName: 'Biología' },
+  { id: 18, name: 'Materia-5.svg', displayName: 'Física' },
+  { id: 17, name: 'Materia-6.svg', displayName: 'Economía' },
+  { id: 16, name: 'Materia-7.svg', displayName: 'Historia de México' },
+  { id: 15, name: 'Materia-8.svg', displayName: 'Cálculo Integral' },
+  { id: 14, name: 'Materia-9.svg', displayName: 'Administración' },
+  { id: 13, name: 'Materia-10.svg', displayName: 'Química' },
+  { id: 12, name: 'Materia-11.svg', displayName: 'Historia' },
+  { id: 11, name: 'Materia-12.svg', displayName: 'Geografía' },
+  { id: 10, name: 'Materia-13.svg', displayName: 'Ciencias de la salud' },
+  { id: 9, name: 'Materia-14.svg', displayName: 'Álgebra' },
+  { id: 8, name: 'Materia-15.svg', displayName: 'Finanzas' },
+  { id: 7, name: 'Materia-16.svg', displayName: 'Derecho' },
+  { id: 6, name: 'Materia-17.svg', displayName: 'Probabilidad y Estadística' },
+  { id: 5, name: 'Materia-18.svg', displayName: 'Aritmética' },
+  { id: 4, name: 'Materia-19.svg', displayName: 'Inglés' },
+  { id: 3, name: 'Materia-19.svg', displayName: 'Redacción Indirecta' },
+  { id: 2, name: 'Materia-12.svg', displayName: 'Pensamiento Matemático' },
+  { id: 1, name: 'Materia-19.svg', displayName: 'Comprensión Lectora' },
 ];
 
 interface UseMySubjectsReturn {
