@@ -132,9 +132,11 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                 };
 
                 // Construct icon path based on theme
-                const iconPath = isDarkMode
-                  ? subject.iconPath.replace('/subjects/light/', '/subjects/dark/')
-                  : subject.iconPath;
+                // TODO: Temporarily showing light icons in both modes
+                const iconPath = subject.iconPath; // Always use light version for now
+                // const iconPath = isDarkMode
+                //   ? subject.iconPath.replace('/subjects/light/', '/subjects/dark/')
+                //   : subject.iconPath;
 
                 return (
                   <div

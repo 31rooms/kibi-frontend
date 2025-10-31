@@ -6,6 +6,8 @@ import { cn } from '@/shared/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import type { Lesson, Module } from '../types/lesson.types';
 import { LessonQuestions } from './LessonQuestions';
 
@@ -22,7 +24,8 @@ export interface LessonContentProps {
 const MarkdownContent = ({ content }: { content: string }) => (
   <div className="prose prose-sm max-w-none font-[family-name:var(--font-rubik)]">
     <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
       components={{
         p: ({ children }) => (
           <p className="text-[14px] text-dark-800 dark:text-white leading-relaxed mb-3 last:mb-0">

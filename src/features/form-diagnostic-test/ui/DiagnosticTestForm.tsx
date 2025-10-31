@@ -42,7 +42,7 @@ export function DiagnosticTestForm() {
   // Handle skip
   const handleSkip = () => {
     // TODO: Navigate to dashboard or home
-    router.push('/dashboard');
+    router.push('/home');
   };
 
   return (
