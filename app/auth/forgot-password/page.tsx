@@ -100,10 +100,10 @@ export default function ForgotPasswordPage() {
                 <h1 className="text-[28px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-3">
                   ¡Correo enviado!
                 </h1>
-                <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)] leading-relaxed">
-                  Si existe una cuenta asociada a <strong>{email}</strong>, recibirás un correo con instrucciones para restablecer tu contraseña.
+                <p className="text-[16px] text-dark-600 dark:text-grey-300 font-[family-name:var(--font-rubik)] leading-relaxed">
+                  Si existe una cuenta asociada a <strong className="text-dark-900 dark:text-white">{email}</strong>, recibirás un correo con instrucciones para restablecer tu contraseña.
                 </p>
-                <p className="text-[14px] text-dark-500 font-[family-name:var(--font-rubik)] mt-4">
+                <p className="text-[14px] text-dark-500 dark:text-grey-400 font-[family-name:var(--font-rubik)] mt-4">
                   Por favor revisa tu bandeja de entrada y también la carpeta de spam.
                 </p>
               </div>
@@ -154,7 +154,7 @@ export default function ForgotPasswordPage() {
             <button
               type="button"
               onClick={handleBackToLogin}
-              className="flex items-center gap-2 text-primary-blue hover:underline font-[family-name:var(--font-rubik)] text-[14px] disabled:opacity-50"
+              className="flex items-center gap-2 text-primary-blue dark:text-primary-green hover:underline font-[family-name:var(--font-rubik)] text-[14px] disabled:opacity-50"
               disabled={isLoading}
             >
               <ArrowLeft className="w-4 h-4" />
@@ -166,7 +166,7 @@ export default function ForgotPasswordPage() {
               <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
                 ¿Olvidaste tu contraseña?
               </h1>
-              <p className="text-[16px] text-dark-600 font-[family-name:var(--font-rubik)]">
+              <p className="text-[16px] text-dark-600 dark:text-grey-300 font-[family-name:var(--font-rubik)]">
                 No te preocupes, te enviaremos instrucciones para restablecerla
               </p>
             </div>
@@ -207,7 +207,7 @@ export default function ForgotPasswordPage() {
             </form>
 
             {/* Info text */}
-            <p className="text-[14px] text-dark-500 text-center font-[family-name:var(--font-rubik)]">
+            <p className="text-[14px] text-dark-500 dark:text-grey-400 text-center font-[family-name:var(--font-rubik)]">
               Te enviaremos un enlace de recuperación a tu correo electrónico
             </p>
           </div>

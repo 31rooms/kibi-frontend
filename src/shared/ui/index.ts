@@ -38,6 +38,7 @@ export { PageIndicator, type PageIndicatorProps } from './PageIndicator';
 export { OnboardingSheet, type OnboardingSheetProps } from './OnboardingSheet';
 export { OnboardingSlide, type OnboardingSlideProps } from './OnboardingSlide';
 export { CircleButton, type CircleButtonProps } from './CircleButton';
+export { EditButton, type EditButtonProps } from './EditButton';
 export { Logo, type LogoProps } from './Logo';
 export { QuizTimer, type QuizTimerProps } from './QuizTimer';
 export { QuizProgress, type QuizProgressProps } from './QuizProgress';

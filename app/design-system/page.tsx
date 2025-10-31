@@ -20,6 +20,7 @@ import {
   SelectItem,
   ToggleWithText,
   CircleButton,
+  EditButton,
   SidebarButton,
   Tag,
   Alert,
@@ -32,7 +33,7 @@ import {
   Card,
   FeedbackCard
 } from '@/shared/ui';
-import { ChevronRight, Settings, User, Search, Heart, Star, SquarePen } from 'lucide-react';
+import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
 
 export default function DesignSystemPage() {
   const [checkboxValue, setCheckboxValue] = useState(false);
@@ -1232,23 +1233,32 @@ Las características de los seres vivos:
 
             <div>
               <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
-                Botón con Icono SquarePen
+                Botón de Editar (EditButton)
               </h3>
               <div className="flex flex-wrap gap-6 items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <button className="h-10 w-10 rounded-full border-2 border-grey-400 bg-white flex items-center justify-center transition-all hover:border-primary-green">
-                    <SquarePen className="h-5 w-5 text-primary-green" strokeWidth={2} />
-                  </button>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Light Mode</span>
+                  <EditButton size="small" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Small</span>
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                  <button className="h-10 w-10 rounded-full border-2 border-[#374151] bg-[#1E242D] flex items-center justify-center transition-all hover:border-primary-green">
-                    <SquarePen className="h-5 w-5 text-primary-green" strokeWidth={2} />
-                  </button>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Dark Mode</span>
+                  <EditButton size="medium" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Medium (Default)</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <EditButton size="large" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Large</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <EditButton size="responsive" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Responsive (small → large)</span>
                 </div>
               </div>
+              <p className="text-sm text-dark-600 dark:text-grey-400 mt-4 font-[family-name:var(--font-rubik)]">
+                Este botón se adapta automáticamente a light/dark mode. Usado en AccountSection para editar perfil y contraseña.
+              </p>
             </div>
           </div>
         </section>
