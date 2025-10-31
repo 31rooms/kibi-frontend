@@ -46,6 +46,20 @@ export { QuizOption, type QuizOptionProps } from './QuizOption';
 export { QuizTextInput, type QuizTextInputProps } from './QuizTextInput';
 export { QuizNavigator, type QuizNavigatorProps } from './QuizNavigator';
 export { FeedbackToast, type FeedbackToastProps } from './FeedbackToast';
+export { FeedbackCard, type FeedbackCardProps } from './FeedbackCard';
+export { MarkdownRenderer, type MarkdownRendererProps } from './MarkdownRenderer';
 export { SidebarButton, type SidebarButtonProps } from './SidebarButton';
-export { Accordion, type AccordionProps, type AccordionItemData } from './Accordion';
+export {
+  Accordion,
+  AccordionRoot,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  type AccordionProps,
+  type AccordionItemData,
+  type AccordionRootProps,
+  type AccordionItemProps,
+  type AccordionTriggerProps,
+  type AccordionContentProps,
+} from './Accordion';
 export { Card, type CardProps } from './Card';

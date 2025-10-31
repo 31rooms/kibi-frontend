@@ -2,10 +2,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
-import { QuizOption } from '@/shared/ui';
-import Image from 'next/image';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { QuizOption, FeedbackCard, MarkdownRenderer } from '@/shared/ui';
 import type { Question } from '../types/lesson.types';
 
 interface QuestionState {
@@ -82,12 +79,24 @@ export const LessonQuestions = React.forwardRef<HTMLDivElement, LessonQuestionsP
     };
 
     // Clean step-by-step explanation markdown to remove "Respuesta correcta" line
+    // This function preserves HTML tags, LaTeX formulas, and multi-line content
     const cleanStepByStepExplanation = (markdown: string): string => {
-      // Remove lines that contain "Respuesta correcta" with or without checkmark
-      return markdown
-        .split('\n')
-        .filter(line => !line.includes('Respuesta correcta') && !line.includes('✅'))
-        .join('\n');
+      if (!markdown) return '';
+
+      // Split by newlines while preserving empty lines
+      const lines = markdown.split('\n');
+
+      // Filter out lines that contain "Respuesta correcta" or checkmark
+      // but preserve all other content including HTML and LaTeX
+      const filteredLines = lines.filter(line => {
+        const trimmedLine = line.trim();
+        // Skip empty lines that we want to keep for formatting
+        if (trimmedLine === '') return true;
+        // Remove lines with "Respuesta correcta" or checkmark
+        return !trimmedLine.includes('Respuesta correcta') && !trimmedLine.includes('✅');
+      });
+
+      return filteredLines.join('\n').trim();
     };
 
     // Validate answer
@@ -194,85 +203,22 @@ export const LessonQuestions = React.forwardRef<HTMLDivElement, LessonQuestionsP
 
               {/* Temporary Feedback Toast (shown for 3 seconds after validation) */}
               {state.showTemporaryFeedback && (
-                <div className="flex flex-col items-center gap-4 py-4">
-                  {/* Feedback Card */}
-                  <div className="relative flex items-center gap-3 px-6 py-4 bg-white rounded-[20px] shadow-[0px_12px_40px_15px_#0000001A]">
-                    {/* Icon */}
-                    <div className="flex-shrink-0">
-                      <Image
-                        src={state.isCorrect ? '/icons/succes-icon.svg' : '/icons/error-icon.svg'}
-                        alt={state.isCorrect ? 'success' : 'error'}
-                        width={36}
-                        height={36}
-                      />
-                    </div>
-
-                    {/* Message */}
-                    <p className="text-dark-900 font-medium text-base leading-snug max-w-sm">
-                      {state.isCorrect ? '¡Respuesta correcta!' : 'Tu respuesta no es correcta, veamos por qué'}
-                    </p>
-
-                    {/* Triangle/Bonete - pointing down */}
-                    <div
-                      className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0"
-                      style={{
-                        borderLeft: '12px solid transparent',
-                        borderRight: '12px solid transparent',
-                        borderTop: '12px solid white',
-                        filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.05))',
-                      }}
-                    />
-                  </div>
-
-                  {/* Kibi Icon */}
-                  <div className="flex-shrink-0">
-                    <Image
-                      src="/illustrations/Kibi Icon.svg"
-                      alt="Kibi"
-                      width={80}
-                      height={80}
-                    />
-                  </div>
-                </div>
+                <FeedbackCard
+                  isCorrect={state.isCorrect}
+                  showKibiIcon={true}
+                />
               )}
 
               {/* Step-by-step Explanation (permanently shown after first incorrect validation) */}
               {state.isValidated && !state.isCorrect && question.stepByStepExplanation && (
-                <div className="mt-4 p-4 border border-grey-300 rounded-lg bg-white">
-                  <div className="prose prose-sm max-w-none font-[family-name:var(--font-rubik)]">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        p: ({ children }) => (
-                          <p className="text-[14px] text-dark-800 leading-relaxed mb-3 last:mb-0">
-                            {children}
-                          </p>
-                        ),
-                        strong: ({ children }) => (
-                          <strong className="font-bold text-dark-900">{children}</strong>
-                        ),
-                        em: ({ children }) => (
-                          <em className="italic text-dark-800">{children}</em>
-                        ),
-                        ul: ({ children }) => (
-                          <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>
-                        ),
-                        ol: ({ children }) => (
-                          <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>
-                        ),
-                        li: ({ children }) => (
-                          <li className="text-[14px] text-dark-800">{children}</li>
-                        ),
-                        code: ({ children }) => (
-                          <code className="bg-grey-100 px-2 py-1 rounded text-[13px] font-mono text-dark-900">
-                            {children}
-                          </code>
-                        ),
-                      }}
-                    >
-                      {cleanStepByStepExplanation(question.stepByStepExplanation)}
-                    </ReactMarkdown>
-                  </div>
+                <div className="mt-4 p-4 border border-grey-300 dark:border-[#374151] rounded-lg bg-white dark:bg-[#1E242D]">
+                  <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-3">
+                    Solución paso a paso:
+                  </h3>
+                  <MarkdownRenderer
+                    content={cleanStepByStepExplanation(question.stepByStepExplanation)}
+                    className="prose prose-sm max-w-none font-[family-name:var(--font-rubik)]"
+                  />
                 </div>
               )}
             </div>
