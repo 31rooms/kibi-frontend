@@ -102,38 +102,17 @@ export interface AccordionRootProps
 export const AccordionRoot = React.forwardRef<
   HTMLDivElement,
   AccordionRootProps
->(({ className, variant, type = "single", defaultValue, value, onValueChange, collapsible, disabled, dir, orientation }, ref) => {
-  if (type === "multiple") {
-    return (
-      <AccordionPrimitive.Root
-        ref={ref}
-        type="multiple"
-        className={cn(accordionRootVariants({ variant }), className)}
-        defaultValue={Array.isArray(defaultValue) ? defaultValue : defaultValue ? [defaultValue] : undefined}
-        value={Array.isArray(value) ? value : value ? [value] : undefined}
-        onValueChange={onValueChange as (value: string[]) => void}
-        disabled={disabled}
-        dir={dir}
-        orientation={orientation}
-      />
-    );
-  }
-
-  return (
-    <AccordionPrimitive.Root
-      ref={ref}
-      type="single"
-      className={cn(accordionRootVariants({ variant }), className)}
-      defaultValue={Array.isArray(defaultValue) ? defaultValue[0] : defaultValue}
-      value={Array.isArray(value) ? value[0] : value}
-      onValueChange={onValueChange as (value: string) => void}
-      collapsible={collapsible}
-      disabled={disabled}
-      dir={dir}
-      orientation={orientation}
-    />
-  );
-});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+>(({ className, variant, type = "single", ...props }, ref) => (
+  <AccordionPrimitive.Root
+    ref={ref}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    type={type as any}
+    className={cn(accordionRootVariants({ variant }), className)}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    {...(props as any)}
+  />
+));
 AccordionRoot.displayName = "AccordionRoot";
 
 export interface AccordionItemProps
@@ -269,11 +248,10 @@ export interface AccordionItemData {
 
 export interface AccordionProps
   extends VariantProps<typeof accordionRootVariants> {
-  items?: AccordionItemData[];
+  items: AccordionItemData[];
   defaultOpenIndex?: number;
   allowMultiple?: boolean;
   className?: string;
-  children?: React.ReactNode;
 }
 
 /**
@@ -293,43 +271,7 @@ export interface AccordionProps
  * ```
  */
 export const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
-  (
-    {
-      className,
-      variant,
-      items,
-      defaultOpenIndex,
-      allowMultiple = false,
-      children,
-    },
-    ref
-  ) => {
-    // If no items provided, render as a flexible container
-    if (!items && children) {
-      if (allowMultiple) {
-        return (
-          <AccordionPrimitive.Root
-            ref={ref}
-            type="multiple"
-            className={cn(accordionRootVariants({ variant }), className)}
-          >
-            {children}
-          </AccordionPrimitive.Root>
-        );
-      }
-
-      return (
-        <AccordionPrimitive.Root
-          ref={ref}
-          type="single"
-          collapsible
-          className={cn(accordionRootVariants({ variant }), className)}
-        >
-          {children}
-        </AccordionPrimitive.Root>
-      );
-    }
-
+  ({ className, variant, items, defaultOpenIndex, allowMultiple = false }, ref) => {
     const defaultValue =
       defaultOpenIndex !== undefined ? `item-${defaultOpenIndex}` : undefined;
 
@@ -340,7 +282,7 @@ export const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
         defaultValue={defaultValue ? [defaultValue] : undefined}
         className={cn(accordionRootVariants({ variant }), className)}
       >
-        {(items || []).map((item, index) => (
+        {items.map((item, index) => (
           <AccordionPrimitive.Item
             key={`item-${index}`}
             value={`item-${index}`}
@@ -382,7 +324,7 @@ export const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
         defaultValue={defaultValue}
         className={cn(accordionRootVariants({ variant }), className)}
       >
-        {(items || []).map((item, index) => (
+        {items.map((item, index) => (
           <AccordionPrimitive.Item
             key={`item-${index}`}
             value={`item-${index}`}
