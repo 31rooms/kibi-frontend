@@ -58,8 +58,11 @@ export {
 } from "./MarkdownRenderer";
 export { SidebarButton, type SidebarButtonProps } from "./SidebarButton";
 export {
+  Accordion,
   AccordionRoot,
+  AccordionItem,
   AccordionTrigger,
+  AccordionContent,
   type AccordionProps,
   type AccordionItemData,
   type AccordionRootProps,
