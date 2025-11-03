@@ -4,19 +4,37 @@ import { cn } from '@/shared/lib/utils';
 import { AlertCircle, CheckCircle, Info, XCircle } from 'lucide-react';
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4',
+  'w-full rounded-lg border p-4 flex items-start gap-3 font-[family-name:var(--font-rubik)]',
   {
     variants: {
       variant: {
-        default: 'bg-background text-foreground border-grey-200',
+        default: 'bg-grey-50 text-dark-900 border-grey-200 dark:bg-grey-800 dark:text-white dark:border-grey-700',
         destructive:
-          'border-error-300 bg-error-50 text-dark-900 dark:border-error-700 dark:bg-error-900 dark:text-error-50 [&>svg]:text-error-600 dark:[&>svg]:text-error-400',
+          'border-error-300 bg-error-50 text-error-900 dark:border-error-700 dark:bg-error-900 dark:text-error-50',
         success:
-          'border-success-300 bg-success-50 text-dark-900 dark:border-success-700 dark:bg-success-900 dark:text-success-50 [&>svg]:text-success-600 dark:[&>svg]:text-success-400',
+          'border-success-300 bg-success-50 text-success-900 dark:border-success-700 dark:bg-success-900 dark:text-success-50',
         warning:
-          'border-warning-300 bg-warning-50 text-dark-900 dark:border-warning-700 dark:bg-warning-900 dark:text-warning-50 [&>svg]:text-warning-600 dark:[&>svg]:text-warning-400',
+          'border-warning-300 bg-warning-50 text-warning-900 dark:border-warning-700 dark:bg-warning-900 dark:text-warning-50',
         info:
-          'border-blue-300 bg-blue-50 text-dark-900 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-50 [&>svg]:text-blue-600 dark:[&>svg]:text-blue-400',
+          'border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-50',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+);
+
+const iconVariants = cva(
+  'h-5 w-5 flex-shrink-0 mt-0.5',
+  {
+    variants: {
+      variant: {
+        default: 'text-grey-600 dark:text-grey-400',
+        destructive: 'text-error-600 dark:text-error-400',
+        success: 'text-success-600 dark:text-success-400',
+        warning: 'text-warning-600 dark:text-warning-400',
+        info: 'text-blue-600 dark:text-blue-400',
       },
     },
     defaultVariants: {
@@ -44,8 +62,10 @@ const Alert = React.forwardRef<
       className={cn(alertVariants({ variant }), className)}
       {...props}
     >
-      {Icon && <Icon className="h-4 w-4" />}
-      {children}
+      {Icon && <Icon className={iconVariants({ variant })} />}
+      <div className="flex-1 text-sm">
+        {children}
+      </div>
     </div>
   );
 });
@@ -57,7 +77,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
-    className={cn('mb-1 font-medium leading-none tracking-tight', className)}
+    className={cn('mb-1 font-medium leading-none tracking-tight font-[family-name:var(--font-rubik)]', className)}
     {...props}
   />
 ));
@@ -69,7 +89,7 @@ const AlertDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('text-sm [&_p]:leading-relaxed', className)}
+    className={cn('text-sm [&_p]:leading-relaxed font-[family-name:var(--font-rubik)]', className)}
     {...props}
   />
 ));

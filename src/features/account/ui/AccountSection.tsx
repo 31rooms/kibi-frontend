@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { useAuth } from '@/features/authentication';
-import { Card, Button, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ModalHeader } from '@/shared/ui';
-import { SquarePen, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Card, Button, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ModalHeader, EditButton, Alert } from '@/shared/ui';
+import { CheckCircle, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
+import { useChangePassword } from '../hooks/useChangePassword';
 
 /**
  * Account Section Component
@@ -14,6 +15,7 @@ import Image from 'next/image';
 export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
     const { user } = useAuth();
+    const { changePassword, isLoading, error, success, setError, setSuccess } = useChangePassword();
     const [viewMode, setViewMode] = useState<'view' | 'edit' | 'change-password' | 'contact'>('view');
     const [avatarModalOpen, setAvatarModalOpen] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState('/illustrations/avatar.svg');
@@ -50,17 +52,15 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
         >
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setViewMode('view')}
-                className="text-primary-green hover:text-primary-green/80"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+            <button
+              onClick={() => setViewMode('view')}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <ArrowLeft className="h-5 w-5 text-primary-green group-hover:text-primary-green/80 transition-colors" />
+              <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] group-hover:text-primary-green transition-colors">
                 Volver
               </h2>
-            </div>
+            </button>
 
             {/* Card con mensaje y Kibi Icon - estilo FeedbackToast */}
             <div className="flex flex-col items-center gap-4">
@@ -188,6 +188,31 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
 
     // Vista de cambio de contraseña
     if (viewMode === 'change-password') {
+      const handlePasswordChange = async () => {
+        const isSuccess = await changePassword(
+          passwordData.currentPassword,
+          passwordData.newPassword,
+          passwordData.confirmPassword
+        );
+
+        if (isSuccess) {
+          // Clear form
+          setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+          // Auto-close after 2 seconds
+          setTimeout(() => {
+            setSuccess(false);
+            setViewMode('view');
+          }, 2000);
+        }
+      };
+
+      const handleCancel = () => {
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setError(null);
+        setSuccess(false);
+        setViewMode('view');
+      };
+
       return (
         <main
           ref={ref}
@@ -200,22 +225,33 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
         >
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setViewMode('view')}
-                className="text-primary-green hover:text-primary-green/80"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+            <button
+              onClick={handleCancel}
+              className="flex items-center gap-3 cursor-pointer group"
+              disabled={isLoading}
+            >
+              <ArrowLeft className="h-5 w-5 text-primary-green group-hover:text-primary-green/80 transition-colors" />
+              <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] group-hover:text-primary-green transition-colors">
                 Volver
               </h2>
-            </div>
+            </button>
 
             {/* Título centrado */}
             <h1 className="text-[24px] lg:text-[28px] font-bold text-primary-green text-center font-[family-name:var(--font-quicksand)]">
               Cambiar contraseña
             </h1>
+
+            {/* Success/Error Alert */}
+            {success && (
+              <Alert variant="success" className="animate-in fade-in">
+                ¡Contraseña cambiada exitosamente!
+              </Alert>
+            )}
+            {error && (
+              <Alert variant="destructive" className="animate-in fade-in">
+                {error}
+              </Alert>
+            )}
 
             {/* Formulario de contraseñas */}
             <div className="space-y-6">
@@ -227,8 +263,12 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 <Input
                   type="password"
                   value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  placeholder="######"
+                  onChange={(e) => {
+                    setPasswordData({ ...passwordData, currentPassword: e.target.value });
+                    if (error) setError(null);
+                  }}
+                  placeholder=""
+                  disabled={isLoading}
                 />
               </div>
 
@@ -240,8 +280,13 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 <Input
                   type="password"
                   value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  placeholder="######"
+                  onChange={(e) => {
+                    setPasswordData({ ...passwordData, newPassword: e.target.value });
+                    if (error) setError(null);
+                  }}
+                  placeholder=""
+                  disabled={isLoading}
+                  helperText="Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial"
                 />
               </div>
 
@@ -253,8 +298,12 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 <Input
                   type="password"
                   value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  placeholder="######"
+                  onChange={(e) => {
+                    setPasswordData({ ...passwordData, confirmPassword: e.target.value });
+                    if (error) setError(null);
+                  }}
+                  placeholder=""
+                  disabled={isLoading}
                 />
               </div>
 
@@ -264,7 +313,8 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                   variant="secondary"
                   color="blue"
                   size="medium"
-                  onClick={() => setViewMode('view')}
+                  onClick={handleCancel}
+                  disabled={isLoading}
                 >
                   Cancelar
                 </Button>
@@ -272,13 +322,10 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                   variant="primary"
                   color="green"
                   size="medium"
-                  onClick={() => {
-                    // Aquí iría la lógica para cambiar contraseña
-                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-                    setViewMode('view');
-                  }}
+                  onClick={handlePasswordChange}
+                  disabled={isLoading}
                 >
-                  Guardar cambios
+                  {isLoading ? 'Guardando...' : 'Guardar cambios'}
                 </Button>
               </div>
             </div>
@@ -301,17 +348,15 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
         >
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Header - fuera de card */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setViewMode('view')}
-                className="text-primary-green hover:text-primary-green/80"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+            <button
+              onClick={() => setViewMode('view')}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <ArrowLeft className="h-5 w-5 text-primary-green group-hover:text-primary-green/80 transition-colors" />
+              <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] group-hover:text-primary-green transition-colors">
                 Volver
               </h2>
-            </div>
+            </button>
 
             {/* Avatar Card */}
             <Card>
@@ -622,13 +667,11 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
               </div>
 
               {/* Columna 6: Botón de editar */}
-              <button
-                className="h-8 w-8 lg:h-11 lg:w-11 rounded-full border-2 border-grey-400 dark:border-[#374151] bg-white dark:bg-[#1E242D] flex items-center justify-center transition-all hover:border-primary-green flex-shrink-0"
-                aria-label="Editar perfil"
+              <EditButton
+                size="responsive"
                 onClick={() => setViewMode('edit')}
-              >
-                <SquarePen className="h-4 w-4 lg:h-5 lg:w-5 text-primary-green" strokeWidth={2} />
-              </button>
+                aria-label="Editar perfil"
+              />
             </div>
           </Card>
 
@@ -649,13 +692,11 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                     Cambiar contraseña
                   </span>
                 </div>
-                <button
-                  className="h-9 w-9 rounded-full border-2 border-grey-400 dark:border-[#374151] bg-white dark:bg-[#1E242D] flex items-center justify-center transition-all hover:border-primary-green"
-                  aria-label="Editar contraseña"
+                <EditButton
+                  size="medium"
                   onClick={() => setViewMode('change-password')}
-                >
-                  <SquarePen className="h-4 w-4 text-primary-green" strokeWidth={2} />
-                </button>
+                  aria-label="Editar contraseña"
+                />
               </div>
             </Card>
 
@@ -688,7 +729,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                   {/* Columna 3: Contáctanos */}
                   <button
                     onClick={() => setViewMode('contact')}
-                    className="text-[17px] font-medium text-blue-600 dark:text-blue-400 hover:underline font-[family-name:var(--font-rubik)] whitespace-nowrap"
+                    className="text-[17px] font-medium text-blue-600 dark:text-blue-400 hover:underline font-[family-name:var(--font-rubik)] whitespace-nowrap cursor-pointer"
                   >
                     Contáctanos
                   </button>

@@ -20,6 +20,7 @@ import {
   SelectItem,
   ToggleWithText,
   CircleButton,
+  EditButton,
   SidebarButton,
   Tag,
   Alert,
@@ -29,9 +30,10 @@ import {
   PageIndicator,
   Calendar,
   Accordion,
-  Card
+  Card,
+  FeedbackCard
 } from '@/shared/ui';
-import { ChevronRight, Settings, User, Search, Heart, Star, SquarePen } from 'lucide-react';
+import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
 
 export default function DesignSystemPage() {
   const [checkboxValue, setCheckboxValue] = useState(false);
@@ -73,7 +75,7 @@ export default function DesignSystemPage() {
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {['Botones', 'Badges', 'Cards', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Accordeones', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía', 'Kibi Icons'].map((section) => (
+            {['Botones', 'Badges', 'Cards', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Feedback Cards', 'Accordeones', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía', 'Kibi Icons'].map((section) => (
               <a
                 key={section}
                 href={`#${section.toLowerCase().replace(' ', '-')}`}
@@ -681,6 +683,223 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
           </div>
         </section>
 
+        {/* Feedback Cards Section */}
+        <section id="feedback-cards" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
+          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
+            Feedback Cards
+          </h2>
+
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Feedback Card con Kibi Icon (Predeterminado)
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-6 font-[family-name:var(--font-rubik)]">
+                Cards de feedback con iconos de éxito/error y mascota Kibi. Usadas en validación de preguntas y formularios.
+                Tienen soporte completo para dark mode.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Estado Correcto</p>
+                  <FeedbackCard
+                    isCorrect={true}
+                    showKibiIcon={true}
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Estado Incorrecto</p>
+                  <FeedbackCard
+                    isCorrect={false}
+                    showKibiIcon={true}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Feedback Card con Mensajes Personalizados
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-6 font-[family-name:var(--font-rubik)]">
+                Puedes personalizar el mensaje de feedback usando la prop <code className="bg-grey-100 dark:bg-[#272E3A] px-2 py-1 rounded text-sm">message</code>.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Mensaje Personalizado de Éxito</p>
+                  <FeedbackCard
+                    isCorrect={true}
+                    message="¡Excelente trabajo! Has completado el ejercicio correctamente."
+                    showKibiIcon={true}
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Mensaje Personalizado de Error</p>
+                  <FeedbackCard
+                    isCorrect={false}
+                    message="Casi lo logras. Revisa el paso 3 de la explicación."
+                    showKibiIcon={true}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Feedback Card sin Kibi Icon
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-6 font-[family-name:var(--font-rubik)]">
+                Para casos donde solo necesitas el feedback sin la mascota, usa <code className="bg-grey-100 dark:bg-[#272E3A] px-2 py-1 rounded text-sm">showKibiIcon=false</code>.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Sin Kibi - Correcto</p>
+                  <FeedbackCard
+                    isCorrect={true}
+                    showKibiIcon={false}
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Sin Kibi - Incorrecto</p>
+                  <FeedbackCard
+                    isCorrect={false}
+                    showKibiIcon={false}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Ejemplo de Uso en Código
+              </h3>
+              <div className="bg-grey-100 dark:bg-[#272E3A] p-4 rounded-lg overflow-x-auto">
+                <pre className="text-sm text-dark-900 dark:text-white font-mono">
+{`// Uso básico con icono Kibi
+<FeedbackCard
+  isCorrect={false}
+  showKibiIcon={true}
+/>
+
+// Con mensaje personalizado
+<FeedbackCard
+  isCorrect={true}
+  message="¡Perfecto! Has dominado este tema."
+  showKibiIcon={true}
+/>
+
+// Sin icono Kibi
+<FeedbackCard
+  isCorrect={false}
+  message="Intenta de nuevo"
+  showKibiIcon={false}
+/>`}
+                </pre>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Feedback Card con Markdown y LaTeX
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-6 font-[family-name:var(--font-rubik)]">
+                El componente soporta Markdown y fórmulas LaTeX mediante la prop <code className="bg-grey-100 dark:bg-[#272E3A] px-2 py-1 rounded text-sm">enableMarkdown=true</code>.
+                Ideal para mostrar feedback con ecuaciones matemáticas.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Con Fórmula LaTeX Simple</p>
+                  <FeedbackCard
+                    isCorrect={false}
+                    message="La respuesta correcta es $x^2 + y^2 = r^2$"
+                    enableMarkdown={true}
+                    showKibiIcon={true}
+                  />
+                </div>
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Con Ecuación Compleja</p>
+                  <FeedbackCard
+                    isCorrect={false}
+                    message="La fórmula correcta de la parábola es $(x-h)^2 = 4p(y-k)$"
+                    enableMarkdown={true}
+                    showKibiIcon={true}
+                  />
+                </div>
+              </div>
+              <div className="mt-6">
+                <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Markdown con Negrita y LaTeX</p>
+                <div className="flex justify-center">
+                  <FeedbackCard
+                    isCorrect={false}
+                    message="Recuerda que la **fórmula cuadrática** es $x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$"
+                    enableMarkdown={true}
+                    showKibiIcon={true}
+                  />
+                </div>
+              </div>
+              <div className="mt-6">
+                <p className="text-sm font-medium text-dark-700 dark:text-grey-300 mb-4">Con notación LaTeX \(...\) del backend</p>
+                <div className="flex justify-center">
+                  <FeedbackCard
+                    isCorrect={false}
+                    message="¿Calculaste la posición de Q2 usando la fórmula \\(P_k = \\frac{k(n+1)}{4}\\), donde k=2 y n=8?"
+                    enableMarkdown={true}
+                    showKibiIcon={true}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Ejemplo de Código con LaTeX
+              </h3>
+              <div className="bg-grey-100 dark:bg-[#272E3A] p-4 rounded-lg overflow-x-auto">
+                <pre className="text-sm text-dark-900 dark:text-white font-mono">
+{`// Con fórmula LaTeX simple
+<FeedbackCard
+  isCorrect={false}
+  message="La respuesta correcta es $x^2 + y^2 = r^2$"
+  enableMarkdown={true}
+  showKibiIcon={true}
+/>
+
+// Con ecuación compleja
+<FeedbackCard
+  isCorrect={false}
+  message="La fórmula correcta es $(x-h)^2 = 4p(y-k)$"
+  enableMarkdown={true}
+  showKibiIcon={true}
+/>
+
+// Markdown con negrita y LaTeX
+<FeedbackCard
+  isCorrect={false}
+  message="Recuerda que la **fórmula cuadrática** es $x = \\\\frac{-b \\\\pm \\\\sqrt{b^2-4ac}}{2a}$"
+  enableMarkdown={true}
+  showKibiIcon={true}
+/>`}
+                </pre>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Características del Componente
+              </h3>
+              <ul className="list-disc list-inside space-y-2 text-[14px] text-dark-700 dark:text-grey-300 font-[family-name:var(--font-rubik)]">
+                <li>✅ Soporte completo para dark mode</li>
+                <li>✅ Icono de Kibi cambia automáticamente según el tema (normal/blanco)</li>
+                <li>✅ Sombras adaptativas al modo oscuro</li>
+                <li>✅ Mensajes predeterminados o personalizados</li>
+                <li>✅ Soporte para Markdown y LaTeX (con enableMarkdown=true)</li>
+                <li>✅ Diseño tooltip con triángulo apuntando hacia abajo</li>
+                <li>✅ Usado en LessonQuestions para feedback de respuestas</li>
+                <li>✅ Reutilizable en toda la aplicación</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         {/* Accordeones Section */}
         <section id="accordeones" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
           <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
@@ -1014,23 +1233,32 @@ Las características de los seres vivos:
 
             <div>
               <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
-                Botón con Icono SquarePen
+                Botón de Editar (EditButton)
               </h3>
               <div className="flex flex-wrap gap-6 items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <button className="h-10 w-10 rounded-full border-2 border-grey-400 bg-white flex items-center justify-center transition-all hover:border-primary-green">
-                    <SquarePen className="h-5 w-5 text-primary-green" strokeWidth={2} />
-                  </button>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Light Mode</span>
+                  <EditButton size="small" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Small</span>
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                  <button className="h-10 w-10 rounded-full border-2 border-[#374151] bg-[#1E242D] flex items-center justify-center transition-all hover:border-primary-green">
-                    <SquarePen className="h-5 w-5 text-primary-green" strokeWidth={2} />
-                  </button>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Dark Mode</span>
+                  <EditButton size="medium" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Medium (Default)</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <EditButton size="large" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Large</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <EditButton size="responsive" onClick={() => console.log('Edit clicked')} />
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Responsive (small → large)</span>
                 </div>
               </div>
+              <p className="text-sm text-dark-600 dark:text-grey-400 mt-4 font-[family-name:var(--font-rubik)]">
+                Este botón se adapta automáticamente a light/dark mode. Usado en AccountSection para editar perfil y contraseña.
+              </p>
             </div>
           </div>
         </section>
