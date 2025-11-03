@@ -8,7 +8,9 @@ const badgeVariants = cva(
     variants: {
       variant: {
         solid: '',
+        default: '', // Alias for solid
         outline: 'bg-transparent border',
+        secondary: 'bg-transparent border', // Alias for outline
         subtle: 'border border-transparent',
         text: 'bg-transparent border-transparent',
       },
@@ -72,6 +74,23 @@ const badgeVariants = cva(
         className: 'bg-cyan-500 text-white',
       },
 
+      // Default (alias for solid) variants
+      {
+        variant: 'default',
+        color: 'primary',
+        className: 'bg-blue-500 text-white',
+      },
+      {
+        variant: 'default',
+        color: 'primary-green',
+        className: 'bg-[var(--color-primary-green)] text-white',
+      },
+      {
+        variant: 'default',
+        color: 'gray',
+        className: 'bg-grey-500 text-white',
+      },
+
       // Outline variants
       {
         variant: 'outline',
@@ -117,6 +136,23 @@ const badgeVariants = cva(
         variant: 'outline',
         color: 'info',
         className: 'border-cyan-500 text-cyan-500',
+      },
+
+      // Secondary (alias for outline) variants
+      {
+        variant: 'secondary',
+        color: 'primary',
+        className: 'border-blue-500 text-blue-500',
+      },
+      {
+        variant: 'secondary',
+        color: 'primary-green',
+        className: 'border-[var(--color-primary-green)] text-[var(--color-primary-green)]',
+      },
+      {
+        variant: 'secondary',
+        color: 'gray',
+        className: 'border-grey-500 text-grey-500 dark:text-grey-400',
       },
 
       // Subtle variants

@@ -6,7 +6,9 @@ import { Info, CheckCircle2, AlertCircle, AlertTriangle, X } from 'lucide-react'
 
 export interface ModalProps {
   open?: boolean;
+  isOpen?: boolean; // Alias for open
   onOpenChange?: (open: boolean) => void;
+  onClose?: () => void; // Alias for onOpenChange
   state?: 'information' | 'success' | 'alert' | 'warning';
   size?: 'default' | 'small';
   title?: string;
@@ -19,13 +21,17 @@ export interface ModalProps {
   className?: string;
   /** Show only the confirm button (hides cancel button) */
   singleButton?: boolean;
+  /** Custom children content (overrides description) */
+  children?: React.ReactNode;
 }
 
 export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
   (
     {
-      open = false,
+      open,
+      isOpen,
       onOpenChange,
+      onClose,
       state = 'information',
       size = 'default',
       title = 'Your Message Sent Successfully',
@@ -37,11 +43,15 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
       showCloseButton = false,
       className,
       singleButton = false,
+      children,
     },
     ref
   ) => {
+    const isModalOpen = isOpen ?? open ?? false;
+
     const handleClose = () => {
       onOpenChange?.(false);
+      onClose?.();
     };
 
     const handleCancel = () => {
@@ -85,7 +95,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
     const config = stateConfig[state];
     const Icon = config.icon;
 
-    if (!open) return null;
+    if (!isModalOpen) return null;
 
     return (
       <div
@@ -146,17 +156,21 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
             {/* Decorative Line */}
             <div className={cn('h-[3px] w-[90px] rounded-[2px]', config.lineColor)} />
 
-            {/* Description */}
-            <p
-              className={cn(
-                'text-center text-[#7b7b7b] dark:text-grey-400',
-                size === 'default'
-                  ? "font-['Inter',sans-serif] text-[16px] w-full max-w-[430px]"
-                  : "font-['Rubik',sans-serif] text-[14px] w-full"
-              )}
-            >
-              {description}
-            </p>
+            {/* Description or Children */}
+            {children ? (
+              <div className="w-full">{children}</div>
+            ) : (
+              <p
+                className={cn(
+                  'text-center text-[#7b7b7b] dark:text-grey-400',
+                  size === 'default'
+                    ? "font-['Inter',sans-serif] text-[16px] w-full max-w-[430px]"
+                    : "font-['Rubik',sans-serif] text-[14px] w-full"
+                )}
+              >
+                {description}
+              </p>
+            )}
           </div>
 
           {/* Actions */}

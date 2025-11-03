@@ -75,17 +75,39 @@ export interface AccordionItemData {
 }
 
 export interface AccordionProps
-  extends Omit<React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>, 'type' | 'value' | 'defaultValue'>,
+  extends Omit<React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>, 'value' | 'defaultValue' | 'type'>,
     VariantProps<typeof accordionVariants> {
-  items: AccordionItemData[];
+  items?: AccordionItemData[];
   defaultOpenIndex?: number;
   allowMultiple?: boolean;
+  type?: 'single' | 'multiple';
 }
 
-export const Accordion = React.forwardRef<
+type AccordionComponent = React.ForwardRefExoticComponent<AccordionProps & React.RefAttributes<HTMLDivElement>> & {
+  Item: typeof AccordionPrimitive.Item;
+  Header: typeof AccordionPrimitive.Trigger;
+  Content: typeof AccordionContent;
+};
+
+const AccordionBase = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Root>,
   AccordionProps
->(({ className, variant, items, defaultOpenIndex, allowMultiple = false }, ref) => {
+>(({ className, variant, items, defaultOpenIndex, allowMultiple = false, children, type, onValueChange, ...props }, ref) => {
+  // If no items provided, render as a flexible container
+  if (!items && children) {
+    const rootType = type || (allowMultiple ? 'multiple' : 'single');
+    return (
+      <AccordionPrimitive.Root
+        ref={ref}
+        type={rootType as any}
+        className={cn(accordionVariants({ variant }), className)}
+        {...(props as any)}
+      >
+        {children}
+      </AccordionPrimitive.Root>
+    );
+  }
+
   const defaultValue = defaultOpenIndex !== undefined ? `item-${defaultOpenIndex}` : undefined;
 
   return allowMultiple ? (
@@ -95,7 +117,7 @@ export const Accordion = React.forwardRef<
       defaultValue={defaultValue ? [defaultValue] : undefined}
       className={cn(accordionVariants({ variant }), className)}
     >
-      {items.map((item, index) => (
+      {(items || []).map((item, index) => (
         <AccordionPrimitive.Item
           key={`item-${index}`}
           value={`item-${index}`}
@@ -138,7 +160,7 @@ export const Accordion = React.forwardRef<
       defaultValue={defaultValue}
       className={cn(accordionVariants({ variant }), className)}
     >
-      {items.map((item, index) => (
+      {(items || []).map((item, index) => (
         <AccordionPrimitive.Item
           key={`item-${index}`}
           value={`item-${index}`}
@@ -244,4 +266,30 @@ export const Accordion = React.forwardRef<
   );
 });
 
-Accordion.displayName = 'Accordion';
+AccordionBase.displayName = 'Accordion';
+
+// Export subcomponents for flexible usage
+export const AccordionItem = AccordionPrimitive.Item;
+export const AccordionHeader = AccordionPrimitive.Trigger;
+export const AccordionContent = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <AccordionPrimitive.Content
+    ref={ref}
+    className={cn('overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down', className)}
+    {...props}
+  >
+    <div className="px-4 pb-4 pt-2">{children}</div>
+  </AccordionPrimitive.Content>
+));
+
+AccordionContent.displayName = 'AccordionContent';
+
+// Create the Accordion component with attached subcomponents
+export const Accordion = AccordionBase as AccordionComponent;
+
+// Attach subcomponents to Accordion for dot notation usage
+Accordion.Item = AccordionItem;
+Accordion.Header = AccordionHeader;
+Accordion.Content = AccordionContent;

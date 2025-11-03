@@ -9,17 +9,23 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: 'text-white shadow-sm hover:shadow-md active:shadow-sm',
+        default: 'text-white shadow-sm hover:shadow-md active:shadow-sm', // Alias for primary
         secondary: 'bg-transparent border-2 hover:bg-opacity-10 active:bg-opacity-20 dark:bg-[#171B22] dark:border-[#374151] dark:text-white',
+        outline: 'bg-transparent border-2 hover:bg-opacity-10 active:bg-opacity-20 dark:bg-[#171B22] dark:border-[#374151] dark:text-white', // Alias for secondary
         text: 'bg-transparent hover:bg-opacity-10 active:bg-opacity-20',
         elevated: 'text-white shadow-strong hover:shadow-bubble active:shadow-sm',
+        destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-700 hover:shadow-md active:bg-red-800 active:shadow-sm focus-visible:ring-red-500',
       },
       color: {
         green: '',
         blue: '',
       },
       size: {
+        sm: 'h-9 px-4 text-sm rounded-full', // Alias
         small: 'h-9 px-4 text-sm rounded-full',
+        md: 'h-11 px-6 text-base rounded-full', // Alias
         medium: 'h-11 px-6 text-base rounded-full',
+        lg: 'h-[52px] px-8 text-lg rounded-full', // Alias
         large: 'h-[52px] px-8 text-lg rounded-full',
       },
     },
@@ -36,6 +42,18 @@ const buttonVariants = cva(
         color: 'blue',
         className: 'bg-[var(--color-primary-blue)] hover:bg-[#2b3249] active:bg-[#1a1f2e] focus-visible:ring-[var(--color-primary-blue)]',
       },
+      // Default (alias for Primary) + Green
+      {
+        variant: 'default',
+        color: 'green',
+        className: 'bg-[var(--color-button-green-default)] hover:bg-[#3a6b0b] active:bg-[#2d5309] focus-visible:ring-[var(--color-primary-green)]',
+      },
+      // Default (alias for Primary) + Blue
+      {
+        variant: 'default',
+        color: 'blue',
+        className: 'bg-[var(--color-primary-blue)] hover:bg-[#2b3249] active:bg-[#1a1f2e] focus-visible:ring-[var(--color-primary-blue)]',
+      },
       // Secondary + Green
       {
         variant: 'secondary',
@@ -45,6 +63,18 @@ const buttonVariants = cva(
       // Secondary + Blue
       {
         variant: 'secondary',
+        color: 'blue',
+        className: 'border-[var(--color-primary-blue)] text-[var(--color-primary-blue)] hover:bg-[var(--color-primary-blue)] active:bg-[var(--color-primary-blue)]',
+      },
+      // Outline (alias for Secondary) + Green
+      {
+        variant: 'outline',
+        color: 'green',
+        className: 'border-[var(--color-button-green-default)] text-[var(--color-button-green-default)] hover:bg-[var(--color-button-green-default)] active:bg-[var(--color-button-green-default)]',
+      },
+      // Outline (alias for Secondary) + Blue
+      {
+        variant: 'outline',
         color: 'blue',
         className: 'border-[var(--color-primary-blue)] text-[var(--color-primary-blue)] hover:bg-[var(--color-primary-blue)] active:bg-[var(--color-primary-blue)]',
       },

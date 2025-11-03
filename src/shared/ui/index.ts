@@ -47,5 +47,5 @@ export { QuizTextInput, type QuizTextInputProps } from './QuizTextInput';
 export { QuizNavigator, type QuizNavigatorProps } from './QuizNavigator';
 export { FeedbackToast, type FeedbackToastProps } from './FeedbackToast';
 export { SidebarButton, type SidebarButtonProps } from './SidebarButton';
-export { Accordion, type AccordionProps, type AccordionItemData } from './Accordion';
+export { Accordion, AccordionItem, AccordionHeader, AccordionContent, type AccordionProps, type AccordionItemData } from './Accordion';
 export { Card, type CardProps } from './Card';

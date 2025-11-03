@@ -6,6 +6,9 @@
 // Main Section Component (primary export)
 export { InicioSection } from './ui/InicioSection';
 
+// Dashboard Widgets
+export { DashboardWidgets } from './components/DashboardWidgets';
+
 // Legacy exports (deprecated - use dashboard feature instead)
 export { HomeLayout } from './ui/HomeLayout';
 export { HomeTopMenu } from './ui/HomeTopMenu';

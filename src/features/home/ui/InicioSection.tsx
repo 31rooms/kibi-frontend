@@ -1,21 +1,26 @@
 'use client';
 
-import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
+import React, { useState, useLayoutEffect, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/lib/context';
 import { useMySubjects } from '../hooks/useMySubjects';
+import { useProgress } from '@/features/progress/hooks/useProgress';
+import { Button } from '@/shared/ui/Button';
+import { Card, CardContent } from '@/shared/ui/Card';
+import { Star, ChevronRight, CheckCircle } from 'lucide-react';
 
 /**
  * Inicio Section Component
- * Main home section displaying vertically stacked subjects in S-wave layout
+ * Main home section with weekly calendar, achievement, daily session button, and subjects
  */
 export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
     const [initialLoading, setInitialLoading] = useState(true);
     const [imagesLoaded, setImagesLoaded] = useState(false);
     const [showContent, setShowContent] = useState(false);
+    const [nextChallengeTime, setNextChallengeTime] = useState('07:07');
     const loadedCountRef = useRef(0);
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
@@ -23,6 +28,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
 
     // Fetch subjects with enabled/disabled state from API
     const { subjects, career, totalQuestions, isLoading, error } = useMySubjects();
+    const { dashboard } = useProgress();
 
     // Combine external ref with internal ref
     React.useImperativeHandle(ref, () => internalRef.current as HTMLElement);
@@ -55,6 +61,32 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       router.push(`/lesson/${subjectApiId}`);
     };
 
+    // Handle Daily Session button click
+    const handleDailySessionClick = () => {
+      router.push('/daily-session');
+    };
+
+    // Calculate next challenge time (24h from now)
+    useEffect(() => {
+      const updateNextChallenge = () => {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        const diff = tomorrow.getTime() - now.getTime();
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        setNextChallengeTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+      };
+
+      updateNextChallenge();
+      const interval = setInterval(updateNextChallenge, 60000); // Update every minute
+
+      return () => clearInterval(interval);
+    }, []);
+
     // Scroll to bottom when all images are loaded
     useLayoutEffect(() => {
       const mainElement = internalRef.current;
@@ -80,12 +112,27 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       }
     }, [isLoading, subjects.length, imagesLoaded, initialLoading]);
 
+    // Get days of the week with activity status
+    const getDaysOfWeek = () => {
+      const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+      const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const mondayIndex = today === 0 ? 6 : today - 1; // Convert to Monday-based index
+
+      return days.map((day, index) => ({
+        label: day,
+        isActive: index <= mondayIndex,
+        isInactive: index > mondayIndex,
+      }));
+    };
+
+    const weekDays = getDaysOfWeek();
+
     return (
       <main
         ref={internalRef}
         className={cn(
           "flex-1 overflow-y-auto p-6 md:p-8",
-          "bg-white dark:bg-[#171B22]",
+          "bg-white dark:bg-[#0A0F1E]",
           "relative",
           "scrollbar-hide",
           className
@@ -98,21 +145,85 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       >
         {/* Loader overlay - show while initial loading or fetching data */}
         {(initialLoading || isLoading) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#171B22] z-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
+          <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-[#0A0F1E] z-50">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-green"></div>
           </div>
         )}
 
         {/* Content with fade-in transition */}
         <div
           className={cn(
-            "max-w-7xl mx-auto min-h-full flex flex-col justify-end",
+            "max-w-7xl mx-auto min-h-full flex flex-col",
             "transition-opacity duration-300",
             showContent ? "opacity-100" : "opacity-0"
           )}
         >
+          {/* Weekly Calendar */}
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="text-sm text-gray-400 mr-2">
+              <CheckCircle className="w-4 h-4 inline mr-1 text-primary-green" />
+              Activo
+            </span>
+            <span className="text-sm text-gray-500 mr-4">
+              <div className="w-4 h-4 inline-block mr-1 rounded-full bg-gray-600"></div>
+              Inactivo
+            </span>
+
+            <div className="flex gap-2">
+              {weekDays.map((day, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all",
+                    day.isActive && "bg-primary-green text-white",
+                    day.isInactive && "bg-gray-700 dark:bg-gray-800 text-gray-400"
+                  )}
+                >
+                  {day.label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Achievement of the Week */}
+          <div className="mb-6 flex justify-center">
+            <Card className="bg-transparent border-2 border-primary-green/50 w-[280px]">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="flex-shrink-0 w-12 h-12 bg-primary-green/20 rounded-lg flex items-center justify-center">
+                  <Star className="w-6 h-6 text-primary-green fill-primary-green" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    Logro de la semana
+                  </p>
+                  <p className="text-base font-bold text-white">
+                    Primer paso
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Daily Session Button */}
+          <div className="mb-6 flex flex-col items-center gap-4">
+            <Button
+              onClick={handleDailySessionClick}
+              size="lg"
+              className="w-[280px] h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+              color="green"
+            >
+              Sesión diaria
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Button>
+
+            <p className="text-sm text-gray-400">
+              Próximo reto en{' '}
+              <span className="text-white font-medium">{nextChallengeTime} h</span>
+            </p>
+          </div>
+
           {/* Container for vertically stacked subjects with curved S-wave layout */}
-          <div className="w-[280px] sm:w-[350px] mx-auto flex flex-col gap-2 pb-6">
+          <div className="w-[280px] sm:w-[350px] mx-auto flex flex-col gap-2 pb-6 mt-6">
             {subjects.map((subject, index) => {
                 // S-wave pattern: 8 positions per cycle
                 const wavePosition = index % 8;
@@ -131,12 +242,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   }
                 };
 
-                // Construct icon path based on theme
-                // TODO: Temporarily showing light icons in both modes
-                const iconPath = subject.iconPath; // Always use light version for now
-                // const iconPath = isDarkMode
-                //   ? subject.iconPath.replace('/subjects/light/', '/subjects/dark/')
-                //   : subject.iconPath;
+                const iconPath = subject.iconPath;
 
                 return (
                   <div

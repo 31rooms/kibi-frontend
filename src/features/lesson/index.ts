@@ -4,11 +4,17 @@
 
 // UI Components
 export { LessonView } from './ui/LessonView';
+export { EnhancedLessonView } from './ui/EnhancedLessonView';
 export { LessonContent } from './ui/LessonContent';
 export { LessonQuestions } from './ui/LessonQuestions';
 export type { LessonViewProps } from './types/lesson.types';
 export type { LessonContentProps } from './ui/LessonContent';
 export type { LessonQuestionsProps } from './ui/LessonQuestions';
+
+// New Components
+export { RecommendationCard } from './components/RecommendationCard';
+export { ReviewsListCard } from './components/ReviewsListCard';
+export { SubjectStats } from './components/SubjectStats';
 
 // Legacy components (kept for backwards compatibility)
 export { QuestionCard } from './ui/QuestionCard';
