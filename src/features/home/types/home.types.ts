@@ -3,18 +3,5 @@
  * Types for the home dashboard feature
  */
 
-export type SidebarType = 'inicio' | 'progreso' | 'clase-libre' | 'examen' | 'cuenta';
-
-export interface HomeLayoutProps {
-  className?: string;
-}
-
-export interface SidebarNavigationProps {
-  selectedSection: SidebarType;
-  onSectionChange: (section: SidebarType) => void;
-  onLogout: () => void;
-}
-
-export interface HomeContentProps {
-  selectedSection: SidebarType;
-}
+// Note: This file is kept for future home feature types
+// Legacy types have been removed as they were unused

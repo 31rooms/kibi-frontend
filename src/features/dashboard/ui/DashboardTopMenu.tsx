@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/shared/lib/utils';
-import { Badge } from '@/shared/ui';
+import { CareerTag } from '@/shared/ui';
 import { Flame, Moon, Menu, Sun, Bell } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth, Theme, authAPI } from '@/features/authentication';
@@ -105,6 +105,24 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
     const userEmail = user?.email || '';
     const avatarSrc = '/illustrations/avatar.svg';
 
+    // Subscription plan label mapping
+    const getSubscriptionLabel = (plan?: string) => {
+      if (!plan) return 'Gratis';
+
+      switch (plan.toUpperCase()) {
+        case 'FREE':
+          return 'Gratis';
+        case 'GOLD':
+          return 'Oro';
+        case 'DIAMOND':
+          return 'Diamante';
+        default:
+          return 'Gratis';
+      }
+    };
+
+    const subscriptionLabel = getSubscriptionLabel(user?.subscriptionPlan);
+
     return (
       <div
         ref={ref}
@@ -133,6 +151,11 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
 
         {/* Right Section - Actions and Profile */}
         <div className="flex items-center gap-2">
+          {/* Subscription Plan Tag (Desktop only) */}
+          <div className="hidden md:block">
+            <CareerTag career={subscriptionLabel} />
+          </div>
+
           {/* Streak Icon with Badge */}
           {streakCount > 0 && (
             <button

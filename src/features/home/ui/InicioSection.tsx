@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/lib/context';
+import { useAuth } from '@/features/authentication';
 import { useMySubjects } from '../hooks/useMySubjects';
 import { useProgress } from '@/features/progress/hooks/useProgress';
 import { Button } from '@/shared/ui/Button';
@@ -25,10 +26,14 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
     const { isDarkMode } = useTheme();
+    const { user } = useAuth();
 
     // Fetch subjects with enabled/disabled state from API
     const { subjects, career, totalQuestions, isLoading, error } = useMySubjects();
     const { dashboard } = useProgress();
+
+    // Check if user has FREE plan
+    const isFreeUser = !user?.subscriptionPlan || user.subscriptionPlan.toUpperCase() === 'FREE';
 
     // Combine external ref with internal ref
     React.useImperativeHandle(ref, () => internalRef.current as HTMLElement);
@@ -229,7 +234,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
           {/* Container for vertically stacked subjects with curved S-wave layout */}
           <div
             className={cn(
-              "w-[280px] sm:w-[350px] mx-auto flex flex-col gap-2 pt-6 pb-6",
+              "w-[280px] sm:w-[380px] mx-auto flex flex-col gap-2 pt-6",
               "transition-opacity duration-300",
               showContent ? "opacity-100" : "opacity-0"
             )}
@@ -241,26 +246,31 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                 const getHorizontalOffset = (position: number): string => {
                   switch(position) {
                     case 0: return 'ml-[176px] sm:ml-[220px]';
-                    case 1: return 'ml-[120px] sm:ml-[150px]';
-                    case 2: return 'ml-[80px] sm:ml-[100px]';
-                    case 3: return 'ml-[24px] sm:ml-[30px]';
-                    case 4: return 'ml-[0px]';
-                    case 5: return 'ml-[40px] sm:ml-[50px]';
+                    case 1: return 'ml-[200px] sm:ml-[250px]';
+                    case 2: return 'ml-[180px] sm:ml-[219px]';
+                    case 3: return 'ml-[140px] sm:ml-[160px]';
+                    case 4: return 'ml-[86px]';
+                    case 5: return 'ml-[0px] sm:ml-[0px]';
                     case 6: return 'ml-[104px] sm:ml-[130px]';
                     case 7: return 'ml-[144px] sm:ml-[180px]';
                     default: return 'ml-[84px] sm:ml-[105px]';
                   }
                 };
 
-                const iconPath = subject.iconPath;
+                // Determine if subject is enabled based on plan
+                // FREE users: last 2 subjects are enabled (open), rest are disabled
+                // GOLD/DIAMOND users: all subjects are enabled (open)
+                const isSubjectEnabled = isFreeUser ? index >= subjects.length - 2 : true;
+                const iconState = isSubjectEnabled ? 'open' : 'disabled';
+                const iconPath = `/subjects/light/${iconState}/${subject.name}`;
 
                 return (
                   <div
                     key={subject.id}
-                    onClick={() => handleSubjectClick(subject.apiId, subject.enabled)}
+                    onClick={() => handleSubjectClick(subject.apiId, isSubjectEnabled)}
                     className={cn(
                       "relative w-[120px] sm:w-[150px] h-auto transition-transform hover:scale-105",
-                      subject.enabled ? "cursor-pointer" : "cursor-not-allowed opacity-70",
+                      isSubjectEnabled ? "cursor-pointer" : "cursor-not-allowed opacity-70",
                       getHorizontalOffset(wavePosition)
                     )}
                   >
