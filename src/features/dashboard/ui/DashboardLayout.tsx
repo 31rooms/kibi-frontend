@@ -19,19 +19,22 @@ export const DashboardLayout = React.forwardRef<HTMLDivElement, DashboardLayoutP
       useDashboardNavigation();
 
     return (
-      <div ref={ref} className={cn('h-screen bg-grey-50 dark:bg-[#171B22] flex flex-col', className)}>
+      <div ref={ref} className={cn('h-screen flex flex-col', className)}>
         {/* Top Navigation */}
         <DashboardTopMenu
           logoSrc="/illustrations/logo.svg"
           logoText="Kibi"
           streakCount={5}
+          selectedSection={selectedSection}
+          onSectionChange={setSelectedSection}
+          onLogout={handleLogout}
           onStreakClick={() => console.log('Streak clicked')}
           onMenuClick={() => console.log('Menu clicked')}
         />
         {/* Note: logoSrc will automatically switch to logo-dark.svg in dark mode */}
 
         {/* Main Content Area */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden bg-grey-50 dark:bg-[#171B22]">
           {/* Sidebar */}
           <DashboardSidebar
             selectedSection={selectedSection}

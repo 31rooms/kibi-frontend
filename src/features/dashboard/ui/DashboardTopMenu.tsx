@@ -2,16 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/shared/lib/utils';
-import { CareerTag } from '@/shared/ui';
-import { Flame, Moon, Menu, Sun, Bell } from 'lucide-react';
+import { CareerTag, SidebarButton } from '@/shared/ui';
+import { Flame, Moon, Menu, Sun, Bell, X, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth, Theme, authAPI } from '@/features/authentication';
+import type { SectionType } from '../types/dashboard.types';
 
 export interface DashboardTopMenuProps {
   logoSrc?: string;
   logoText?: string;
   streakCount?: number;
   notificationCount?: number;
+  selectedSection?: SectionType;
+  onSectionChange?: (section: SectionType) => void;
+  onLogout?: () => void;
   onStreakClick?: () => void;
   onNotificationClick?: () => void;
   onMenuClick?: () => void;
@@ -34,6 +38,9 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
       logoText = 'Kibi',
       streakCount = 12,
       notificationCount = 0,
+      selectedSection = 'inicio',
+      onSectionChange,
+      onLogout,
       onStreakClick,
       onNotificationClick,
       onMenuClick,
@@ -46,6 +53,7 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
     const { user, updateUser } = useAuth();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Determine actual theme based on user preference and system preference
     useEffect(() => {
@@ -123,17 +131,34 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
 
     const subscriptionLabel = getSubscriptionLabel(user?.subscriptionPlan);
 
+    const handleMobileMenuToggle = () => {
+      setIsMobileMenuOpen(!isMobileMenuOpen);
+      if (onMenuClick) onMenuClick();
+    };
+
+    const handleMobileSectionChange = (section: SectionType) => {
+      if (onSectionChange) onSectionChange(section);
+      setIsMobileMenuOpen(false);
+    };
+
     return (
-      <div
-        ref={ref}
-        className={cn(
-          'w-full bg-white dark:bg-[#171B22] px-4 py-3',
-          'border-b border-[#DEE2E6] dark:border-[#374151]',
-          'flex items-center justify-between gap-4',
-          className
-        )}
-        {...props}
-      >
+      <>
+        <div
+          ref={ref}
+          className={cn(
+            'w-screen',
+            'bg-white dark:bg-[#171B22]',
+            'border-b border-[#DEE2E6] dark:border-[#374151]',
+            'sticky top-0 left-0 right-0 z-30',
+            className
+          )}
+          style={{
+            backgroundColor: isDarkMode ? '#171B22' : '#ffffff'
+          }}
+          {...props}
+        >
+        {/* Inner container with padding */}
+        <div className="px-4 py-3 flex items-center justify-between gap-4">
         {/* Left Section - Logo */}
         <div className="flex items-center gap-3">
           {logoSrc !== undefined ? (
@@ -221,14 +246,120 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
 
           {/* Menu Icon (Mobile only) */}
           <button
-            onClick={onMenuClick}
+            onClick={handleMobileMenuToggle}
             className="md:hidden p-2 rounded-full cursor-pointer"
             aria-label="Menú"
           >
-            <Menu className="w-6 h-6" />
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
+        </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          style={{ top: '73px' }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Menu Sidebar */}
+      <aside
+        className={cn(
+          'md:hidden fixed right-0 w-[280px] z-50',
+          'bg-white dark:bg-[#1E242D] p-4',
+          'border-l border-[#DEE2E6] dark:border-[#374151]',
+          'shadow-2xl',
+          'flex flex-col',
+          'transition-transform duration-300 ease-in-out',
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+        style={{
+          top: '73px',
+          height: 'calc(100vh - 73px)'
+        }}
+      >
+        {/* User Profile Section */}
+        <div className="pb-4 mb-4 border-b border-grey-200 dark:border-grey-700">
+          <div className="flex items-center gap-3">
+            <Image
+              src={avatarSrc}
+              alt={userName}
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded-full"
+            />
+            <div className="flex flex-col items-start">
+              <span className="text-base font-semibold text-dark-900 dark:text-white">
+                {userName}
+              </span>
+              <span className="text-sm text-grey-600">
+                {userEmail}
+              </span>
+            </div>
+          </div>
+          {/* Subscription Tag in Mobile Menu */}
+          <div className="mt-3">
+            <CareerTag career={subscriptionLabel} />
+          </div>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex-1 flex flex-col gap-4">
+          <SidebarButton
+            type="inicio"
+            selected={selectedSection === 'inicio'}
+            onClick={() => handleMobileSectionChange('inicio')}
+          />
+          <SidebarButton
+            type="progreso"
+            selected={selectedSection === 'progreso'}
+            onClick={() => handleMobileSectionChange('progreso')}
+          />
+          <SidebarButton
+            type="clase-libre"
+            selected={selectedSection === 'clase-libre'}
+            onClick={() => handleMobileSectionChange('clase-libre')}
+          />
+          <SidebarButton
+            type="examen"
+            selected={selectedSection === 'examen'}
+            onClick={() => handleMobileSectionChange('examen')}
+          />
+          <SidebarButton
+            type="cuenta"
+            selected={selectedSection === 'cuenta'}
+            onClick={() => handleMobileSectionChange('cuenta')}
+          />
+        </div>
+
+        {/* Logout Button */}
+        <div className="pt-4 border-t border-grey-200 dark:border-grey-700">
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              if (onLogout) onLogout();
+            }}
+            className={cn(
+              'flex items-center gap-2 w-full',
+              'text-dark-700 dark:text-white hover:text-primary-blue',
+              'transition-colors duration-200',
+              'font-[family-name:var(--font-rubik)] text-[14px] font-medium'
+            )}
+            aria-label="Cerrar sesión"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </aside>
+    </>
     );
   }
 );
