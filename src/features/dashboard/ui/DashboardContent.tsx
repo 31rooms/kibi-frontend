@@ -14,6 +14,9 @@ import type { DashboardContentProps } from '../types/dashboard.types';
  */
 export const DashboardContent = React.forwardRef<HTMLElement, DashboardContentProps>(
   ({ selectedSection }, ref) => {
+    // 🔍 DEBUG: Log selected section
+    console.log('🎯 DashboardContent - selectedSection:', selectedSection);
+
     // Get the section component from the registry
     const SectionComponent = getSectionComponent(selectedSection);
 

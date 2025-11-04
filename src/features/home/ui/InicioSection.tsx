@@ -68,7 +68,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
 
     // Handle Daily Session button click
     const handleDailySessionClick = () => {
-      router.push('/daily-session');
+      router.push('/home?section=daily-session');
     };
 
     // Calculate next challenge time (24h from now)
