@@ -1,4 +1,4 @@
-import { api } from '@/shared/api/apiClient';
+import apiClient from '@/features/authentication/api/config';
 import type {
   MockExamAvailability,
   MockExamAttempt,
@@ -18,7 +18,7 @@ export const mockExamsAPI = {
    * Check if user can take a mock exam
    */
   checkAvailability: async (): Promise<MockExamAvailability> => {
-    const response = await api.get(`${MOCK_EXAMS_BASE_URL}/check-availability`);
+    const response = await apiClient.get(`${MOCK_EXAMS_BASE_URL}/check-availability`);
     return response.data;
   },
 
@@ -26,7 +26,7 @@ export const mockExamsAPI = {
    * Start a new mock exam
    */
   startMockExam: async (data: StartMockExamRequest): Promise<StartMockExamResponse> => {
-    const response = await api.post(`${MOCK_EXAMS_BASE_URL}/start`, data);
+    const response = await apiClient.post(`${MOCK_EXAMS_BASE_URL}/start`, data);
     return response.data;
   },
 
@@ -37,7 +37,7 @@ export const mockExamsAPI = {
     attemptId: string,
     data: AnswerMockExamRequest
   ): Promise<AnswerMockExamResponse> => {
-    const response = await api.post(
+    const response = await apiClient.post(
       `${MOCK_EXAMS_BASE_URL}/attempts/${attemptId}/answer`,
       data
     );
@@ -51,7 +51,7 @@ export const mockExamsAPI = {
     attemptId: string,
     data: CompleteMockExamRequest
   ): Promise<CompleteMockExamResponse> => {
-    const response = await api.post(
+    const response = await apiClient.post(
       `${MOCK_EXAMS_BASE_URL}/attempts/${attemptId}/complete`,
       data
     );
@@ -63,7 +63,7 @@ export const mockExamsAPI = {
    */
   getCurrentAttempt: async (): Promise<MockExamAttempt | null> => {
     try {
-      const response = await api.get(`${MOCK_EXAMS_BASE_URL}/current-attempt`);
+      const response = await apiClient.get(`${MOCK_EXAMS_BASE_URL}/current-attempt`);
       return response.data;
     } catch (error) {
       return null;
@@ -74,7 +74,7 @@ export const mockExamsAPI = {
    * Get mock exam history
    */
   getHistory: async (): Promise<MockExamHistory> => {
-    const response = await api.get(`${MOCK_EXAMS_BASE_URL}/history`);
+    const response = await apiClient.get(`${MOCK_EXAMS_BASE_URL}/history`);
     return response.data;
   },
 
@@ -82,7 +82,7 @@ export const mockExamsAPI = {
    * Get specific mock exam attempt details
    */
   getAttemptDetails: async (attemptId: string): Promise<MockExamAttempt> => {
-    const response = await api.get(`${MOCK_EXAMS_BASE_URL}/attempts/${attemptId}`);
+    const response = await apiClient.get(`${MOCK_EXAMS_BASE_URL}/attempts/${attemptId}`);
     return response.data;
   }
 };

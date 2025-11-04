@@ -1,4 +1,4 @@
-import { api } from '@/shared/api/apiClient';
+import apiClient from '@/features/authentication/api/config';
 import type {
   DailyTestCheck,
   DailyTestSession,
@@ -14,7 +14,7 @@ export const dailyTestAPI = {
    * Check if user has a daily test available
    */
   checkDailyTest: async (): Promise<DailyTestCheck> => {
-    const response = await api.get(`${DAILY_TEST_BASE_URL}/check`);
+    const response = await apiClient.get(`${DAILY_TEST_BASE_URL}/check`);
     return response.data;
   },
 
@@ -22,7 +22,7 @@ export const dailyTestAPI = {
    * Generate a new daily test session
    */
   generateDailyTest: async (): Promise<DailyTestSession> => {
-    const response = await api.post(`${DAILY_TEST_BASE_URL}/generate`);
+    const response = await apiClient.post(`${DAILY_TEST_BASE_URL}/generate`);
     return response.data;
   },
 
@@ -33,7 +33,7 @@ export const dailyTestAPI = {
     sessionId: string,
     data: AnswerQuestionRequest
   ): Promise<AnswerQuestionResponse> => {
-    const response = await api.post(
+    const response = await apiClient.post(
       `${DAILY_TEST_BASE_URL}/sessions/${sessionId}/answer`,
       data
     );
@@ -44,7 +44,7 @@ export const dailyTestAPI = {
    * Complete the daily test session
    */
   completeDailyTest: async (sessionId: string): Promise<CompleteDailyTestResponse> => {
-    const response = await api.post(
+    const response = await apiClient.post(
       `${DAILY_TEST_BASE_URL}/sessions/${sessionId}/complete`
     );
     return response.data;
@@ -55,7 +55,7 @@ export const dailyTestAPI = {
    */
   getCurrentSession: async (): Promise<DailyTestSession | null> => {
     try {
-      const response = await api.get(`${DAILY_TEST_BASE_URL}/current-session`);
+      const response = await apiClient.get(`${DAILY_TEST_BASE_URL}/current-session`);
       return response.data;
     } catch (error) {
       return null;
