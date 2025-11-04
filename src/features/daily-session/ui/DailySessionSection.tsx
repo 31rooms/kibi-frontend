@@ -89,7 +89,7 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
     const handleStartLesson = (recommendation: DailySessionRecommendation) => {
       // Solo permitir navegación si hay contenido disponible
       if (recommendation.hasContent && recommendation.lessonId) {
-        router.push(`/daily-session/lesson/${recommendation.lessonId}`);
+        window.location.href = `/daily-session/lesson/${recommendation.lessonId}`;
       }
     };
 
