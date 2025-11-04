@@ -4,6 +4,7 @@
 
 // UI Components
 export { DailyLessonView } from './ui/DailyLessonView';
+export { DailySessionSection } from './ui/DailySessionSection';
 export type { DailyLessonViewProps } from './ui/DailyLessonView';
 
 // API

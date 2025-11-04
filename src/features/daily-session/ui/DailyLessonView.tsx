@@ -8,8 +8,8 @@ import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
 import { Progress } from '@/shared/ui/progress';
 import { Modal } from '@/shared/ui/Modal';
-import * as AccordionPrimitive from '@radix-ui/react-accordion';
-import { ChevronDown } from 'lucide-react';
+import { AccordionRoot, AccordionItem, AccordionTrigger, AccordionContent } from '@/shared/ui/Accordion';
+import { FeedbackCard, MarkdownRenderer } from '@/shared/ui';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -109,7 +109,8 @@ interface DailyQuestionState {
   isCorrect: boolean | null;
   answered: boolean;
   timeSpent: number;
-  feedback?: string;
+  showTemporaryFeedback: boolean; // Controls temporary 3-second feedback display
+  isValidated: boolean; // Permanently tracks if question has been validated at least once
 }
 
 /**
@@ -150,7 +151,8 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
             isCorrect: null,
             answered: false,
             timeSpent: 0,
-            feedback: undefined,
+            showTemporaryFeedback: false,
+            isValidated: false,
           };
         });
         setQuestionStates(initialStates);
@@ -168,23 +170,71 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
     };
 
     const handleSelectAnswer = (questionId: string, optionId: string) => {
-      if (questionStates[questionId]?.answered) return;
+      const state = questionStates[questionId];
+      // Allow selection if not permanently correct
+      if (state?.isCorrect) return;
 
       setQuestionStates((prev) => ({
         ...prev,
         [questionId]: {
           ...prev[questionId],
           selectedAnswer: optionId,
+          // Hide feedback when changing answer
+          showTemporaryFeedback: false,
+          // Keep isValidated to maintain explanation visibility
         },
       }));
     };
 
+    // Clean step-by-step explanation markdown to remove "Respuesta correcta" and "Solución paso a paso" lines
+    // This function preserves HTML tags, LaTeX formulas, and multi-line content
+    const cleanStepByStepExplanation = (markdown: string): string => {
+      if (!markdown) return '';
+
+      // Split by newlines while preserving empty lines
+      const lines = markdown.split('\n');
+
+      // Filter out lines that contain "Respuesta correcta", "Solución paso a paso", or checkmark
+      // but preserve all other content including HTML and LaTeX
+      const filteredLines = lines.filter(line => {
+        const trimmedLine = line.trim();
+        // Skip empty lines that we want to keep for formatting
+        if (trimmedLine === '') return true;
+        // Remove lines with unwanted headers
+        return !trimmedLine.includes('Respuesta correcta') &&
+               !trimmedLine.includes('✅') &&
+               !trimmedLine.includes('Solución paso a paso') &&
+               !trimmedLine.startsWith('**Solución paso a paso') &&
+               !trimmedLine.startsWith('## Solución paso a paso') &&
+               !trimmedLine.startsWith('### Solución paso a paso');
+      });
+
+      return filteredLines.join('\n').trim();
+    };
+
     const handleValidateAnswer = async (questionId: string) => {
       const state = questionStates[questionId];
-      if (!state.selectedAnswer || state.answered || !sessionId) return;
+      if (!state.selectedAnswer || state.isCorrect || !sessionId) {
+        console.log('❌ Validation blocked:', {
+          hasSelectedAnswer: !!state.selectedAnswer,
+          alreadyCorrect: state.isCorrect,
+          hasSessionId: !!sessionId,
+        });
+        return;
+      }
 
       try {
         const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+        console.log('📤 Sending answer:', {
+          lessonId,
+          questionId,
+          payload: {
+            sessionId,
+            givenAnswer: state.selectedAnswer,
+            timeSpentSeconds: timeSpent,
+          },
+        });
 
         const response = await dailySessionAPI.answerQuestion(lessonId, questionId, {
           sessionId,
@@ -192,6 +242,9 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
           timeSpentSeconds: timeSpent,
         });
 
+        console.log('✅ Answer response:', response);
+
+        // Update state with validation result
         setQuestionStates((prev) => ({
           ...prev,
           [questionId]: {
@@ -199,11 +252,43 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
             isCorrect: response.isCorrect,
             answered: true,
             timeSpent,
-            feedback: response.explanation,
+            showTemporaryFeedback: true,
+            isValidated: true, // Mark as validated to show explanation
           },
         }));
-      } catch (error) {
-        console.error('Error validating answer:', error);
+
+        // If incorrect, auto-clear feedback after 3 seconds and allow retry
+        if (!response.isCorrect) {
+          setTimeout(() => {
+            setQuestionStates((prev) => {
+              const currentState = prev[questionId];
+              // Only reset if still showing feedback (user didn't interact)
+              if (currentState?.showTemporaryFeedback) {
+                return {
+                  ...prev,
+                  [questionId]: {
+                    ...currentState,
+                    selectedAnswer: null, // Clear selection to allow retry
+                    showTemporaryFeedback: false, // Hide feedback
+                    answered: false, // Allow re-validation
+                  },
+                };
+              }
+              return prev;
+            });
+          }, 3000);
+        }
+      } catch (error: any) {
+        console.error('❌ Error validating answer:', {
+          error,
+          message: error?.message,
+          response: error?.response,
+          data: error?.response?.data,
+          status: error?.response?.status,
+        });
+
+        // Mostrar un mensaje de error al usuario
+        alert(`Error al validar respuesta: ${error?.message || 'Error desconocido'}`);
       }
     };
 
@@ -281,9 +366,9 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
     }
 
     return (
-      <div ref={ref} className="min-h-screen bg-grey-50 dark:bg-[#171B22] pb-12">
-        {/* Header with breadcrumb */}
-        <div className="bg-white dark:bg-[#1E242D] border-b border-grey-200 dark:border-[#374151] sticky top-0 z-10">
+      <div ref={ref} className="h-full bg-grey-50 dark:bg-[#171B22] pb-12">
+        {/* Header with breadcrumb - Background, border, and sticky removed */}
+        <div>
           <div className="max-w-4xl mx-auto px-6 py-4">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-grey-600 dark:text-grey-400 mb-4">
@@ -304,7 +389,8 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
               <span className="text-primary-green">{lesson.title}</span>
             </div>
 
-            <button
+            {/* Temporarily commented out - Back button */}
+            {/* <button
               onClick={handleBack}
               className={cn(
                 'flex items-center gap-2 mb-4',
@@ -316,16 +402,17 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
               <span className="text-sm font-medium font-[family-name:var(--font-rubik)]">
                 Volver
               </span>
-            </button>
+            </button> */}
 
             {/* Title and metadata */}
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-green/20 rounded-full mb-2">
+              {/* Temporarily commented out - Subject badge */}
+              {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-green/20 rounded-full mb-2">
                 <div className="w-2 h-2 rounded-full bg-primary-green animate-pulse" />
                 <span className="text-xs font-medium text-primary-green uppercase tracking-wide">
                   Cápsula de ciencia
                 </span>
-              </div>
+              </div> */}
 
               <h1 className="text-2xl md:text-3xl font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
                 {lesson.title}
@@ -340,8 +427,8 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
               </div>
             </div>
 
-            {/* Progress Bar */}
-            {questions.length > 0 && (
+            {/* Temporarily commented out - Progress Bar */}
+            {/* {questions.length > 0 && (
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between text-sm text-grey-600 dark:text-grey-400">
                   <span>Progreso de ejercicios</span>
@@ -352,203 +439,112 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
                 </div>
                 <Progress value={getProgressPercentage()} className="h-2" />
               </div>
-            )}
+            )} */}
           </div>
         </div>
 
         {/* Content */}
         <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-          {/* Accordions with reused lesson styles */}
-          <AccordionPrimitive.Root
+          {/* Accordions with reusable components */}
+          <AccordionRoot
             type="multiple"
             defaultValue={['what-you-will-learn', 'what-matters-for-exam']}
-            className="space-y-4"
           >
             {/* ¿Qué aprenderás hoy? */}
             {lesson.whatYouWillLearn && (
-              <AccordionPrimitive.Item
-                value="what-you-will-learn"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="what-you-will-learn">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     ¿Qué aprenderás hoy?
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    <MarkdownContent content={lesson.whatYouWillLearn} />
-                  </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionTrigger>
+                <AccordionContent markdown>
+                  {lesson.whatYouWillLearn}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {/* Lo que importa para tu examen */}
             {lesson.whatMattersForExam && (
-              <AccordionPrimitive.Item
-                value="what-matters-for-exam"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="what-matters-for-exam">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     Lo que importa para tu examen
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    <MarkdownContent content={lesson.whatMattersForExam} />
-                  </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionTrigger>
+                <AccordionContent markdown>
+                  {lesson.whatMattersForExam}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {/* Main Content */}
             {lesson.mainContent && (
-              <AccordionPrimitive.Item
-                value="main-content"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="main-content">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     Contenido principal
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    <MarkdownContent content={lesson.mainContent} />
-                  </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionTrigger>
+                <AccordionContent markdown>
+                  {lesson.mainContent}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {/* Tips */}
             {lesson.tips && (
-              <AccordionPrimitive.Item
-                value="tips"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="tips">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     Tips y consejos
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    <MarkdownContent content={lesson.tips} />
-                  </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionTrigger>
+                <AccordionContent markdown>
+                  {lesson.tips}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {/* Summary */}
             {lesson.summary && (
-              <AccordionPrimitive.Item
-                value="summary"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="summary">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     Resumen
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    <MarkdownContent content={lesson.summary} />
-                  </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionTrigger>
+                <AccordionContent markdown>
+                  {lesson.summary}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {/* Learn More */}
             {lesson.learnMoreResources && (
-              <AccordionPrimitive.Item
-                value="learn-more"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="learn-more">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     Aprende más
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    <MarkdownContent content={lesson.learnMoreResources} />
-                  </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionTrigger>
+                <AccordionContent markdown>
+                  {lesson.learnMoreResources}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
             {/* Practice Questions */}
             {questions.length > 0 && (
-              <AccordionPrimitive.Item
-                value="practice-questions"
-                className="w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden"
-              >
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    'flex w-full items-center justify-between py-4 px-6 text-left transition-all',
-                    'hover:bg-grey-50 dark:hover:bg-[#272E3A]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green focus-visible:ring-offset-2',
-                    '[&[data-state=open]>svg]:rotate-180'
-                  )}
-                >
+              <AccordionItem value="practice-questions">
+                <AccordionTrigger>
                   <h3 className="text-[18px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
                     Practica como en el examen real
                   </h3>
-                  <ChevronDown className="h-5 w-5 text-dark-600 dark:text-grey-400 transition-transform duration-200 shrink-0 ml-4" />
-                </AccordionPrimitive.Trigger>
-                <AccordionPrimitive.Content className="overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                  <div className="px-6 pb-6 pt-2">
-                    {/* Questions Section - Reutilizado de LessonQuestions */}
-                    <div className="space-y-8">
+                </AccordionTrigger>
+                <AccordionContent>
+                  {/* Questions Section - Reutilizado de LessonQuestions */}
+                  <div className="space-y-8">
                       {questions.map((question, questionIndex) => {
                         const state = questionStates[question._id];
                         if (!state) return null;
@@ -559,34 +555,23 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
                           <div key={question._id} className="space-y-4">
                             {/* Question Statement */}
                             <h4 className="text-[16px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                              Ejercicio {questionIndex + 1} - {question.questionText}
+                              Ejercicio {questionIndex + 1} - {question.statement}
                             </h4>
-
-                            {/* Question Image */}
-                            {question.imageUrl && (
-                              <div className="mb-4">
-                                <img
-                                  src={question.imageUrl}
-                                  alt="Question"
-                                  className="rounded-lg max-w-full"
-                                />
-                              </div>
-                            )}
 
                             {/* Options usando QuizOption */}
                             <div className="space-y-3">
                               {question.options.map((option) => {
-                                const isSelected = state.selectedAnswer === option._id;
+                                const isSelected = state.selectedAnswer === option.id;
                                 const isDisabled = state.answered;
 
                                 return (
                                   <QuizOption
-                                    key={option._id}
-                                    id={option._id}
+                                    key={option.id}
+                                    id={option.id}
                                     text={option.text}
                                     selected={isSelected}
                                     multipleChoice={false}
-                                    onSelect={() => !isDisabled && handleSelectAnswer(question._id, option._id)}
+                                    onSelect={() => !isDisabled && handleSelectAnswer(question._id, option.id)}
                                     disabled={isDisabled}
                                   />
                                 );
@@ -594,84 +579,48 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
                             </div>
 
                             {/* Validate Button */}
-                            {!state.answered && hasSelectedAnswer && (
+                            {/* Show button when has selected answer and NOT permanently correct */}
+                            {!state.isCorrect && hasSelectedAnswer && (
                               <div className="flex justify-center">
-                                <button
-                                  type="button"
+                                <Button
+                                  variant="primary"
+                                  color="green"
+                                  size="medium"
                                   onClick={() => handleValidateAnswer(question._id)}
-                                  className={cn(
-                                    'px-8 py-3 rounded-lg',
-                                    'bg-primary-green text-white',
-                                    'hover:bg-primary-green/90 transition-colors',
-                                    'font-medium text-[16px] font-[family-name:var(--font-rubik)]'
-                                  )}
                                 >
                                   Validar
-                                </button>
+                                </Button>
                               </div>
                             )}
 
                             {/* Temporary Feedback Toast (shown for 3 seconds after validation) */}
-                            {state.answered && state.feedback && (
-                              <div className="flex flex-col items-center gap-4 py-4">
-                                {/* Feedback Card */}
-                                <div className="relative flex items-center gap-3 px-6 py-4 bg-white dark:bg-[#1E242D] rounded-[20px] shadow-[0px_12px_40px_15px_#0000001A]">
-                                  {/* Icon */}
-                                  <div className="flex-shrink-0">
-                                    <Image
-                                      src={state.isCorrect ? '/icons/succes-icon.svg' : '/icons/error-icon.svg'}
-                                      alt={state.isCorrect ? 'success' : 'error'}
-                                      width={36}
-                                      height={36}
-                                    />
-                                  </div>
+                            {state.showTemporaryFeedback && (
+                              <FeedbackCard
+                                isCorrect={state.isCorrect || false}
+                                showKibiIcon={true}
+                              />
+                            )}
 
-                                  {/* Message */}
-                                  <p className="text-dark-900 dark:text-white font-medium text-base leading-snug max-w-sm">
-                                    {state.isCorrect ? '¡Respuesta correcta!' : 'Tu respuesta no es correcta'}
-                                  </p>
-
-                                  {/* Triangle/Bonete - pointing down */}
-                                  <div
-                                    className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0"
-                                    style={{
-                                      borderLeft: '12px solid transparent',
-                                      borderRight: '12px solid transparent',
-                                      borderTop: '12px solid white',
-                                      filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.05))',
-                                    }}
-                                  />
-                                </div>
-
-                                {/* Kibi Icon */}
-                                <div className="flex-shrink-0">
-                                  <Image
-                                    src="/illustrations/Kibi Icon.svg"
-                                    alt="Kibi"
-                                    width={80}
-                                    height={80}
-                                  />
-                                </div>
-
-                                {/* Explanation Text */}
-                                {state.feedback && (
-                                  <div className="mt-4 p-4 border border-grey-300 dark:border-grey-700 rounded-lg bg-white dark:bg-[#1E242D] max-w-2xl">
-                                    <p className="text-[14px] text-dark-800 dark:text-white leading-relaxed">
-                                      {state.feedback}
-                                    </p>
-                                  </div>
-                                )}
+                            {/* Step-by-step Explanation (permanently shown after first incorrect validation) */}
+                            {state.isValidated && !state.isCorrect && question.stepByStepExplanation && (
+                              <div className="mt-4 p-4 border border-grey-300 dark:border-[#374151] rounded-lg bg-white dark:bg-[#1E242D]">
+                                <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-3">
+                                  Solución paso a paso:
+                                </h3>
+                                <MarkdownRenderer
+                                  content={cleanStepByStepExplanation(question.stepByStepExplanation)}
+                                  className="prose prose-sm max-w-none font-[family-name:var(--font-rubik)]"
+                                />
                               </div>
                             )}
                           </div>
                         );
                       })}
-                    </div>
                   </div>
-                </AccordionPrimitive.Content>
-              </AccordionPrimitive.Item>
+                </AccordionContent>
+              </AccordionItem>
             )}
-          </AccordionPrimitive.Root>
+          </AccordionRoot>
 
           {/* Finish Button */}
           <div className="flex justify-center">

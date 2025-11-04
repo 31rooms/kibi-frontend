@@ -8,8 +8,8 @@ import { useTheme } from '@/shared/lib/context';
 import { useMySubjects } from '../hooks/useMySubjects';
 import { useProgress } from '@/features/progress/hooks/useProgress';
 import { Button } from '@/shared/ui/Button';
-import { Card, CardContent } from '@/shared/ui/Card';
-import { Star, ChevronRight, CheckCircle } from 'lucide-react';
+import { Card } from '@/shared/ui/Card';
+import { ChevronRight, CheckCircle } from 'lucide-react';
 
 /**
  * Inicio Section Component
@@ -131,7 +131,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       <main
         ref={internalRef}
         className={cn(
-          "flex-1 overflow-y-auto p-6 md:p-8",
+          "flex-1 overflow-y-auto",
           "bg-white dark:bg-[#0A0F1E]",
           "relative",
           "scrollbar-hide",
@@ -150,31 +150,32 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
           </div>
         )}
 
-        {/* Content with fade-in transition */}
+        {/* Weekly Calendar - Sticky Top Left - Hidden on Mobile */}
         <div
           className={cn(
-            "max-w-7xl mx-auto min-h-full flex flex-col",
+            "sticky top-12 left-12 z-10 w-fit hidden md:block",
             "transition-opacity duration-300",
             showContent ? "opacity-100" : "opacity-0"
           )}
         >
-          {/* Weekly Calendar */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="text-sm text-gray-400 mr-2">
-              <CheckCircle className="w-4 h-4 inline mr-1 text-primary-green" />
-              Activo
-            </span>
-            <span className="text-sm text-gray-500 mr-4">
-              <div className="w-4 h-4 inline-block mr-1 rounded-full bg-gray-600"></div>
-              Inactivo
-            </span>
+          <Card padding="small" className="bg-white dark:bg-[#171B22]">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-xs text-gray-400">
+                <CheckCircle className="w-3 h-3 inline mr-1 text-primary-green" />
+                Activo
+              </span>
+              <span className="text-xs text-gray-500">
+                <div className="w-3 h-3 inline-block mr-1 rounded-full bg-gray-600"></div>
+                Inactivo
+              </span>
+            </div>
 
             <div className="flex gap-2">
               {weekDays.map((day, index) => (
                 <div
                   key={index}
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all",
+                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all",
                     day.isActive && "bg-primary-green text-white",
                     day.isInactive && "bg-gray-700 dark:bg-gray-800 text-gray-400"
                   )}
@@ -183,47 +184,56 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
+        </div>
 
-          {/* Achievement of the Week */}
-          <div className="mb-6 flex justify-center">
-            <Card className="bg-transparent border-2 border-primary-green/50 w-[280px]">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="flex-shrink-0 w-12 h-12 bg-primary-green/20 rounded-lg flex items-center justify-center">
-                  <Star className="w-6 h-6 text-primary-green fill-primary-green" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
-                    Logro de la semana
-                  </p>
-                  <p className="text-base font-bold text-white">
-                    Primer paso
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Achievement of the Week - Sticky */}
+        <div
+          className={cn(
+            "sticky left-4 md:left-12 top-4 top-[45%] z-10 w-fit",
+            "transition-opacity duration-300",
+            showContent ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <Card
+            variant="elevated"
+            padding="small"
+            className="w-[200px]"
+            style={{
+              backgroundColor: isDarkMode ? '#16301866' : '#E7FFE766'
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center">
+                <Image
+                  src="/icons/star-flash.svg"
+                  alt="Star achievement"
+                  width={24}
+                  height={24}
+                />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 dark:text-white">
+                  Logro de la semana
+                </p>
+                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                  Primer paso
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
 
-          {/* Daily Session Button */}
-          <div className="mb-6 flex flex-col items-center gap-4">
-            <Button
-              onClick={handleDailySessionClick}
-              size="lg"
-              className="w-[280px] h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all"
-              color="green"
-            >
-              Sesión diaria
-              <ChevronRight className="w-5 h-5 ml-2" />
-            </Button>
-
-            <p className="text-sm text-gray-400">
-              Próximo reto en{' '}
-              <span className="text-white font-medium">{nextChallengeTime} h</span>
-            </p>
-          </div>
-
+        {/* Content container */}
+        <div className="relative min-h-[calc(100vh-200px)] pb-[60px]">
           {/* Container for vertically stacked subjects with curved S-wave layout */}
-          <div className="w-[280px] sm:w-[350px] mx-auto flex flex-col gap-2 pb-6 mt-6">
+          <div
+            className={cn(
+              "w-[280px] sm:w-[350px] mx-auto flex flex-col gap-2 pt-6 pb-6",
+              "transition-opacity duration-300",
+              showContent ? "opacity-100" : "opacity-0"
+            )}
+          >
             {subjects.map((subject, index) => {
                 // S-wave pattern: 8 positions per cycle
                 const wavePosition = index % 8;
@@ -266,6 +276,32 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   </div>
                 );
               })}
+          </div>
+        </div>
+
+        {/* Daily Session Button - Floating Sticky Bottom */}
+        <div
+          className={cn(
+            "sticky bottom-4 left-0 right-0 z-20 flex flex-col items-center pointer-events-none",
+            "transition-opacity duration-300",
+            showContent ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <div className="backdrop-blur bg-white/10 dark:bg-black/10 p-8 flex flex-col items-center gap-2 border border-white/20 dark:border-white/10" style={{ borderRadius: '24px' }}>
+          <Button
+            onClick={handleDailySessionClick}
+            size="lg"
+            className="w-[280px] h-12 text-base font-bold shadow-2xl hover:shadow-3xl transition-all pointer-events-auto"
+            color="green"
+          >
+            Sesión diaria
+            <ChevronRight className="w-5 h-5 ml-2" />
+          </Button>
+
+          <p className="text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0A0F1E] px-3 py-1 rounded-full shadow-md pointer-events-none">
+            Próximo reto en{' '}
+            <span className="text-gray-900 dark:text-white font-medium">{nextChallengeTime} h</span>
+          </p>
           </div>
         </div>
       </main>

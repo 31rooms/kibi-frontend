@@ -16,6 +16,9 @@ export { DashboardHeader } from './ui/DashboardHeader';
 export { UserInfoCard } from './ui/UserInfoCard';
 export { PlaceholderCard } from './ui/PlaceholderCard';
 
+// Configuration (for advanced use cases)
+export { SECTION_COMPONENTS, DEFAULT_SECTION, getSectionComponent } from './config/sections.config';
+
 // Hooks
 export { useDashboardNavigation } from './hooks/useDashboardNavigation';
 

@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/lib/context';
-import { Alert } from '@/shared/ui';
 import type { HomeContentProps } from '../types/home.types';
 import { useMySubjects } from '../hooks/useMySubjects';
 

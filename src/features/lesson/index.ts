@@ -5,6 +5,7 @@
 // UI Components
 export { LessonView } from './ui/LessonView';
 export { EnhancedLessonView } from './ui/EnhancedLessonView';
+export { LessonSection } from './ui/LessonSection';
 export { LessonContent } from './ui/LessonContent';
 export { LessonQuestions } from './ui/LessonQuestions';
 export type { LessonViewProps } from './types/lesson.types';

@@ -31,7 +31,9 @@ import {
   Calendar,
   Accordion,
   Card,
-  FeedbackCard
+  FeedbackCard,
+  CareerTag,
+  KibiIcon
 } from '@/shared/ui';
 import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
 
@@ -606,34 +608,14 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
 
             <div>
               <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
-                Tag Personalizado (Aspirante a ingeniería)
+                CareerTag Component (Adaptativo Light/Dark)
               </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-4 font-[family-name:var(--font-rubik)]">
+                Tag reutilizable que se adapta automáticamente al modo claro/oscuro
+              </p>
               <div className="flex flex-wrap gap-6 items-center">
-                <div className="flex flex-col items-center gap-2">
-                  <span
-                    className="inline-flex items-center px-3 h-7 text-sm font-medium rounded"
-                    style={{
-                      backgroundColor: '#47830E33',
-                      color: '#47830E'
-                    }}
-                  >
-                    Aspirante a ingeniería
-                  </span>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Light Mode</span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <span
-                    className="inline-flex items-center px-3 h-7 text-sm font-medium rounded"
-                    style={{
-                      backgroundColor: '#95C16B33',
-                      color: '#95C16B'
-                    }}
-                  >
-                    Aspirante a ingeniería
-                  </span>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Dark Mode</span>
-                </div>
+                <CareerTag />
+                <CareerTag career="Aspirante a medicina" />
               </div>
             </div>
           </div>
@@ -1451,29 +1433,31 @@ Las características de los seres vivos:
           <div className="space-y-6">
             <div>
               <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
-                Íconos de Marca
+                KibiIcon Component (Adaptativo Light/Dark)
               </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-4 font-[family-name:var(--font-rubik)]">
+                Componente reutilizable que muestra el ícono correcto según el modo actual
+              </p>
               <div className="flex flex-wrap gap-8 items-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="p-4 bg-grey-100 dark:bg-dark-800 rounded-lg">
-                    <img
-                      src="/illustrations/Kibi Icon.svg"
-                      alt="Kibi Icon Dark"
-                      className="w-20 h-20"
-                    />
+                    <KibiIcon size={80} />
                   </div>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Kibi Icon (Dark)</span>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Tamaño 80px (adaptativo)</span>
                 </div>
 
                 <div className="flex flex-col items-center gap-3">
-                  <div className="p-4 bg-dark-900 rounded-lg">
-                    <img
-                      src="/illustrations/Kibi Icon blanco.svg"
-                      alt="Kibi Icon White"
-                      className="w-20 h-20"
-                    />
+                  <div className="p-4 bg-grey-100 dark:bg-dark-800 rounded-lg">
+                    <KibiIcon size={40} />
                   </div>
-                  <span className="text-xs text-dark-600 dark:text-grey-400">Kibi Icon (White)</span>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Tamaño 40px (adaptativo)</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-3">
+                  <div className="p-4 bg-grey-100 dark:bg-dark-800 rounded-lg">
+                    <KibiIcon width={60} height={60} />
+                  </div>
+                  <span className="text-xs text-dark-600 dark:text-grey-400">Custom 60x60px</span>
                 </div>
               </div>
             </div>

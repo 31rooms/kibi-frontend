@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
-import { QuizOption, FeedbackCard, MarkdownRenderer } from '@/shared/ui';
+import { QuizOption, FeedbackCard, MarkdownRenderer, Button } from '@/shared/ui';
 import type { Question } from '../types/lesson.types';
 
 interface QuestionState {
@@ -186,18 +186,14 @@ export const LessonQuestions = React.forwardRef<HTMLDivElement, LessonQuestionsP
               {/* Show button when has selected answer and NOT permanently correct */}
               {!state.isCorrect && hasSelectedAnswer && (
                 <div className="flex justify-center">
-                  <button
-                    type="button"
+                  <Button
+                    variant="primary"
+                    color="green"
+                    size="medium"
                     onClick={() => handleValidate(question)}
-                    className={cn(
-                      'px-8 py-3 rounded-lg',
-                      'bg-primary-green text-white',
-                      'hover:bg-primary-green/90 transition-colors',
-                      'font-medium text-[16px] font-[family-name:var(--font-rubik)]'
-                    )}
                   >
                     Validar
-                  </button>
+                  </Button>
                 </div>
               )}
 

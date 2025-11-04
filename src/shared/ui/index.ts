@@ -71,3 +71,5 @@ export {
   type AccordionContentProps,
 } from "./Accordion";
 export { Card, type CardProps } from "./Card";
+export { CareerTag, type CareerTagProps } from "./CareerTag";
+export { KibiIcon, type KibiIconProps } from "./KibiIcon";

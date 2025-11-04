@@ -14,7 +14,7 @@ import type { DashboardLayoutProps } from '../types/dashboard.types';
  * Orchestrates navigation between different sections (inicio, progreso, clase-libre, examen, cuenta)
  */
 export const DashboardLayout = React.forwardRef<HTMLDivElement, DashboardLayoutProps>(
-  ({ className }, ref) => {
+  ({ className, children }, ref) => {
     const { selectedSection, setSelectedSection, handleLogout } =
       useDashboardNavigation();
 
@@ -39,8 +39,8 @@ export const DashboardLayout = React.forwardRef<HTMLDivElement, DashboardLayoutP
             onLogout={handleLogout}
           />
 
-          {/* Main Content - switches based on selectedSection */}
-          <DashboardContent selectedSection={selectedSection} />
+          {/* Main Content - either custom children or section-based navigation */}
+          {children || <DashboardContent selectedSection={selectedSection} />}
         </div>
       </div>
     );
