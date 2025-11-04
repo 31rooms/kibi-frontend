@@ -10,7 +10,7 @@ export const API_BASE_URL = process.env.NODE_ENV === 'production'
 // Create axios instance with base configuration
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // 30 seconds timeout for slow endpoints
   headers: {
     'Content-Type': 'application/json',
   },

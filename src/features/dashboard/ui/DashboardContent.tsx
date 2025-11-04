@@ -20,8 +20,9 @@ export const DashboardContent = React.forwardRef<HTMLElement, DashboardContentPr
     // Get the section component from the registry
     const SectionComponent = getSectionComponent(selectedSection);
 
-    // Render the section component with forwarded ref
-    return <SectionComponent ref={ref} />;
+    // Render the section component with forwarded ref and key to prevent remounting
+    // The key ensures each section maintains its state when switching between sections
+    return <SectionComponent key={selectedSection} ref={ref} />;
   }
 );
 
