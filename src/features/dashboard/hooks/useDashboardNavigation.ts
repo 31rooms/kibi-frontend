@@ -60,6 +60,18 @@ export function useDashboardNavigation() {
     }
   }, [searchParams]);
 
+  // Wrapper function to update both state AND URL
+  const handleSectionChange = (section: SectionType) => {
+    setSelectedSection(section);
+
+    // Update URL based on section
+    if (section === 'inicio') {
+      router.push('/home');
+    } else {
+      router.push(`/home?section=${section}`);
+    }
+  };
+
   const handleLogout = () => {
     // TODO: Implement full logout logic (clear tokens, clear auth context, etc.)
     router.push('/auth/login');
@@ -67,7 +79,7 @@ export function useDashboardNavigation() {
 
   return {
     selectedSection,
-    setSelectedSection,
+    setSelectedSection: handleSectionChange,
     handleLogout,
   };
 }
