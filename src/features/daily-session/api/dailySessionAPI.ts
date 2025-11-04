@@ -1,4 +1,4 @@
-import { api } from '@/shared/api/apiClient';
+import apiClient from '@/features/authentication/api/config';
 import type {
   RecommendationsResponse,
   LessonFullResponse,
@@ -16,7 +16,7 @@ export const dailySessionAPI = {
    * @returns {Promise<RecommendationsResponse>}
    */
   async getRecommendations(): Promise<RecommendationsResponse> {
-    const response = await api.get<RecommendationsResponse>('/progress/recommendations');
+    const response = await apiClient.get<RecommendationsResponse>('/progress/recommendations');
     return response.data;
   },
 
@@ -26,7 +26,7 @@ export const dailySessionAPI = {
    * @returns {Promise<LessonFullResponse>}
    */
   async getLessonFull(lessonId: string): Promise<LessonFullResponse> {
-    const response = await api.get<LessonFullResponse>(`/lessons/${lessonId}/full`);
+    const response = await apiClient.get<LessonFullResponse>(`/lessons/${lessonId}/full`);
     return response.data;
   },
 
@@ -37,7 +37,7 @@ export const dailySessionAPI = {
    * @returns {Promise<StartLessonResponse>}
    */
   async startLesson(lessonId: string, data: StartLessonRequest): Promise<StartLessonResponse> {
-    const response = await api.post<StartLessonResponse>(`/lessons/${lessonId}/start`, data);
+    const response = await apiClient.post<StartLessonResponse>(`/lessons/${lessonId}/start`, data);
     return response.data;
   },
 
@@ -53,7 +53,7 @@ export const dailySessionAPI = {
     questionId: string,
     data: AnswerQuestionRequest
   ): Promise<AnswerQuestionResponse> {
-    const response = await api.post<AnswerQuestionResponse>(
+    const response = await apiClient.post<AnswerQuestionResponse>(
       `/lessons/${lessonId}/questions/${questionId}/answer`,
       data
     );
@@ -67,7 +67,7 @@ export const dailySessionAPI = {
    * @returns {Promise<CompleteLessonResponse>}
    */
   async completeLesson(lessonId: string, data: CompleteLessonRequest): Promise<CompleteLessonResponse> {
-    const response = await api.post<CompleteLessonResponse>(`/lessons/${lessonId}/complete`, data);
+    const response = await apiClient.post<CompleteLessonResponse>(`/lessons/${lessonId}/complete`, data);
     return response.data;
   },
 };

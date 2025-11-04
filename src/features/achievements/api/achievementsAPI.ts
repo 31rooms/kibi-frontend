@@ -1,4 +1,4 @@
-import { api } from '@/shared/api/apiClient';
+import apiClient from '@/features/authentication/api/config';
 import type {
   UserAchievements,
   Achievement,
@@ -14,7 +14,7 @@ export const achievementsAPI = {
    * Get all user achievements
    */
   getUserAchievements: async (): Promise<UserAchievements> => {
-    const response = await api.get(ACHIEVEMENTS_BASE_URL);
+    const response = await apiClient.get(ACHIEVEMENTS_BASE_URL);
     return response.data;
   },
 
@@ -22,7 +22,7 @@ export const achievementsAPI = {
    * Get specific achievement details
    */
   getAchievementDetails: async (achievementId: string): Promise<Achievement> => {
-    const response = await api.get(`${ACHIEVEMENTS_BASE_URL}/${achievementId}`);
+    const response = await apiClient.get(`${ACHIEVEMENTS_BASE_URL}/${achievementId}`);
     return response.data;
   },
 
@@ -30,14 +30,14 @@ export const achievementsAPI = {
    * Mark achievement as seen
    */
   markAsSeen: async (achievementId: string): Promise<void> => {
-    await api.patch(`${ACHIEVEMENTS_BASE_URL}/${achievementId}/seen`);
+    await apiClient.patch(`${ACHIEVEMENTS_BASE_URL}/${achievementId}/seen`);
   },
 
   /**
    * Mark multiple achievements as seen
    */
   markMultipleAsSeen: async (achievementIds: string[]): Promise<MarkAsSeenResponse> => {
-    const response = await api.patch(`${ACHIEVEMENTS_BASE_URL}/mark-seen`, {
+    const response = await apiClient.patch(`${ACHIEVEMENTS_BASE_URL}/mark-seen`, {
       achievementIds
     } as MarkAsSeenRequest);
     return response.data;
@@ -47,7 +47,7 @@ export const achievementsAPI = {
    * Get achievement progress for ongoing achievements
    */
   getAchievementProgress: async (): Promise<AchievementProgress[]> => {
-    const response = await api.get(`${ACHIEVEMENTS_BASE_URL}/progress`);
+    const response = await apiClient.get(`${ACHIEVEMENTS_BASE_URL}/progress`);
     return response.data;
   },
 
@@ -55,7 +55,7 @@ export const achievementsAPI = {
    * Get recent unlocked achievements
    */
   getRecentAchievements: async (limit = 5): Promise<Achievement[]> => {
-    const response = await api.get(`${ACHIEVEMENTS_BASE_URL}/recent`, {
+    const response = await apiClient.get(`${ACHIEVEMENTS_BASE_URL}/recent`, {
       params: { limit }
     });
     return response.data;
