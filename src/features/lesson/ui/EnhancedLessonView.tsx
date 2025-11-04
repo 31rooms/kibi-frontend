@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { RecommendationCard } from '../components/RecommendationCard';
 import { ReviewsListCard } from '../components/ReviewsListCard';
 import { SubjectStats } from '../components/SubjectStats';
-import { Accordion } from '@/shared/ui/Accordion';
+import { AccordionRoot, AccordionItem, AccordionTrigger, AccordionContent } from '@/shared/ui/Accordion';
 // Using console.log for notifications (can be replaced with a toast library if needed)
 
 /**
@@ -319,7 +319,7 @@ export const EnhancedLessonView = React.forwardRef<HTMLDivElement, LessonViewPro
                   <CardTitle>Temas y Subtemas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Accordion type="multiple" className="space-y-2">
+                  <AccordionRoot type="multiple" className="space-y-2">
                     {hierarchy.topics
                       .sort((a, b) => (a.order || 0) - (b.order || 0))
                       .map((topic) => {
@@ -327,8 +327,8 @@ export const EnhancedLessonView = React.forwardRef<HTMLDivElement, LessonViewPro
                         const isCompleted = topicProgress?.progress.completed || false;
 
                         return (
-                          <Accordion.Item key={topic._id} value={topic._id}>
-                            <Accordion.Header>
+                          <AccordionItem key={topic._id} value={topic._id}>
+                            <AccordionTrigger>
                               <div className="flex items-center justify-between w-full">
                                 <div className="flex items-center gap-2">
                                   <div
@@ -350,8 +350,8 @@ export const EnhancedLessonView = React.forwardRef<HTMLDivElement, LessonViewPro
                                   </span>
                                 )}
                               </div>
-                            </Accordion.Header>
-                            <Accordion.Content>
+                            </AccordionTrigger>
+                            <AccordionContent>
                               <div className="space-y-2 pl-4">
                                 {topic.subtopics
                                   .sort((a, b) => (a.order || 0) - (b.order || 0))
@@ -397,11 +397,11 @@ export const EnhancedLessonView = React.forwardRef<HTMLDivElement, LessonViewPro
                                     );
                                   })}
                               </div>
-                            </Accordion.Content>
-                          </Accordion.Item>
+                            </AccordionContent>
+                          </AccordionItem>
                         );
                       })}
-                  </Accordion>
+                  </AccordionRoot>
                 </CardContent>
               </Card>
             </div>

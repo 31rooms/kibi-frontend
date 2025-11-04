@@ -561,17 +561,17 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
                             {/* Options usando QuizOption */}
                             <div className="space-y-3">
                               {question.options.map((option) => {
-                                const isSelected = state.selectedAnswer === option.id;
+                                const isSelected = state.selectedAnswer === option._id;
                                 const isDisabled = state.answered;
 
                                 return (
                                   <QuizOption
-                                    key={option.id}
-                                    id={option.id}
+                                    key={option._id}
+                                    id={option._id}
                                     text={option.text}
                                     selected={isSelected}
                                     multipleChoice={false}
-                                    onSelect={() => !isDisabled && handleSelectAnswer(question._id, option.id)}
+                                    onSelect={() => !isDisabled && handleSelectAnswer(question._id, option._id)}
                                     disabled={isDisabled}
                                   />
                                 );
