@@ -29,27 +29,35 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
     const [recommendations, setRecommendations] = useState<
       DailySessionRecommendation[]
     >([]);
+    const hasLoadedRef = React.useRef(false);
 
     useEffect(() => {
+      // Prevent duplicate requests - only load once
+      if (hasLoadedRef.current) {
+        return;
+      }
+
+      hasLoadedRef.current = true;
+
+      const loadRecommendations = async () => {
+        setLoading(true);
+        try {
+          const data = await dailySessionAPI.getRecommendations();
+          setRecommendations(data.recommendations || []);
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.error('Error loading recommendations:', error.message);
+          } else {
+            console.error('Error loading recommendations:', error);
+          }
+          setRecommendations([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
       loadRecommendations();
     }, []);
-
-    const loadRecommendations = async () => {
-      setLoading(true);
-      try {
-        const data = await dailySessionAPI.getRecommendations();
-        setRecommendations(data.recommendations || []);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Error loading recommendations:', error.message);
-        } else {
-          console.error('Error loading recommendations:', error);
-        }
-        setRecommendations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     const getSubjectIcon = (subjectName: string) => {
       const name = subjectName.toLowerCase();
