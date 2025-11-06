@@ -14,10 +14,13 @@ import {
   Tooltip,
   TopMenu,
   Select,
+  SelectGroup,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   ToggleWithText,
   CircleButton,
   EditButton,
@@ -35,7 +38,17 @@ import {
   CareerTag,
   KibiIcon
 } from '@/shared/ui';
-import { ChevronRight, Settings, User, Search, Heart, Star } from 'lucide-react';
+import {
+  ChevronRight,
+  Settings,
+  User,
+  Search,
+  Heart,
+  Star
+} from 'lucide-react';
+import IconsSection from './IconsSection';
+import CalendarSection from './CalendarSection';
+import ChartsSection from './ChartsSection';
 
 export default function DesignSystemPage() {
   const [checkboxValue, setCheckboxValue] = useState(false);
@@ -49,7 +62,6 @@ export default function DesignSystemPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [listDropdownValue, setListDropdownValue] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   return (
     <div className="min-h-screen bg-grey-50">
@@ -77,7 +89,7 @@ export default function DesignSystemPage() {
             Navegación Rápida
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {['Botones', 'Badges', 'Cards', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Feedback Cards', 'Accordeones', 'Calendar', 'Menú', 'Sidebar', 'Colores', 'Tipografía', 'Kibi Icons'].map((section) => (
+            {['Botones', 'Badges', 'Cards', 'Inputs', 'Checkboxes', 'Modales', 'Tooltips', 'Select', 'Tags', 'Alerts', 'Feedback Cards', 'Accordeones', 'Calendar', 'Charts', 'Menú', 'Sidebar', 'Colores', 'Tipografía', 'Kibi Icons'].map((section) => (
               <a
                 key={section}
                 href={`#${section.toLowerCase().replace(' ', '-')}`}
@@ -536,21 +548,102 @@ Con este método podrás resolver cualquier ecuación de primer grado con una in
             Select (Dropdown)
           </h2>
 
-          <div className="space-y-6 max-w-md">
+          <div className="space-y-8">
+            {/* Basic Select */}
             <div>
-              <label className="block text-sm font-medium text-dark-700 mb-2">Selecciona una opción</label>
-              <Select value={selectValue} onValueChange={setSelectValue}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Elige una fruta" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="apple">Manzana</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="orange">Naranja</SelectItem>
-                  <SelectItem value="grape">Uva</SelectItem>
-                  <SelectItem value="strawberry">Fresa</SelectItem>
-                </SelectContent>
-              </Select>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Select Básico
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-4 font-[family-name:var(--font-rubik)]">
+                Dropdown construido con Radix UI. Soporta dark mode automáticamente.
+              </p>
+              <div className="max-w-md">
+                <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2">
+                  Selecciona una fruta
+                </label>
+                <Select value={selectValue} onValueChange={setSelectValue}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Elige una fruta" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="apple">Manzana</SelectItem>
+                    <SelectItem value="banana">Banana</SelectItem>
+                    <SelectItem value="orange">Naranja</SelectItem>
+                    <SelectItem value="grape">Uva</SelectItem>
+                    <SelectItem value="strawberry">Fresa</SelectItem>
+                  </SelectContent>
+                </Select>
+                {selectValue && (
+                  <p className="mt-2 text-sm text-dark-600 dark:text-grey-400">
+                    Seleccionaste: <strong>{selectValue}</strong>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Select with Groups */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Select con Grupos
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-4 font-[family-name:var(--font-rubik)]">
+                Organiza opciones en grupos con SelectLabel.
+              </p>
+              <div className="max-w-md">
+                <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2">
+                  Selecciona una asignatura
+                </label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Elige una asignatura" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Ciencias</SelectLabel>
+                      <SelectItem value="physics">Física</SelectItem>
+                      <SelectItem value="chemistry">Química</SelectItem>
+                      <SelectItem value="biology">Biología</SelectItem>
+                    </SelectGroup>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Matemáticas</SelectLabel>
+                      <SelectItem value="algebra">Álgebra</SelectItem>
+                      <SelectItem value="geometry">Geometría</SelectItem>
+                      <SelectItem value="calculus">Cálculo</SelectItem>
+                    </SelectGroup>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Idiomas</SelectLabel>
+                      <SelectItem value="spanish">Español</SelectItem>
+                      <SelectItem value="english">Inglés</SelectItem>
+                      <SelectItem value="french">Francés</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Select Disabled State */}
+            <div>
+              <h3 className="text-[18px] font-semibold text-dark-800 dark:text-white mb-4 font-[family-name:var(--font-rubik)]">
+                Estado Deshabilitado
+              </h3>
+              <p className="text-[14px] text-dark-600 dark:text-grey-400 mb-4 font-[family-name:var(--font-rubik)]">
+                Select deshabilitado con estilo de borde punteado.
+              </p>
+              <div className="max-w-md">
+                <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2">
+                  Opción no disponible
+                </label>
+                <Select disabled>
+                  <SelectTrigger disabled>
+                    <SelectValue placeholder="Este select está deshabilitado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="option1">Opción 1</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </section>
@@ -1056,37 +1149,7 @@ Las características de los seres vivos:
         </section>
 
         {/* Calendar Section */}
-        <section id="calendar" className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
-          <h2 className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-6">
-            Calendar
-          </h2>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
-                Calendario Completo
-              </h3>
-              <Calendar
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                showActions
-                onDone={() => console.log('Done clicked')}
-                onRemove={() => console.log('Remove clicked')}
-              />
-            </div>
-
-            <div>
-              <h3 className="text-[18px] font-semibold text-dark-800 mb-4 font-[family-name:var(--font-rubik)]">
-                Calendar Sin Acciones
-              </h3>
-              <Calendar
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                showActions={false}
-              />
-            </div>
-          </div>
-        </section>
+        <CalendarSection />
 
         {/* List Dropdown Section */}
         <section className="mb-16 bg-white dark:bg-[#171B22] rounded-lg shadow-sm p-8">
@@ -1463,6 +1526,12 @@ Las características de los seres vivos:
             </div>
           </div>
         </section>
+
+        {/* Custom Icons Section */}
+        <IconsSection />
+
+        {/* Charts Section */}
+        <ChartsSection />
       </main>
 
       {/* Footer */}
