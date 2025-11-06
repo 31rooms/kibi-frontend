@@ -35,6 +35,7 @@ export { ToggleWithText, type ToggleWithTextProps } from "./ToggleWithText";
 export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { Calendar, type CalendarProps } from "./Calendar";
 export { CalendarMobile, type CalendarMobileProps } from "./CalendarMobile";
+export { MultiSelectCalendar, type MultiSelectCalendarProps } from "./MultiSelectCalendar";
 export { Modal, type ModalProps } from "./Modal";
 export { ModalInfo, type ModalInfoProps } from "./ModalInfo";
 export { ModalHeader, type ModalHeaderProps } from "./ModalHeader";
@@ -73,3 +74,6 @@ export {
 export { Card, type CardProps } from "./Card";
 export { CareerTag, type CareerTagProps } from "./CareerTag";
 export { KibiIcon, type KibiIconProps } from "./KibiIcon";
+export { BarChart, type BarChartProps, type BarChartData } from "./BarChart";
+export { LineChart, type LineChartProps, type LineChartData } from "./LineChart";
+export { Progress, type ProgressProps } from "./progress";
