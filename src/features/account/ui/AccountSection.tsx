@@ -1,12 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { useAuth } from '@/features/authentication';
-import { Card, Button, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ModalHeader, EditButton, Alert } from '@/shared/ui';
-import { CheckCircle, ArrowLeft } from 'lucide-react';
+import { format } from 'date-fns';
+import { Card, Button, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ModalHeader, EditButton, Alert, Checkbox, PasswordInput, SuccessModal, Calendar } from '@/shared/ui';
+import { CheckCircle, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useChangePassword } from '../hooks/useChangePassword';
+import { accountAPI } from '../api/account-service';
+import { CheckoutView } from './views';
+import {
+  isReportFormComplete,
+  getPlanEnum,
+  getUserPlanData,
+  getPlanDataByType
+} from './utils';
+import type { ViewMode, SelectedPlan, ReportData, TransferData } from './types';
 
 /**
  * Account Section Component
@@ -14,9 +24,10 @@ import { useChangePassword } from '../hooks/useChangePassword';
  */
 export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const { changePassword, isLoading, error, success, setError, setSuccess } = useChangePassword();
-    const [viewMode, setViewMode] = useState<'view' | 'edit' | 'change-password' | 'contact'>('view');
+    const [viewMode, setViewMode] = useState<ViewMode>('view');
+    const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
     const [avatarModalOpen, setAvatarModalOpen] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState('/illustrations/avatar.svg');
     const [formData, setFormData] = useState({
@@ -37,10 +48,114 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       subject: '',
       message: ''
     });
+    const [paymentMethod, setPaymentMethod] = useState<'credit' | 'transfer'>('credit');
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [reportData, setReportData] = useState({
+      referenceNumber: '',
+      paymentDate: '',
+      amount: ''
+    });
+    const calendarRef = useRef<HTMLDivElement>(null);
+
+    // Cerrar calendario al hacer clic fuera
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+          setShowCalendar(false);
+        }
+      };
+
+      if (showCalendar) {
+        document.addEventListener('mousedown', handleClickOutside);
+      }
+
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [showCalendar]);
+
+    // Datos hardcodeados para transferencia
+    const transferData: TransferData = {
+      accountNumber: '1234-5678-9012-3456',
+      idNumber: '9876-5432-1098-7654',
+      amount: selectedPlan?.price || '0,00 $'
+    };
+
+    const handlePayment = async () => {
+      if (paymentMethod === 'transfer') {
+        // Si es transferencia, ir a la vista de reportar pago
+        setReportData({
+          referenceNumber: '',
+          paymentDate: '',
+          amount: transferData.amount
+        });
+        setViewMode('report-payment');
+      } else {
+        // Si es tarjeta, actualizar suscripción antes de mostrar modal
+        try {
+          if (!selectedPlan || !user) return;
+
+          const subscriptionPlan = getPlanEnum(selectedPlan.name);
+          await accountAPI.updateSubscription(subscriptionPlan);
+
+          // Actualizar el usuario global con el nuevo plan
+          updateUser({
+            ...user,
+            subscriptionPlan: subscriptionPlan
+          });
+
+          // Si la actualización fue exitosa, mostrar modal
+          setSuccessModalOpen(true);
+        } catch (error) {
+          console.error('Error updating subscription:', error);
+          alert(error instanceof Error ? error.message : 'Error al procesar el pago');
+        }
+      }
+    };
+
+    // Función para enviar el reporte de pago
+    const handleSubmitReport = async () => {
+      try {
+        if (!selectedPlan || !user) return;
+
+        const subscriptionPlan = getPlanEnum(selectedPlan.name);
+        await accountAPI.updateSubscription(subscriptionPlan);
+
+        // Actualizar el usuario global con el nuevo plan
+        updateUser({
+          ...user,
+          subscriptionPlan: subscriptionPlan
+        });
+
+        // Si la actualización fue exitosa, mostrar modal
+        setSuccessModalOpen(true);
+      } catch (error) {
+        console.error('Error updating subscription:', error);
+        alert(error instanceof Error ? error.message : 'Error al procesar el pago');
+      }
+    };
+
+    // Renderizar modal de éxito (usado en todas las vistas)
+    const renderSuccessModal = () => (
+      <SuccessModal
+        open={successModalOpen}
+        onOpenChange={setSuccessModalOpen}
+        title="Pago recibido con éxito"
+        description="Su pago a sido validado"
+        confirmText="Continuar"
+        onConfirm={() => {
+          setSuccessModalOpen(false);
+          setViewMode('view');
+        }}
+      />
+    );
 
     // Vista de contacto
     if (viewMode === 'contact') {
       return (
+        <>
         <main
           ref={ref}
           className={cn(
@@ -183,6 +298,8 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
             </div>
           </div>
         </main>
+        {renderSuccessModal()}
+        </>
       );
     }
 
@@ -214,6 +331,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       };
 
       return (
+        <>
         <main
           ref={ref}
           className={cn(
@@ -331,12 +449,544 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
             </div>
           </div>
         </main>
+        {renderSuccessModal()}
+        </>
+      );
+    }
+
+    // Vista de reportar pago
+    if (viewMode === 'report-payment' && selectedPlan) {
+      return (
+        <>
+        <main
+          ref={ref}
+          className={cn(
+            "flex-1 overflow-y-auto p-6 md:p-8",
+            "bg-grey-50 dark:bg-[#171B22]",
+            className
+          )}
+          {...props}
+        >
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Breadcrumb */}
+            <div
+              className="pb-4 mb-4 border-b border-[#DFE4EA] dark:border-[#374151]"
+            >
+              <div className="flex items-center gap-2 text-sm" style={{ color: '#7B7B7B' }}>
+                <button
+                  onClick={() => setViewMode('view')}
+                  className="hover:text-primary-green transition-colors"
+                >
+                  <Home className="w-4 h-4" />
+                </button>
+                <ChevronRight className="w-4 h-4" />
+                <button
+                  onClick={() => setViewMode('view')}
+                  className="hover:text-primary-green transition-colors"
+                >
+                  Cuenta
+                </button>
+                <ChevronRight className="w-4 h-4" />
+                <button
+                  onClick={() => setViewMode('plans')}
+                  className="hover:text-primary-green transition-colors"
+                >
+                  Planes
+                </button>
+                <ChevronRight className="w-4 h-4" />
+                <button
+                  onClick={() => setViewMode('checkout')}
+                  className="hover:text-primary-green transition-colors"
+                >
+                  Check out
+                </button>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-primary-green">Reportar pago</span>
+              </div>
+            </div>
+
+            {/* Título centrado */}
+            <h1 className="text-[32px] lg:text-[40px] font-bold text-primary-green text-center font-[family-name:var(--font-quicksand)] mb-8">
+              Check out
+            </h1>
+
+            {/* Contenedor con max-width para el formulario */}
+            <div className="w-full max-w-[474px] mx-auto space-y-6">
+              {/* Tag (solo desktop) */}
+              {selectedPlan.name.includes('Oro') && (
+                <div className="hidden md:block relative">
+                  <div className="absolute -top-3 left-4 z-10">
+                    <span
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
+                      style={{ backgroundColor: '#E8B600' }}
+                    >
+                      Recomendado
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Desktop: Plan card separado */}
+              <div
+                className={cn(
+                  "hidden md:block relative pt-8 pb-6 px-6 rounded-[8px] border",
+                  // Plan Oro colors
+                  selectedPlan.name === 'Plan Oro' && "bg-[#FFFAE6] dark:bg-[#FFC80033] border-[#E8B600] dark:border-[#FFC800]",
+                  // Plan Diamante colors
+                  selectedPlan.name === 'Plan Diamante' && "bg-[#EAF0FE] dark:bg-[#2D68F833] border-[#2D68F8]",
+                  // Plan Free colors
+                  selectedPlan.name === 'Plan Free' && "bg-[#E7FFE7] dark:bg-[#1DA53433] border-[#47830E] dark:border-[#95C16B]"
+                )}
+              >
+                {/* Header: Icon + Name + Price */}
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill={selectedPlan.colors.border}/>
+                      </svg>
+                    </div>
+                    <h3 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                      {selectedPlan.name}
+                    </h3>
+                  </div>
+                  <span className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                    {selectedPlan.price}
+                  </span>
+                </div>
+
+                {/* Separador */}
+                <div
+                  className={cn(
+                    "border-b mb-4 opacity-30",
+                    selectedPlan.name === 'Plan Oro' && "border-[#E8B600] dark:border-[#FFC800]",
+                    selectedPlan.name === 'Plan Diamante' && "border-[#2D68F8]",
+                    selectedPlan.name === 'Plan Free' && "border-[#47830E] dark:border-[#95C16B]"
+                  )}
+                ></div>
+
+                {/* Features List */}
+                <div className="space-y-2">
+                  {selectedPlan.features.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <CheckCircle
+                        className={cn(
+                          "h-5 w-5 flex-shrink-0",
+                          selectedPlan.name === 'Plan Oro' && "text-[#E8B600] dark:text-[#FFC800]",
+                          selectedPlan.name === 'Plan Diamante' && "text-[#2D68F8]",
+                          selectedPlan.name === 'Plan Free' && "text-[#47830E] dark:text-[#95C16B]"
+                        )}
+                      />
+                      <span className="text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card con formulario de reportar pago (y plan info en mobile) */}
+              <Card className="p-6">
+                {/* Mobile: Plan info dentro de la Card */}
+                <div className="md:hidden mb-6">
+                  {/* Plan name */}
+                  <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] text-center mb-2">
+                    {selectedPlan.name}
+                  </h3>
+
+                  {/* Price */}
+                  <p className="text-[20px] font-bold text-primary-green font-[family-name:var(--font-quicksand)] text-center mb-4">
+                    {selectedPlan.price}
+                  </p>
+
+                  {/* Separator */}
+                  <div className="border-b border-[#DFE4EA] dark:border-[#374151] mb-6"></div>
+                </div>
+                <h2 className="text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] mb-4">
+                  Reportar pago
+                </h2>
+
+                <div className="space-y-4">
+                  {/* Número de Referencia */}
+                  <div>
+                    <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2 font-[family-name:var(--font-rubik)]">
+                      Numero de Referencia
+                    </label>
+                    <Input
+                      placeholder=""
+                      value={reportData.referenceNumber}
+                      onChange={(e) => setReportData({ ...reportData, referenceNumber: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Fecha del pago */}
+                  <div className="relative" ref={calendarRef}>
+                    <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2 font-[family-name:var(--font-rubik)]">
+                      Fecha del pago
+                    </label>
+                    <Input
+                      placeholder="dd/mm/aa"
+                      value={selectedDate ? format(selectedDate, 'dd/MM/yy') : ''}
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      readOnly
+                      className="cursor-pointer"
+                    />
+                    {showCalendar && (
+                      <div className="absolute z-50 bottom-full mb-2 left-0 right-0">
+                        <Calendar
+                          selected={selectedDate}
+                          onSelect={(date) => {
+                            setSelectedDate(date);
+                            setReportData({ ...reportData, paymentDate: format(date, 'dd/MM/yy') });
+                            setShowCalendar(false);
+                          }}
+                          showActions={false}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Monto */}
+                  <div>
+                    <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2 font-[family-name:var(--font-rubik)]">
+                      Monto
+                    </label>
+                    <Input
+                      value={reportData.amount}
+                      onChange={(e) => setReportData({ ...reportData, amount: e.target.value })}
+                      placeholder="0,00"
+                    />
+                  </div>
+                </div>
+
+                {/* Botones dentro de la Card (solo mobile) */}
+                <div className="md:hidden flex gap-4 justify-around mt-6">
+                  <Button
+                    variant="secondary"
+                    color="green"
+                    size="large"
+                    onClick={() => setViewMode('checkout')}
+                    className="flex-1 max-w-[200px]"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="primary"
+                    color="green"
+                    size="large"
+                    className="flex-1 max-w-[200px]"
+                    onClick={handleSubmitReport}
+                    disabled={!isReportFormComplete(reportData.referenceNumber, reportData.paymentDate, reportData.amount)}
+                  >
+                    Pagar
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Botones fuera de la Card (solo desktop) */}
+              <div className="hidden md:flex gap-4 justify-around">
+                <Button
+                  variant="secondary"
+                  color="green"
+                  size="large"
+                  onClick={() => setViewMode('checkout')}
+                  className="flex-1 max-w-[200px]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="primary"
+                  color="green"
+                  size="large"
+                  className="flex-1 max-w-[200px]"
+                  onClick={handleSubmitReport}
+                  disabled={!isReportFormComplete(reportData.referenceNumber, reportData.paymentDate, reportData.amount)}
+                >
+                  Pagar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </main>
+        {renderSuccessModal()}
+        </>
+      );
+    }
+
+    // Vista de checkout
+    if (viewMode === 'checkout' && selectedPlan) {
+      return (
+        <>
+          <CheckoutView
+            selectedPlan={selectedPlan}
+            onBack={() => setViewMode('view')}
+            onCancel={() => setViewMode('plans')}
+            onPayment={handlePayment}
+            className={className}
+          />
+          {renderSuccessModal()}
+        </>
+      );
+    }
+
+    // Vista de planes premium
+    if (viewMode === 'plans') {
+      // Get user's current plan (default to 'FREE' if not set)
+      const currentPlan = user?.subscriptionPlan?.toUpperCase() || 'FREE';
+
+      return (
+        <>
+        <main
+          ref={ref}
+          className={cn(
+            "flex-1 overflow-y-auto p-6 md:p-8",
+            "bg-grey-50 dark:bg-[#171B22]",
+            className
+          )}
+          {...props}
+        >
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Breadcrumb */}
+            <div
+              className="pb-4 mb-4 border-b border-[#DFE4EA] dark:border-[#374151]"
+            >
+              <div className="flex items-center gap-2 text-sm" style={{ color: '#7B7B7B' }}>
+                <button
+                  onClick={() => setViewMode('view')}
+                  className="hover:text-primary-green transition-colors"
+                >
+                  <Home className="w-4 h-4" />
+                </button>
+                <ChevronRight className="w-4 h-4" />
+                <button
+                  onClick={() => setViewMode('view')}
+                  className="hover:text-primary-green transition-colors"
+                >
+                  Cuenta
+                </button>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-primary-green">Planes</span>
+              </div>
+            </div>
+
+            {/* Título centrado */}
+            <h1 className="text-[32px] lg:text-[40px] font-bold text-primary-green text-center font-[family-name:var(--font-quicksand)] mb-8">
+              Planes
+            </h1>
+
+            {/* Grid de 3 cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Plan Free */}
+              <div className="relative flex flex-col">
+                {/* Tag "Actual" - Only show if current plan is FREE */}
+                {currentPlan === 'FREE' && (
+                  <div className="absolute -top-3 left-4 z-10">
+                    <span
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
+                      style={{ backgroundColor: '#22AD5C' }}
+                    >
+                      Actual
+                    </span>
+                  </div>
+                )}
+
+                {/* Card */}
+                <div
+                  className="relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full bg-[#E7FFE7] dark:bg-[#1DA53433] border border-[#47830E] dark:border-[#95C16B]"
+                >
+                  {/* Header: Icon + Name + Price */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/icons/start-50.svg"
+                        alt="Plan Icon"
+                        width={24}
+                        height={24}
+                        className="flex-shrink-0"
+                      />
+                      <h3 className="text-[15px] lg:text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                        Plan Free
+                      </h3>
+                    </div>
+                    <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
+                      Gratis
+                    </span>
+                  </div>
+
+                  {/* Separador */}
+                  <div className="border-b border-[#47830E] dark:border-[#95C16B] mb-4 opacity-30"></div>
+
+                  {/* Features List */}
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#47830E] dark:text-[#95C16B] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                        Asignaturas habilitadas: Algebra
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#47830E] dark:text-[#95C16B] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                        Kibi bot: Bloqueado
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plan Oro */}
+              <div className="relative flex flex-col">
+                {/* Tag - "Actual" if user has GOLD, otherwise "Recomendado" */}
+                <div className="absolute -top-3 left-4 z-10">
+                  <span
+                    className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
+                    style={{ backgroundColor: currentPlan === 'GOLD' ? '#22AD5C' : '#E8B600' }}
+                  >
+                    {currentPlan === 'GOLD' ? 'Actual' : 'Recomendado'}
+                  </span>
+                </div>
+
+                {/* Card */}
+                <div
+                  className="relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full bg-[#FFFAE6] dark:bg-[#FFC80033] border border-[#E8B600] dark:border-[#FFC800]"
+                >
+                  {/* Header: Icon + Name + Price */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#E8B600"/>
+                        </svg>
+                      </div>
+                      <h3 className="text-[15px] lg:text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                        Plan Oro
+                      </h3>
+                    </div>
+                    <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
+                      0,00 $
+                    </span>
+                  </div>
+
+                  {/* Separador */}
+                  <div className="border-b border-[#E8B600] dark:border-[#FFC800] mb-4 opacity-30"></div>
+
+                  {/* Features List */}
+                  <div className="space-y-2 mb-6 flex-1">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#E8B600] dark:text-[#FFC800] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                        Asignaturas habilitadas: Todas
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#E8B600] dark:text-[#FFC800] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                        Kibi bot: Limitado
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Upgrade Button - Only show if user doesn't have this plan */}
+                  {currentPlan !== 'GOLD' && (
+                    <div className="flex justify-center lg:justify-end">
+                      <Button
+                        style={{ backgroundColor: '#FFC800', color: '#000000' }}
+                        className="w-full lg:w-auto lg:min-w-[160px] hover:opacity-90 font-[family-name:var(--font-rubik)] dark:text-black"
+                        size="medium"
+                        onClick={() => {
+                          setSelectedPlan(getPlanDataByType('GOLD'));
+                          setViewMode('checkout');
+                        }}
+                      >
+                        Comprar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Plan Diamante */}
+              <div className="relative flex flex-col">
+                {/* Tag - "Actual" if user has DIAMOND, otherwise "Experto" */}
+                <div className="absolute -top-3 left-4 z-10">
+                  <span
+                    className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
+                    style={{ backgroundColor: currentPlan === 'DIAMOND' ? '#22AD5C' : '#3758F9' }}
+                  >
+                    {currentPlan === 'DIAMOND' ? 'Actual' : 'Experto'}
+                  </span>
+                </div>
+
+                {/* Card */}
+                <div
+                  className="relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full bg-[#EAF0FE] dark:bg-[#2D68F833] border border-[#2D68F8]"
+                >
+                  {/* Header: Icon + Name + Price */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L4 7V12C4 16.55 7.84 20.74 12 22C16.16 20.74 20 16.55 20 12V7L12 2Z" fill="#2D68F8"/>
+                        </svg>
+                      </div>
+                      <h3 className="text-[15px] lg:text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                        Plan Diamante
+                      </h3>
+                    </div>
+                    <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
+                      0,00 $
+                    </span>
+                  </div>
+
+                  {/* Separador */}
+                  <div className="border-b border-[#2D68F8] mb-4 opacity-30"></div>
+
+                  {/* Features List */}
+                  <div className="space-y-2 mb-6 flex-1">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#2D68F8] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                        Asignaturas habilitadas: Todas
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#2D68F8] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                        Kibi bot: Todas las funciones activas
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Upgrade Button - Only show if user doesn't have this plan */}
+                  {currentPlan !== 'DIAMOND' && (
+                    <div className="flex justify-center lg:justify-end">
+                      <Button
+                        style={{ backgroundColor: '#2D68F8' }}
+                        className="w-full lg:w-auto lg:min-w-[160px] text-white hover:opacity-90 font-[family-name:var(--font-rubik)]"
+                        size="medium"
+                        onClick={() => {
+                          setSelectedPlan(getPlanDataByType('DIAMOND'));
+                          setViewMode('checkout');
+                        }}
+                      >
+                        Comprar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+        {renderSuccessModal()}
+        </>
       );
     }
 
     // Vista de edición de perfil
     if (viewMode === 'edit') {
       return (
+        <>
         <main
           ref={ref}
           className={cn(
@@ -459,7 +1109,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                       type="date"
                       value={formData.dateOfBirth}
                       onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                      placeholder="dd/mm/aa"
+                      placeholder="dd/mm/aaaa"
                     />
                   </div>
                   <div>
@@ -576,11 +1226,14 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
             </ModalHeader>
           </div>
         </main>
+        {renderSuccessModal()}
+        </>
       );
     }
 
     // Vista principal
     return (
+      <>
       <main
         ref={ref}
         className={cn(
@@ -739,84 +1392,111 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
 
             {/* RIGHT COLUMN: Subscription Plan - Order 2 in mobile */}
             <div className="lg:flex-1 order-2">
-              <Card variant="elevated" className="relative pt-8">
-                {/* Tag "Actual" */}
-                <div className="absolute -top-3 left-4">
-                  <span
-                    className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
-                    style={{ backgroundColor: '#22AD5C' }}
+              {(() => {
+                const planData = getUserPlanData(user?.subscriptionPlan);
+                const userPlan = user?.subscriptionPlan?.toUpperCase() || 'FREE';
+
+                return (
+                  <Card
+                    variant="elevated"
+                    className={cn(
+                      "relative pt-8",
+                      userPlan === 'GOLD' && "bg-[#FFFAE6] dark:bg-[#FFC80033] border-2 border-[#E8B600] dark:border-[#FFC800]",
+                      userPlan === 'DIAMOND' && "bg-[#EAF0FE] dark:bg-[#2D68F833] border-2 border-[#2D68F8]",
+                      userPlan === 'FREE' && "bg-[#E7FFE7] dark:bg-[#1DA53433] border-2 border-[#47830E] dark:border-[#95C16B]"
+                    )}
                   >
-                    Actual
-                  </span>
-                </div>
-
-                {/* Header: 2 Columns - Icon+Name | Price+Discount */}
-                <div className="grid grid-cols-2 gap-4 items-start mb-4">
-                  {/* Columna 1: Icono + Plan Free */}
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/icons/start-50.svg"
-                      alt="Plan Icon"
-                      width={24}
-                      height={24}
-                    />
-                    <h3 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                      Plan Free
-                    </h3>
-                  </div>
-
-                  {/* Columna 2: Precio + Tag + Precio tachado */}
-                  <div className="flex flex-col items-end">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                        0,00 $
-                      </span>
+                    {/* Tag "Actual" */}
+                    <div className="absolute -top-3 left-4">
                       <span
-                        className="inline-flex items-center px-2 py-0.5 text-xs font-bold rounded font-[family-name:var(--font-rubik)]"
-                        style={{ backgroundColor: '#2563EB', color: 'white' }}
+                        className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
+                        style={{ backgroundColor: '#22AD5C' }}
                       >
-                        -30%
+                        Actual
                       </span>
                     </div>
-                    <p
-                      className="text-[13px] line-through font-[family-name:var(--font-rubik)]"
-                      style={{ color: '#7B7B7B' }}
-                    >
-                      0,00 $
-                    </p>
-                  </div>
-                </div>
 
-                {/* Separador */}
-                <div className="border-b border-[#DEE2E6] dark:border-[#374151] mb-4"></div>
-
-                {/* Features List */}
-                <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-primary-green flex-shrink-0" />
-                      <span className="text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
-                        Asignaturas habilitadas: Algebra
+                    {/* Header: Icon + Name + Price */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        {userPlan === 'GOLD' && (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill={planData.colors.icon}/>
+                          </svg>
+                        )}
+                        {userPlan === 'DIAMOND' && (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L4 7V12C4 16.55 7.84 20.74 12 22C16.16 20.74 20 16.55 20 12V7L12 2Z" fill={planData.colors.icon}/>
+                          </svg>
+                        )}
+                        {userPlan === 'FREE' && (
+                          <Image
+                            src="/icons/start-50.svg"
+                            alt="Plan Icon"
+                            width={24}
+                            height={24}
+                          />
+                        )}
+                        <h3 className="text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                          {planData.name}
+                        </h3>
+                      </div>
+                      <span className="text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                        {planData.price}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-primary-green flex-shrink-0" />
-                      <span className="text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
-                        Kibi bot: Bloqueado
-                      </span>
-                    </div>
-                  </div>
 
-                {/* Upgrade Button */}
-                <div className="flex justify-end">
-                  <Button variant="primary" color="green" size="medium" className="w-full max-w-[200px]">
-                    Cambiar a premium
-                  </Button>
-                </div>
-              </Card>
+                    {/* Separador */}
+                    <div
+                      className={cn(
+                        "border-b mb-4 opacity-30",
+                        userPlan === 'GOLD' && "border-[#E8B600] dark:border-[#FFC800]",
+                        userPlan === 'DIAMOND' && "border-[#2D68F8]",
+                        userPlan === 'FREE' && "border-[#47830E] dark:border-[#95C16B]"
+                      )}
+                    ></div>
+
+                    {/* Features List */}
+                    <div className="space-y-2 mb-4">
+                      {planData.features.map((feature, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <CheckCircle
+                            className={cn(
+                              "h-5 w-5 flex-shrink-0",
+                              userPlan === 'GOLD' && "text-[#E8B600] dark:text-[#FFC800]",
+                              userPlan === 'DIAMOND' && "text-[#2D68F8]",
+                              userPlan === 'FREE' && "text-[#47830E] dark:text-[#95C16B]"
+                            )}
+                          />
+                          <span className="text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
+                            {feature}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Change Plan Button */}
+                    <div className="flex justify-end">
+                      <Button
+                        variant="primary"
+                        color="green"
+                        size="medium"
+                        className="w-full max-w-[200px]"
+                        onClick={() => setViewMode('plans')}
+                      >
+                        Cambiar plan
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })()}
             </div>
           </div>
         </div>
       </main>
+
+      {renderSuccessModal()}
+      </>
     );
   }
 );

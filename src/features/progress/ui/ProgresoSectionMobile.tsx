@@ -6,6 +6,7 @@ import { Card, BarChart, Select, SelectContent, SelectItem, SelectTrigger, Selec
 import { CheckCircle, Calendar } from 'lucide-react';
 import { CalendarDetailView } from './CalendarDetailView';
 import { AchievementsDetailView } from './AchievementsDetailView';
+import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
 
 interface ProgresoSectionMobileProps {
   dashboard: any;
@@ -23,6 +24,7 @@ export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSecti
   ({ dashboard, timePeriod, setTimePeriod, activityTimePeriod, setActivityTimePeriod, chartData, activityData, weekDays, className }, ref) => {
     const [showCalendarDetail, setShowCalendarDetail] = useState(false);
     const [showAchievementsDetail, setShowAchievementsDetail] = useState(false);
+    const [showReforzarView, setShowReforzarView] = useState(false);
 
     // Función para acortar labels largos en mobile
     const shortenLabel = (label: string): string => {
@@ -55,6 +57,17 @@ export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSecti
         <AchievementsDetailView
           ref={ref}
           onBack={() => setShowAchievementsDetail(false)}
+          className={className}
+        />
+      );
+    }
+
+    // Si showReforzarView es true, mostrar la vista de refuerzo
+    if (showReforzarView) {
+      return (
+        <ReforzarPuntosDebiles
+          ref={ref}
+          onBack={() => setShowReforzarView(false)}
           className={className}
         />
       );
@@ -260,7 +273,12 @@ export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSecti
 
           {/* Botón Reforzar - Centrado en Mobile */}
           <div className="flex justify-center pb-4">
-            <Button variant="primary" size="medium" color="green">
+            <Button
+              variant="primary"
+              size="medium"
+              color="green"
+              onClick={() => setShowReforzarView(true)}
+            >
               Reforzar puntos débiles
             </Button>
           </div>

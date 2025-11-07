@@ -5,6 +5,7 @@ import {
   Button,
   Badge,
   Input,
+  PasswordInput,
   Checkbox,
   Toggle,
   Logo,
@@ -293,9 +294,16 @@ export default function DesignSystemPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark-700 mb-2">Password Input</label>
+              <label className="block text-sm font-medium text-dark-700 mb-2">Password Input (Old)</label>
               <Input
                 type="password"
+                placeholder="Tu contraseña"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-dark-700 mb-2">Password Input with Toggle</label>
+              <PasswordInput
                 placeholder="Tu contraseña"
               />
             </div>

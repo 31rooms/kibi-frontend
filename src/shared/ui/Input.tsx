@@ -111,19 +111,19 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {(finalTrailingIcon || showClearButton) && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center gap-1">
               {showClearButton && props.value && !disabled && (
                 <button
                   type="button"
                   onClick={onClear}
-                  className="text-grey-400 hover:text-grey-600 dark:text-grey-400 transition-colors"
+                  className="text-grey-400 hover:text-grey-600 dark:text-grey-400 transition-colors flex items-center justify-center"
                   tabIndex={-1}
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
               {finalTrailingIcon && !showClearButton && (
-                <div className="text-grey-400">{finalTrailingIcon}</div>
+                <div className="text-grey-400 flex items-center justify-center">{finalTrailingIcon}</div>
               )}
             </div>
           )}

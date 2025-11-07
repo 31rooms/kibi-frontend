@@ -5,7 +5,7 @@ export interface DashboardData {
     name: string;
     email: string;
     currentLevel: 'BASICO' | 'INTERMEDIO' | 'AVANZADO';
-    plan: 'FREE' | 'PREMIUM';
+    plan: 'FREE' | 'GOLD' | 'DIAMOND';
   };
   progress: {
     overallEffectiveness: number;

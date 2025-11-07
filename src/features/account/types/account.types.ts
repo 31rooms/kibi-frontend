@@ -17,3 +17,10 @@ export interface ChangePasswordDto {
 export interface SuccessResponse {
   message: string;
 }
+
+/**
+ * DTO for updating subscription plan
+ */
+export interface UpdateSubscriptionDto {
+  subscriptionPlan: 'FREE' | 'GOLD' | 'DIAMOND';
+}

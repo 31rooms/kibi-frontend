@@ -79,7 +79,7 @@ export const TestCard: React.FC<TestCardProps> = ({
       {premium && (
         <div className="absolute top-2 right-2">
           <Badge variant="secondary" className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-0">
-            PREMIUM
+            DIAMOND
           </Badge>
         </div>
       )}

@@ -3,7 +3,7 @@ export interface MockExamAvailability {
   canTakeExam: boolean;
   remainingExams: number;
   nextAvailableDate?: string;
-  userPlan: 'FREE' | 'PREMIUM';
+  userPlan: 'FREE' | 'GOLD' | 'DIAMOND';
   message?: string;
 }
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Card, MultiSelectCalendar, BarChart, LineChart, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button, Progress } from '@/shared/ui';
 import { X, Star, TrendingUp, Calendar, Beaker, Search, BookOpen, Trophy, Target } from 'lucide-react';
+import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
 
 interface ProgresoSectionDesktopProps {
   dashboard: any;
@@ -20,6 +21,7 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
   ({ dashboard, timePeriod, setTimePeriod, activityTimePeriod, setActivityTimePeriod, chartData, activityData, className }, ref) => {
     const [showAchievementsModal, setShowAchievementsModal] = useState(false);
     const [activeTab, setActiveTab] = useState<'todos' | 'alcanzados' | 'progreso'>('todos');
+    const [showReforzarView, setShowReforzarView] = useState(false);
 
     // Datos de logros
     const achievements = [
@@ -110,6 +112,17 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
       if (activeTab === 'progreso') return !achievement.achieved;
       return true; // todos
     });
+
+    // Si showReforzarView es true, mostrar la vista de refuerzo
+    if (showReforzarView) {
+      return (
+        <ReforzarPuntosDebiles
+          ref={ref}
+          onBack={() => setShowReforzarView(false)}
+          className={className}
+        />
+      );
+    }
 
     return (
       <main
@@ -295,7 +308,12 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
 
               {/* Botón Reforzar */}
               <div className="flex justify-end">
-                <Button variant="primary" size="medium" color="green">
+                <Button
+                  variant="primary"
+                  size="medium"
+                  color="green"
+                  onClick={() => setShowReforzarView(true)}
+                >
                   Reforzar puntos débiles
                 </Button>
               </div>
