@@ -1,10 +1,28 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/shared/lib/utils';
+import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
+import { Input } from '@/shared/ui/Input';
+import { Mail, MessageCircle, Copy, Share2 } from 'lucide-react';
 
 export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
+    const [referralLink, setReferralLink] = useState('https://www.loremiosumt/5...');
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+      navigator.clipboard.writeText(referralLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleShare = (platform: string) => {
+      console.log(`Compartir en ${platform}`);
+      // Aquí puedes implementar la lógica de compartir en cada plataforma
+    };
+
     return (
       <main
         ref={ref}
@@ -16,12 +34,169 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
         {...props}
       >
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-dark-900 dark:text-white mb-6">
-            Examenes
-          </h1>
-          <p className="text-grey-600 dark:text-grey-400">
-            Esta seccion mostrara los examenes disponibles.
-          </p>
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-[36px] font-bold text-[#95C16B] mb-2 font-[family-name:var(--font-quicksand)]">
+              Simulación de examen
+            </h1>
+            <p className="text-[18px] text-dark-600 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
+              Pon a prueba tus conocimientos con la simulación del examen real
+            </p>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Card - Referral */}
+            <Card
+              variant="default"
+              padding="large"
+              className="bg-white dark:bg-dark-800 border-grey-500 dark:border-dark-500"
+            >
+              <div className="space-y-6">
+                <p className="text-[16px] text-dark-700 dark:text-grey-300 font-[family-name:var(--font-rubik)] leading-relaxed">
+                  Invita a tus amigos y si se suscriben a Kibi te regalamos un examen simulacro.
+                </p>
+
+                {/* Referral Link Input */}
+                <div className="space-y-2">
+                  <label className="block text-[14px] font-medium text-dark-700 dark:text-grey-300 font-[family-name:var(--font-rubik)]">
+                    Link de referido
+                  </label>
+                  <div className="flex gap-3">
+                    <Input
+                      value={referralLink}
+                      onChange={(e) => setReferralLink(e.target.value)}
+                      readOnly
+                      className="flex-1 bg-white dark:bg-[#171B22] border-grey-500 dark:border-dark-500"
+                    />
+                    <Button
+                      variant="primary"
+                      color="green"
+                      size="medium"
+                      onClick={handleCopy}
+                      className="px-6"
+                      disabled
+                    >
+                      <Copy className="w-5 h-5" />
+                    </Button>
+                  </div>
+                  {copied && (
+                    <p className="text-sm text-success-500 font-[family-name:var(--font-rubik)]">
+                      ¡Enlace copiado!
+                    </p>
+                  )}
+                </div>
+
+                {/* Social Icons */}
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => handleShare('email')}
+                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
+                    aria-label="Compartir por email"
+                  >
+                    <Mail className="w-5 h-5 text-primary-green dark:text-primary-green" />
+                  </button>
+                  <button
+                    onClick={() => handleShare('whatsapp')}
+                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
+                    aria-label="Compartir por WhatsApp"
+                  >
+                    <MessageCircle className="w-5 h-5 text-primary-green dark:text-primary-green" />
+                  </button>
+                  <button
+                    onClick={() => handleShare('facebook')}
+                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
+                    aria-label="Compartir en Facebook"
+                  >
+                    <Share2 className="w-5 h-5 text-primary-green dark:text-primary-green" />
+                  </button>
+                  <button
+                    onClick={() => handleShare('instagram')}
+                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
+                    aria-label="Compartir en Instagram"
+                  >
+                    <Share2 className="w-5 h-5 text-primary-green dark:text-primary-green" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+
+            {/* Right Card - Available Exams */}
+            <Card
+              variant="default"
+              padding="large"
+              className="bg-white dark:bg-dark-800 border-grey-500 dark:border-dark-500 flex flex-col justify-between"
+            >
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[20px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                    Examenes disponibles
+                  </h3>
+                  <span className="text-[48px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
+                    0/3
+                  </span>
+                </div>
+
+                <Button
+                  variant="primary"
+                  color="green"
+                  size="large"
+                  className="w-full"
+                  disabled
+                >
+                  Empezar simulación
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          {/* Purchase Section */}
+          <Card
+            variant="default"
+            padding="medium"
+            className="mt-6 bg-[#E7FFE7] dark:bg-[#1E242D] border-grey-500 dark:border-dark-500"
+          >
+            <div className="space-y-4">
+              {/* Title */}
+              <h2 className="text-[24px] font-bold text-dark-900 dark:text-white text-center font-[family-name:var(--font-quicksand)]">
+                Adquiere hasta tres simulaciones
+              </h2>
+
+              {/* Inner Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((index) => (
+                  <Card
+                    key={index}
+                    variant="default"
+                    padding="medium"
+                    className="bg-[#171B22] border-grey-500 dark:border-dark-500"
+                  >
+                    <div className="text-center space-y-1">
+                      <p className="text-[16px] text-white font-[family-name:var(--font-rubik)]">
+                        Examen simulacro
+                      </p>
+                      <p className="text-[32px] font-bold text-white font-[family-name:var(--font-quicksand)]">
+                        0,00 $
+                      </p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Buy Button */}
+              <div className="flex justify-center">
+                <Button
+                  variant="primary"
+                  color="green"
+                  size="large"
+                  className="px-12"
+                  disabled
+                >
+                  Comprar simulación
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
       </main>
     );
