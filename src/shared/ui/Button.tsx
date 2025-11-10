@@ -21,12 +21,12 @@ const buttonVariants = cva(
         blue: '',
       },
       size: {
-        sm: 'h-9 px-4 text-sm rounded-full', // Alias
-        small: 'h-9 px-4 text-sm rounded-full',
-        md: 'h-11 px-6 text-base rounded-full', // Alias
-        medium: 'h-11 px-6 text-base rounded-full',
-        lg: 'h-[52px] px-8 text-lg rounded-full', // Alias
-        large: 'h-[52px] px-8 text-lg rounded-full',
+        sm: 'min-h-9 md:h-9 px-4 text-sm rounded-full', // Alias
+        small: 'min-h-9 md:h-9 px-4 text-sm rounded-full',
+        md: 'min-h-11 md:h-11 px-6 text-base rounded-full', // Alias
+        medium: 'min-h-11 md:h-11 px-6 text-base rounded-full',
+        lg: 'min-h-[52px] md:h-[52px] px-8 text-lg rounded-full', // Alias
+        large: 'min-h-[52px] md:h-[52px] px-8 text-lg rounded-full',
       },
     },
     compoundVariants: [
@@ -58,25 +58,25 @@ const buttonVariants = cva(
       {
         variant: 'secondary',
         color: 'green',
-        className: 'border-[var(--color-button-green-default)] text-[var(--color-button-green-default)] hover:bg-[var(--color-button-green-default)] active:bg-[var(--color-button-green-default)]',
+        className: 'border-[var(--color-button-green-default)] text-[var(--color-button-green-default)] hover:bg-[var(--color-button-green-default)] hover:text-white active:bg-[var(--color-button-green-default)] active:text-white',
       },
       // Secondary + Blue
       {
         variant: 'secondary',
         color: 'blue',
-        className: 'border-[var(--color-primary-blue)] text-[var(--color-primary-blue)] hover:bg-[var(--color-primary-blue)] active:bg-[var(--color-primary-blue)]',
+        className: 'border-[var(--color-primary-blue)] text-[var(--color-primary-blue)] hover:bg-[var(--color-primary-blue)] hover:text-white active:bg-[var(--color-primary-blue)] active:text-white',
       },
       // Outline (alias for Secondary) + Green
       {
         variant: 'outline',
         color: 'green',
-        className: 'border-[var(--color-button-green-default)] text-[var(--color-button-green-default)] hover:bg-[var(--color-button-green-default)] active:bg-[var(--color-button-green-default)]',
+        className: 'border-[var(--color-button-green-default)] text-[var(--color-button-green-default)] hover:bg-[var(--color-button-green-default)] hover:text-white active:bg-[var(--color-button-green-default)] active:text-white',
       },
       // Outline (alias for Secondary) + Blue
       {
         variant: 'outline',
         color: 'blue',
-        className: 'border-[var(--color-primary-blue)] text-[var(--color-primary-blue)] hover:bg-[var(--color-primary-blue)] active:bg-[var(--color-primary-blue)]',
+        className: 'border-[var(--color-primary-blue)] text-[var(--color-primary-blue)] hover:bg-[var(--color-primary-blue)] hover:text-white active:bg-[var(--color-primary-blue)] active:text-white',
       },
       // Text + Green
       {
