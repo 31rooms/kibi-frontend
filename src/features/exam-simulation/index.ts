@@ -17,6 +17,7 @@ export { ExamResultsView } from './ui/ExamResultsView';
 export { ExitConfirmationModal } from './ui/ExitConfirmationModal';
 export { ExamSimulationLayout } from './ui/ExamSimulationLayout';
 export type { ExamSimulationLayoutProps } from './ui/ExamSimulationLayout';
+export { ExamSimulationSection } from './ui/ExamSimulationSection';
 
 // Types
 export type {

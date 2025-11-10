@@ -140,7 +140,7 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   </span>
                 </div>
 
-                <Link href="/dashboard/exam-simulation" className="block w-full">
+                <Link href="/home?section=exam-simulation" className="block w-full">
                   <Button
                     variant="primary"
                     color="green"
@@ -218,7 +218,7 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
           onCancel={() => setModalOpen(false)}
           onConfirm={() => {
             setModalOpen(false);
-            window.location.href = '/dashboard/exam-simulation';
+            window.location.href = '/home?section=exam-simulation';
           }}
           className="[&_[class*='iconBg']]:!bg-[#FFD33333]"
         >

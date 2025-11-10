@@ -14,6 +14,9 @@ export const DashboardSidebar = React.forwardRef<
   HTMLElement,
   DashboardSidebarProps
 >(({ selectedSection, onSectionChange, onLogout }, ref) => {
+  // Make exam section active when in exam-simulation
+  const isExamenActive = selectedSection === 'examen' || selectedSection === 'exam-simulation';
+
   return (
     <aside
       ref={ref}
@@ -42,7 +45,7 @@ export const DashboardSidebar = React.forwardRef<
         />
         <SidebarButton
           type="examen"
-          selected={selectedSection === 'examen'}
+          selected={isExamenActive}
           onClick={() => onSectionChange('examen')}
         />
         <SidebarButton

@@ -14,6 +14,7 @@ import { InicioSection } from '@/features/home';
 import { ProgresoSection } from '@/features/progress';
 import { ClaseLibreSection } from '@/features/free-class';
 import { ExamenSection } from '@/features/exam';
+import { ExamSimulationSection } from '@/features/exam-simulation';
 import { AccountSection } from '@/features/account';
 import { DailySessionSection } from '@/features/daily-session';
 import { LessonSection } from '@/features/lesson';
@@ -41,6 +42,7 @@ export const SECTION_COMPONENTS: Record<SectionType, SectionComponent> = {
   'progreso': ProgresoSection,
   'clase-libre': ClaseLibreSection,
   'examen': ExamenSection,
+  'exam-simulation': ExamSimulationSection,
   'cuenta': AccountSection,
   'daily-session': DailySessionSection,
   'lesson': LessonSection,
