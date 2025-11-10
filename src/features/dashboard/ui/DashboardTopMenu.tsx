@@ -141,6 +141,9 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
       setIsMobileMenuOpen(false);
     };
 
+    // Make exam section active when in exam-simulation
+    const isExamenActive = selectedSection === 'examen' || selectedSection === 'exam-simulation';
+
     return (
       <>
         <div
@@ -329,7 +332,7 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
           />
           <SidebarButton
             type="examen"
-            selected={selectedSection === 'examen'}
+            selected={isExamenActive}
             onClick={() => handleMobileSectionChange('examen')}
           />
           <SidebarButton

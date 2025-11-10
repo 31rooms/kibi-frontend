@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Info, CheckCircle2, AlertCircle, AlertTriangle, X } from 'lucide-react';
+import { Button } from './Button';
 
 export interface ModalProps {
   open?: boolean;
@@ -176,30 +177,25 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
           {/* Actions */}
           <div className={cn('flex gap-[18px] w-full', singleButton && 'justify-center')}>
             {!singleButton && (
-              <button
+              <Button
+                variant="secondary"
+                color="blue"
+                size="medium"
                 onClick={handleCancel}
-                className={cn(
-                  'flex-1 bg-white dark:bg-[#171B22] border border-[#dee2e6] dark:border-grey-700 text-[#373737] dark:text-white',
-                  'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
-                  'hover:bg-gray-50',
-                  size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5'
-                )}
+                className="flex-1"
               >
                 {cancelText}
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="primary"
+              color="blue"
+              size="medium"
               onClick={handleConfirm}
-              className={cn(
-                'bg-[#171B22] text-white',
-                'font-["Roboto",sans-serif] text-[16px] rounded-full transition-colors',
-                'hover:bg-[#2a3149]',
-                size === 'default' ? 'px-5 py-3.5' : 'px-5 py-2.5',
-                singleButton ? 'min-w-[200px]' : 'flex-1'
-              )}
+              className={singleButton ? 'min-w-[200px]' : 'flex-1'}
             >
               {confirmText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

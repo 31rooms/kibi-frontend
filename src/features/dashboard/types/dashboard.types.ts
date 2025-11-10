@@ -22,6 +22,7 @@ export type SectionType =
   | 'progreso'
   | 'clase-libre'
   | 'examen'
+  | 'exam-simulation'
   | 'cuenta'
   | 'daily-session'
   | 'lesson';

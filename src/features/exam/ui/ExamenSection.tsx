@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { cn } from '@/shared/lib/utils';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
-import { Mail, MessageCircle, Copy, Share2 } from 'lucide-react';
+import { Modal } from '@/shared/ui/Modal';
+import { Mail, MessageCircle, Copy, Share2, AlertTriangle } from 'lucide-react';
 
 export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
     const [referralLink, setReferralLink] = useState('https://www.loremiosumt/5...');
     const [copied, setCopied] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const handleCopy = () => {
       navigator.clipboard.writeText(referralLink);
@@ -137,15 +140,20 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   </span>
                 </div>
 
-                <Button
-                  variant="primary"
-                  color="green"
-                  size="large"
-                  className="w-full"
-                  disabled
-                >
-                  Empezar simulación
-                </Button>
+                <Link href="/home?section=exam-simulation" className="block w-full">
+                  <Button
+                    variant="primary"
+                    color="green"
+                    size="large"
+                    className="w-full"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setModalOpen(true);
+                    }}
+                  >
+                    Empezar simulación
+                  </Button>
+                </Link>
               </div>
             </Card>
           </div>
@@ -169,13 +177,13 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                     key={index}
                     variant="default"
                     padding="medium"
-                    className="bg-[#171B22] border-grey-500 dark:border-dark-500"
+                    className="bg-white dark:bg-[#171B22] border-grey-500 dark:border-dark-500"
                   >
                     <div className="text-center space-y-1">
-                      <p className="text-[16px] text-white font-[family-name:var(--font-rubik)]">
+                      <p className="text-[16px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
                         Examen simulacro
                       </p>
-                      <p className="text-[32px] font-bold text-white font-[family-name:var(--font-quicksand)]">
+                      <p className="text-[32px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
                         0,00 $
                       </p>
                     </div>
@@ -198,6 +206,29 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
             </div>
           </Card>
         </div>
+
+        {/* Modal de Confirmación */}
+        <Modal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          state="warning"
+          title="¿Listo para tu examen simulacro?"
+          cancelText="Cancelar"
+          confirmText="Comenzar"
+          onCancel={() => setModalOpen(false)}
+          onConfirm={() => {
+            setModalOpen(false);
+            window.location.href = '/home?section=exam-simulation';
+          }}
+          className="[&_[class*='iconBg']]:!bg-[#FFD33333]"
+        >
+          <p className="text-center text-[#7b7b7b] dark:text-grey-400 font-['Inter',sans-serif] text-[16px] w-full">
+            El examen que vas a presentar ahora es una simulación muy parecida al examen real que presentarás pronto.
+          </p>
+          <p className="text-center text-[#7b7b7b] dark:text-grey-400 font-['Inter',sans-serif] text-[16px] w-full mt-4">
+            Antes de empezarlo es muy importante que apartes 3 horas de tu tiempo ya que no habrá pausas. Es una prueba que requiere compromiso, tiempo y mucha preparación. No te recomendamos tomarlo si aún no te sientes seguro de querer probarte al 100%. Pero si estás listo y has practicado lo suficiente, ¡vamos a ello!
+          </p>
+        </Modal>
       </main>
     );
   }
