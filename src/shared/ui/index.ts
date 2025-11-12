@@ -2,6 +2,8 @@ export { Button, type ButtonProps } from "./Button";
 export { Badge, type BadgeProps } from "./Badge";
 export { Tag, type TagProps } from "./Tag";
 export { TopMenu, type TopMenuProps } from "./TopMenu";
+export { Breadcrumb, type BreadcrumbProps, type BreadcrumbItem } from "./Breadcrumb";
+export { DropdownMenu, type DropdownMenuProps, type DropdownMenuItem } from "./DropdownMenu";
 export { Alert, AlertTitle, AlertDescription } from "./Alert";
 export {
   Tooltip,
@@ -77,6 +79,8 @@ export {
 export { Card, type CardProps } from "./Card";
 export { CareerTag, type CareerTagProps } from "./CareerTag";
 export { KibiIcon, type KibiIconProps } from "./KibiIcon";
+export { KibibotFloatingButton, type KibibotFloatingButtonProps } from "./KibibotFloatingButton";
+export { ChatBubble, type ChatBubbleProps } from "./ChatBubble";
 export { BarChart, type BarChartProps, type BarChartData } from "./BarChart";
 export { LineChart, type LineChartProps, type LineChartData } from "./LineChart";
 export { Progress, type ProgressProps } from "./progress";

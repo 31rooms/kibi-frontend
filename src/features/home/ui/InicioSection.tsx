@@ -10,6 +10,7 @@ import { useMySubjects } from '../hooks/useMySubjects';
 import { useProgress } from '@/features/progress/hooks/useProgress';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { KibibotFloatingButton } from '@/shared/ui/KibibotFloatingButton';
 import { ChevronRight, CheckCircle } from 'lucide-react';
 
 /**
@@ -69,6 +70,11 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     // Handle Daily Session button click
     const handleDailySessionClick = () => {
       router.push('/home?section=daily-session');
+    };
+
+    // Handle Kibibot button click
+    const handleKibibotClick = () => {
+      router.push('/home?section=kibibot');
     };
 
     // Calculate next challenge time (24h from now)
@@ -314,6 +320,14 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
           </p>
           </div>
         </div>
+
+        {/* Kibibot Floating Button - Bottom Right */}
+        <KibibotFloatingButton
+          onClick={handleKibibotClick}
+          size={60}
+          bottom={32}
+          right={32}
+        />
       </main>
     );
   }

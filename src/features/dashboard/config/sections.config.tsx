@@ -18,6 +18,7 @@ import { ExamSimulationSection } from '@/features/exam-simulation';
 import { AccountSection } from '@/features/account';
 import { DailySessionSection } from '@/features/daily-session';
 import { LessonSection } from '@/features/lesson';
+import { KibibotSection } from '@/features/kibibot';
 import type { SectionType } from '../types/dashboard.types';
 
 /**
@@ -46,6 +47,7 @@ export const SECTION_COMPONENTS: Record<SectionType, SectionComponent> = {
   'cuenta': AccountSection,
   'daily-session': DailySessionSection,
   'lesson': LessonSection,
+  'kibibot': KibibotSection,
 } as const;
 
 /**
