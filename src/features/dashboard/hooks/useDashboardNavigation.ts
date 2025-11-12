@@ -24,6 +24,7 @@ export function useDashboardNavigation() {
       'cuenta',
       'daily-session',
       'lesson',
+      'kibibot',
     ];
 
     if (sectionParam && validSections.includes(sectionParam)) {
@@ -51,6 +52,7 @@ export function useDashboardNavigation() {
         'cuenta',
         'daily-session',
         'lesson',
+        'kibibot',
       ];
       if (validSections.includes(sectionParam)) {
         console.log('✅ useDashboardNavigation - Setting section to:', sectionParam);

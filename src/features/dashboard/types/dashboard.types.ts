@@ -25,7 +25,8 @@ export type SectionType =
   | 'exam-simulation'
   | 'cuenta'
   | 'daily-session'
-  | 'lesson';
+  | 'lesson'
+  | 'kibibot';
 
 export interface DashboardLayoutProps {
   className?: string;
