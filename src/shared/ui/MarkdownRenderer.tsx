@@ -118,16 +118,33 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
                 {children}
               </p>
             ),
-            a: ({ href, children }) => (
-              <a
-                href={href}
-                className="text-blue-500 underline hover:text-blue-600 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {children}
-              </a>
-            ),
+            a: ({ href, children }) => {
+              // Check if the href is an image URL
+              const isImageUrl = href && /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(href);
+
+              if (isImageUrl) {
+                // Render as image if it's an image URL
+                return (
+                  <img
+                    src={href}
+                    alt={typeof children === 'string' ? children : 'Image'}
+                    className="rounded-lg max-w-full h-auto my-4"
+                  />
+                );
+              }
+
+              // Otherwise render as a normal link
+              return (
+                <a
+                  href={href}
+                  className="text-blue-500 underline hover:text-blue-600 transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {children}
+                </a>
+              );
+            },
             strong: ({ children }) => (
               <strong className="font-bold text-dark-900 dark:text-white">{children}</strong>
             ),
