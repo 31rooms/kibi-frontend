@@ -34,7 +34,7 @@ export const getPlanDataByType = (plan: 'FREE' | 'GOLD' | 'DIAMOND'): PlanData =
   if (plan === 'GOLD') {
     return {
       name: 'Plan Oro',
-      price: '0,00 $',
+      price: '299,00 $',
       features: ['Asignaturas habilitadas: Todas', 'Kibi bot: Limitado'],
       colors: {
         bg: '#FFFAE6',
@@ -48,7 +48,7 @@ export const getPlanDataByType = (plan: 'FREE' | 'GOLD' | 'DIAMOND'): PlanData =
   } else if (plan === 'DIAMOND') {
     return {
       name: 'Plan Diamante',
-      price: '0,00 $',
+      price: '499,00 $',
       features: ['Asignaturas habilitadas: Todas', 'Kibi bot: Todas las funciones activas'],
       colors: {
         bg: '#EAF0FE',
