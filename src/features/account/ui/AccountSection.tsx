@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useChangePassword } from '../hooks/useChangePassword';
 import { accountAPI } from '../api/account-service';
 import { CheckoutView } from './views';
+import { StripeProvider } from '../providers';
 import {
   isReportFormComplete,
   getPlanEnum,
@@ -83,8 +84,10 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       amount: selectedPlan?.price || '0,00 $'
     };
 
-    const handlePayment = async () => {
-      if (paymentMethod === 'transfer') {
+    const handlePayment = async (method?: 'credit' | 'transfer') => {
+      const selectedMethod = method || paymentMethod;
+
+      if (selectedMethod === 'transfer') {
         // Si es transferencia, ir a la vista de reportar pago
         setReportData({
           referenceNumber: '',
@@ -93,24 +96,19 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
         });
         setViewMode('report-payment');
       } else {
-        // Si es tarjeta, actualizar suscripción antes de mostrar modal
-        try {
-          if (!selectedPlan || !user) return;
+        // Si es tarjeta con Stripe, el webhook actualizará la suscripción automáticamente
+        // Solo mostramos el modal de éxito y volvemos a la vista principal
+        setSuccessModalOpen(true);
+        setViewMode('view');
 
+        // Opcional: Actualizar el plan localmente para reflejar el cambio inmediatamente
+        // (el webhook lo hará definitivamente en el backend)
+        if (selectedPlan && user) {
           const subscriptionPlan = getPlanEnum(selectedPlan.name);
-          await accountAPI.updateSubscription(subscriptionPlan);
-
-          // Actualizar el usuario global con el nuevo plan
           updateUser({
             ...user,
             subscriptionPlan: subscriptionPlan
           });
-
-          // Si la actualización fue exitosa, mostrar modal
-          setSuccessModalOpen(true);
-        } catch (error) {
-          console.error('Error updating subscription:', error);
-          alert(error instanceof Error ? error.message : 'Error al procesar el pago');
         }
       }
     };
@@ -717,13 +715,15 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
     if (viewMode === 'checkout' && selectedPlan) {
       return (
         <>
-          <CheckoutView
-            selectedPlan={selectedPlan}
-            onBack={() => setViewMode('view')}
-            onCancel={() => setViewMode('plans')}
-            onPayment={handlePayment}
-            className={className}
-          />
+          <StripeProvider>
+            <CheckoutView
+              selectedPlan={selectedPlan}
+              onBack={() => setViewMode('view')}
+              onCancel={() => setViewMode('plans')}
+              onPayment={handlePayment}
+              className={className}
+            />
+          </StripeProvider>
           {renderSuccessModal()}
         </>
       );
@@ -863,7 +863,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                       </h3>
                     </div>
                     <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
-                      0,00 $
+                      299,00 $
                     </span>
                   </div>
 
@@ -934,7 +934,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                       </h3>
                     </div>
                     <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
-                      0,00 $
+                      499,00 $
                     </span>
                   </div>
 

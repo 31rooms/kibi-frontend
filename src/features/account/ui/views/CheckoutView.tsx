@@ -1,36 +1,69 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { cn } from '@/shared/lib/utils';
 import { Card, Button, Input, Radio } from '@/shared/ui';
-import { Eye, EyeOff, Copy } from 'lucide-react';
-import { Breadcrumb } from '../components';
+import { Copy, Loader2 } from 'lucide-react';
+import { Breadcrumb, StripeCardInput } from '../components';
 import { PlanCard } from '../components';
-import { formatCardNumber, formatExpiryDate, formatCvv, isCardFormComplete } from '../utils';
+import { paymentsAPI } from '../../api/payments-service';
 import type { SelectedPlan, TransferData } from '../types';
 
 interface CheckoutViewProps {
   selectedPlan: SelectedPlan;
   onBack: () => void;
   onCancel: () => void;
-  onPayment: () => void;
+  onPayment?: (paymentMethod: 'credit' | 'transfer') => void;
   className?: string;
 }
 
-export const CheckoutView: React.FC<CheckoutViewProps> = ({
+/**
+ * Helper function para convertir precio string a centavos
+ * Ejemplos: "50,00 $" → 5000 centavos | "0,00 $" → 0 centavos
+ */
+function getPlanAmount(price: string): number {
+  // Si el precio es "0,00 $" o similar, retorna 0
+  if (price.includes('0,00')) return 0;
+
+  // Para precios reales, parsear correctamente
+  // Ej: "50,00 $" → 5000 centavos
+  const numStr = price.replace(/[^0-9,]/g, '').replace(',', '.');
+  return Math.round(parseFloat(numStr) * 100);
+}
+
+/**
+ * Helper function para obtener el tipo de plan
+ */
+function getPlanType(planName: string): 'GOLD' | 'DIAMOND' {
+  if (planName.includes('Oro')) return 'GOLD';
+  if (planName.includes('Diamante')) return 'DIAMOND';
+  // Por defecto retornar GOLD si no se encuentra
+  return 'GOLD';
+}
+
+/**
+ * CheckoutForm Component
+ * Maneja el formulario de pago con Stripe Elements
+ */
+const CheckoutForm: React.FC<CheckoutViewProps> = ({
   selectedPlan,
   onBack,
   onCancel,
   onPayment,
   className
 }) => {
+  const router = useRouter();
+  const stripe = useStripe();
+  const elements = useElements();
+
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'transfer'>('credit');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [showCardNumber, setShowCardNumber] = useState(true);
-  const [showExpiryDate, setShowExpiryDate] = useState(true);
-  const [showCvv, setShowCvv] = useState(true);
+
+  // Stripe states
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [cardError, setCardError] = useState<string>('');
+  const [cardComplete, setCardComplete] = useState(false);
 
   const transferData: TransferData = {
     accountNumber: '1234-5678-9012-3456',
@@ -38,24 +71,113 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
     amount: selectedPlan.price
   };
 
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCardNumber(formatCardNumber(e.target.value));
-  };
-
-  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setExpiryDate(formatExpiryDate(e.target.value, expiryDate));
-  };
-
-  const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCvv(formatCvv(e.target.value));
-  };
-
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
+  const handleStripeCardChange = (isComplete: boolean, hasError: boolean) => {
+    setCardComplete(isComplete);
+    if (!hasError) {
+      setCardError('');
+    }
+  };
+
+  /**
+   * Maneja el pago con Stripe
+   */
+  const handleStripePayment = async () => {
+    if (!stripe || !elements) {
+      setCardError('Stripe no está inicializado correctamente');
+      return;
+    }
+
+    if (!cardComplete) {
+      setCardError('Por favor completa la información de la tarjeta');
+      return;
+    }
+
+    setIsProcessing(true);
+    setCardError('');
+
+    try {
+      // 1. Obtener el monto y tipo de plan
+      const amount = getPlanAmount(selectedPlan.price);
+      const planType = getPlanType(selectedPlan.name);
+
+      // Validar que no sea plan gratuito
+      if (amount === 0) {
+        setCardError('No puedes pagar por un plan gratuito');
+        setIsProcessing(false);
+        return;
+      }
+
+      // 2. Crear PaymentIntent en el backend
+      const { clientSecret } = await paymentsAPI.createPaymentIntent({
+        planType,
+        amount,
+      });
+
+      // 3. Confirmar el pago con Stripe
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        setCardError('Error al obtener la información de la tarjeta');
+        setIsProcessing(false);
+        return;
+      }
+
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+        },
+      });
+
+      if (error) {
+        setCardError(error.message || 'Error al procesar el pago');
+        setIsProcessing(false);
+      } else if (paymentIntent?.status === 'succeeded') {
+        // Pago exitoso - resetear estado y volver a la vista anterior
+        setIsProcessing(false);
+        setCardComplete(false);
+        setCardError('');
+
+        // Llamar al callback de pago exitoso si existe
+        if (onPayment) {
+          onPayment('credit');
+        } else {
+          // Si no hay callback, volver a la vista de cuenta
+          onBack();
+        }
+      } else {
+        setCardError('El pago no pudo ser procesado. Intenta de nuevo.');
+        setIsProcessing(false);
+      }
+    } catch (error: any) {
+      console.error('Error en el pago:', error);
+      setCardError(
+        error.response?.data?.message ||
+        error.message ||
+        'Error al procesar el pago. Intenta de nuevo.'
+      );
+      setIsProcessing(false);
+    }
+  };
+
+  /**
+   * Maneja el click en el botón "Pagar"
+   */
+  const handlePayment = () => {
+    if (paymentMethod === 'credit') {
+      handleStripePayment();
+    } else {
+      // Para transferencia, llamar al callback que cambia a la vista de reportar pago
+      if (onPayment) {
+        onPayment('transfer');
+      }
+    }
+  };
+
   const isFormComplete = paymentMethod === 'credit'
-    ? isCardFormComplete(cardNumber, expiryDate, cvv)
+    ? cardComplete && !isProcessing
     : true;
 
   return (
@@ -126,6 +248,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 onCheckedChange={() => setPaymentMethod('credit')}
                 label="Crédito/Debito"
                 labelClassName="text-[14px] font-[family-name:var(--font-rubik)]"
+                disabled={isProcessing}
               />
               <Radio
                 name="paymentMethod"
@@ -133,79 +256,33 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 onCheckedChange={() => setPaymentMethod('transfer')}
                 label="Transferencia"
                 labelClassName="text-[14px] font-[family-name:var(--font-rubik)]"
+                disabled={isProcessing}
               />
             </div>
 
-            {/* Campos de tarjeta (solo si es crédito/débito) */}
+            {/* Campos de tarjeta con Stripe (solo si es crédito/débito) */}
             {paymentMethod === 'credit' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2">
-                    Numero de Tarjeta
+                  <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2 font-[family-name:var(--font-rubik)]">
+                    Información de la Tarjeta
                   </label>
-                  <Input
-                    type={showCardNumber ? 'text' : 'password'}
-                    placeholder=""
-                    value={cardNumber}
-                    onChange={handleCardNumberChange}
-                    maxLength={19}
-                    trailingIcon={
-                      <button
-                        type="button"
-                        onClick={() => setShowCardNumber(!showCardNumber)}
-                        className="cursor-pointer hover:text-primary-green transition-colors"
-                      >
-                        {showCardNumber ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    }
+                  <StripeCardInput
+                    error={cardError}
+                    onChange={handleStripeCardChange}
                   />
+                  <p className="mt-2 text-xs text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
+                    Número de tarjeta, fecha de vencimiento y CVV en un solo campo seguro
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2">
-                      Vencimiento
-                    </label>
-                    <Input
-                      type={showExpiryDate ? 'text' : 'password'}
-                      placeholder="MM/YY"
-                      value={expiryDate}
-                      onChange={handleExpiryDateChange}
-                      maxLength={5}
-                      trailingIcon={
-                        <button
-                          type="button"
-                          onClick={() => setShowExpiryDate(!showExpiryDate)}
-                          className="cursor-pointer hover:text-primary-green transition-colors"
-                        >
-                          {showExpiryDate ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      }
-                    />
+                {/* Indicador de procesamiento */}
+                {isProcessing && (
+                  <div className="flex items-center gap-2 text-sm text-primary-green font-[family-name:var(--font-rubik)]">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Procesando pago...</span>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-dark-700 dark:text-grey-300 mb-2">
-                      CVV
-                    </label>
-                    <Input
-                      type={showCvv ? 'text' : 'password'}
-                      placeholder=""
-                      value={cvv}
-                      onChange={handleCvvChange}
-                      maxLength={3}
-                      trailingIcon={
-                        <button
-                          type="button"
-                          onClick={() => setShowCvv(!showCvv)}
-                          className="cursor-pointer hover:text-primary-green transition-colors"
-                        >
-                          {showCvv ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      }
-                    />
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -292,7 +369,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
             {/* Botones dentro de la Card (solo mobile) */}
             <div className="md:hidden flex gap-4 justify-around mt-6">
-              <Button variant="secondary" color="green" size="large" onClick={onCancel} className="flex-1 max-w-[200px]">
+              <Button
+                variant="secondary"
+                color="green"
+                size="large"
+                onClick={onCancel}
+                className="flex-1 max-w-[200px]"
+                disabled={isProcessing}
+              >
                 Cancelar
               </Button>
               <Button
@@ -300,17 +384,31 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 color="green"
                 size="large"
                 className="flex-1 max-w-[200px]"
-                onClick={onPayment}
-                disabled={!isFormComplete}
+                onClick={handlePayment}
+                disabled={!isFormComplete || isProcessing}
               >
-                Pagar
+                {isProcessing ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Procesando...
+                  </span>
+                ) : (
+                  paymentMethod === 'transfer' ? 'Continuar' : 'Pagar'
+                )}
               </Button>
             </div>
           </Card>
 
           {/* Botones fuera de la Card (solo desktop) */}
           <div className="hidden md:flex gap-4 justify-around">
-            <Button variant="secondary" color="green" size="large" onClick={onCancel} className="flex-1 max-w-[200px]">
+            <Button
+              variant="secondary"
+              color="green"
+              size="large"
+              onClick={onCancel}
+              className="flex-1 max-w-[200px]"
+              disabled={isProcessing}
+            >
               Cancelar
             </Button>
             <Button
@@ -318,14 +416,31 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               color="green"
               size="large"
               className="flex-1 max-w-[200px]"
-              onClick={onPayment}
-              disabled={!isFormComplete}
+              onClick={handlePayment}
+              disabled={!isFormComplete || isProcessing}
             >
-              Pagar
+              {isProcessing ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </span>
+              ) : (
+                paymentMethod === 'transfer' ? 'Continuar' : 'Pagar'
+              )}
             </Button>
           </div>
         </div>
       </div>
     </main>
   );
+};
+
+/**
+ * CheckoutView with Stripe Provider Wrapper
+ * Este componente envuelve el CheckoutForm con StripeProvider
+ */
+export const CheckoutView: React.FC<CheckoutViewProps> = (props) => {
+  // No importamos StripeProvider aquí porque debe estar en un nivel superior
+  // El componente padre (AccountSection) debe envolver con StripeProvider
+  return <CheckoutForm {...props} />;
 };
