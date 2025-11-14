@@ -11,7 +11,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          'border border-grey-300 bg-white text-grey-900 hover:border-grey-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:bg-[#171B22] dark:text-white dark:border-[#374151] dark:hover:border-grey-600',
+          'bg-white text-grey-900 hover:border-grey-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:bg-[#171B22] dark:text-white dark:border-[#374151] dark:hover:border-grey-600',
         error:
           'border border-error-500 bg-white text-grey-900 focus:border-error-500 focus:ring-2 focus:ring-error-100 dark:bg-[#171B22] dark:text-white dark:border-error-400',
         success:

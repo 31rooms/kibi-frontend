@@ -2,10 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input, Button, Logo } from '@/shared/ui';
+import { Input, Button, KibiMessage, Logo } from '@/shared/ui';
 import { Alert, AlertDescription } from '@/shared/ui/Alert';
 import { authAPI } from '@/features/authentication';
-import { ArrowLeft } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -127,90 +126,74 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
-      {/* LEFT COLUMN - Illustration */}
-      <div className="hidden lg:flex bg-gradient-to-br from-cyan-400 via-blue-500 to-primary-green relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-64 h-64 bg-primary-green/30 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-cyan-300/20 rounded-full blur-2xl" />
-        </div>
-        <div className="relative z-10">
-          <Logo size="large" white />
-        </div>
-      </div>
-
-      {/* RIGHT COLUMN - Forgot Password Form */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-white dark:bg-[#171B22]">
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-8 flex justify-center">
-            <Logo size="medium" />
+    <div className="min-h-screen w-full flex items-center justify-center p-6 bg-white dark:bg-primary-blue">
+      <div className="w-full max-w-md">
+        {/* Form card */}
+        <div className="flex flex-col gap-6">
+          {/* KibiMessage */}
+          <div className="w-full flex justify-center">
+            <KibiMessage
+              message={
+                <>
+                  <span className="font-bold text-[23px]">¿Olvidaste tu contraseña?</span>
+                  <br />
+                  <span className="text-[16px]">Ingresa tu correo electrónico asociado a tu cuenta para obtener tu enlace y restaurar tu contraseña</span>
+                </>
+              }
+              iconSize={100}
+              className="w-full"
+            />
           </div>
 
-          {/* Form card */}
-          <div className="flex flex-col gap-6">
-            {/* Back button */}
-            <button
-              type="button"
-              onClick={handleBackToLogin}
-              className="flex items-center gap-2 text-primary-blue dark:text-primary-green hover:underline font-[family-name:var(--font-rubik)] text-[14px] disabled:opacity-50"
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <Input
+              type="email"
+              name="email"
+              placeholder="Correo electrónico"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError(null);
+              }}
+              required
               disabled={isLoading}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Volver al inicio de sesión
-            </button>
+              autoComplete="email"
+              className="border border-[#DEE2E6] dark:border-[#374151]"
+            />
 
-            {/* Header */}
-            <div className="text-center">
-              <h1 className="text-[32px] font-bold text-dark-900 dark:text-white leading-tight font-[family-name:var(--font-quicksand)] mb-2">
-                ¿Olvidaste tu contraseña?
-              </h1>
-              <p className="text-[16px] text-dark-600 dark:text-grey-300 font-[family-name:var(--font-rubik)]">
-                No te preocupes, te enviaremos instrucciones para restablecerla
-              </p>
-            </div>
-
-            {/* Error Alert */}
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <Input
-                type="email"
-                name="email"
-                placeholder="Correo electrónico"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError(null);
-                }}
-                required
+            {/* Buttons */}
+            <div className="flex gap-3 mt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="medium"
+                className="flex-1"
+                onClick={handleBackToLogin}
                 disabled={isLoading}
-                autoComplete="email"
-              />
+              >
+                Cancelar
+              </Button>
 
               <Button
                 type="submit"
                 variant="primary"
                 color="green"
-                size="large"
-                className="w-full mt-2"
+                size="medium"
+                className="flex-1"
                 disabled={isLoading}
               >
-                {isLoading ? 'Enviando...' : 'Enviar instrucciones'}
+                {isLoading ? 'Enviando...' : 'Enviar'}
               </Button>
-            </form>
-
-            {/* Info text */}
-            <p className="text-[14px] text-dark-500 dark:text-grey-400 text-center font-[family-name:var(--font-rubik)]">
-              Te enviaremos un enlace de recuperación a tu correo electrónico
-            </p>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

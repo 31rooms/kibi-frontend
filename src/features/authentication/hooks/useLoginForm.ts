@@ -11,28 +11,22 @@ export const useLoginForm = () => {
   const [formData, setFormData] = useState<LoginFormData>({
     username: '', // This will be used as email for backend
     password: '',
-    rememberMe: false,
   });
 
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
 
     // Clear error when user starts typing
     if (error) setError(null);
   }, [error]);
-
-  const handleCheckboxChange = useCallback((checked: boolean | "indeterminate") => {
-    // Convert "indeterminate" to false for boolean field
-    const booleanValue = checked === true;
-    setFormData((prev) => ({ ...prev, rememberMe: booleanValue }));
-  }, []);
 
   const validateForm = (): boolean => {
     if (!formData.username.trim()) {
@@ -82,9 +76,6 @@ export const useLoginForm = () => {
       await login(formData.username, formData.password);
       console.log('✅ Login successful!');
 
-      // If rememberMe is false, we might want to handle session storage differently
-      // For now, the tokens are always stored in localStorage
-
       // Redirect is handled in AuthContext
     } catch (error) {
       console.error('❌ Login error:', error);
@@ -105,12 +96,17 @@ export const useLoginForm = () => {
     }
   }, [formData, login]);
 
+  const handleRememberMeChange = useCallback((checked: boolean | "indeterminate") => {
+    setRememberMe(checked === true);
+  }, []);
+
   return {
     formData,
     isLoading,
     error,
+    rememberMe,
     handleChange,
-    handleCheckboxChange,
     handleSubmit,
+    handleRememberMeChange,
   };
 };

@@ -43,6 +43,11 @@ export const FeedbackToast = ({
     // Fade in
     setIsVisible(true);
 
+    // Si duration es Infinity, mantener visible permanentemente
+    if (duration === Infinity) {
+      return; // No auto-hide
+    }
+
     // Auto hide after specified duration
     const timer = setTimeout(() => {
       setIsVisible(false);
@@ -76,7 +81,7 @@ export const FeedbackToast = ({
         </div>
 
         {/* Message */}
-        <p className="text-dark-900 dark:text-white font-medium text-base leading-snug max-w-sm">
+        <p className="text-dark-900 dark:text-white font-medium text-base leading-snug max-w-sm whitespace-pre-line">
           {message}
         </p>
 

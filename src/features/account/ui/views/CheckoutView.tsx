@@ -111,10 +111,13 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
         return;
       }
 
+      // Log para debugging
+      console.log('💳 Creating payment intent:', { planType, amount, amountInDollars: amount / 100 });
+
       // 2. Crear PaymentIntent en el backend
       const { clientSecret } = await paymentsAPI.createPaymentIntent({
         planType,
-        amount,
+        amount, // Monto en centavos (ej: 29900 = $299.00)
       });
 
       // 3. Confirmar el pago con Stripe
