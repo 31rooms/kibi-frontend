@@ -57,14 +57,14 @@ jobs:
 
       - name: Configurar variables de entorno para build
         run: |
-          echo "NEXT_PUBLIC_API_URL=http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_API_URL=https://ec2-3-21-156-50.us-east-2.compute.amazonaws.com" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51ST75lBUyizt3eIYRwBo3OAVegPSkRKNQmn8FnvbZ2fRQgTT3wgfBos8DZ9NkEdRcFvZ3jUO3NQC3y2bGqrASjvP00xp1hyVS9" >> $GITHUB_ENV
           echo "NODE_ENV=production" >> $GITHUB_ENV
 
       - name: Build del proyecto
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com
+          NEXT_PUBLIC_API_URL: https://ec2-3-21-156-50.us-east-2.compute.amazonaws.com
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_51ST75lBUyizt3eIYRwBo3OAVegPSkRKNQmn8FnvbZ2fRQgTT3wgfBos8DZ9NkEdRcFvZ3jUO3NQC3y2bGqrASjvP00xp1hyVS9
 
       - name: Verificar archivos de salida
