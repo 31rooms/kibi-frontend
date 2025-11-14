@@ -22,7 +22,7 @@ export const authAPI = {
    */
   async loginUser(email: string, password: string): Promise<AuthResponse> {
     try {
-      console.log("🔐 API: Calling POST /auth/login");
+      console.log("🔐 API: Calling POST /auth/login ");
 
       const payload: LoginDto = { email, password };
       console.log("📦 Request payload:", { email, password: "***HIDDEN***" });
