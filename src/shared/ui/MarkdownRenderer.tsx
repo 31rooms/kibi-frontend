@@ -123,13 +123,21 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
               const isImageUrl = href && /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(href);
 
               if (isImageUrl) {
-                // Render as image if it's an image URL
+                // Render as image if it's an image URL with click to open in new tab
                 return (
-                  <img
-                    src={href}
-                    alt={typeof children === 'string' ? children : 'Image'}
-                    className="rounded-lg max-w-full h-auto my-4"
-                  />
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block cursor-pointer my-4 hover:opacity-80 transition-opacity"
+                    title="Click para ver en tamaño completo"
+                  >
+                    <img
+                      src={href}
+                      alt={typeof children === 'string' ? children : 'Image'}
+                      className="rounded-lg max-w-full h-auto max-h-[400px] object-contain"
+                    />
+                  </a>
                 );
               }
 
@@ -175,13 +183,30 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
                 {children}
               </h3>
             ),
-            img: ({ src, alt }) => (
-              <img
-                src={src}
-                alt={alt}
-                className="rounded-lg max-w-full h-auto my-4"
-              />
-            ),
+            img: ({ src, alt }) => {
+              // Ensure src is a string
+              const imgSrc = typeof src === 'string' ? src : undefined;
+
+              if (!imgSrc) {
+                return null;
+              }
+
+              return (
+                <a
+                  href={imgSrc}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block cursor-pointer my-4 hover:opacity-80 transition-opacity"
+                  title="Click para ver en tamaño completo"
+                >
+                  <img
+                    src={imgSrc}
+                    alt={alt}
+                    className="rounded-lg max-w-full h-auto max-h-[400px] object-contain"
+                  />
+                </a>
+              );
+            },
             code: ({ children }) => (
               <code className="bg-grey-100 dark:bg-[#272E3A] px-2 py-1 rounded text-[13px] font-mono text-dark-900 dark:text-white">
                 {children}
