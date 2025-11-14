@@ -9,7 +9,6 @@ export enum Theme {
 export interface LoginFormData {
   username: string; // Used as email for backend
   password: string;
-  rememberMe: boolean;
 }
 
 export interface RegisterFormData {

@@ -10,17 +10,15 @@ import {
   SelectContent,
   SelectItem,
   Calendar,
+  KibiMessage,
 } from '@/shared/ui';
 import { cn } from '@/shared/lib/utils';
-import { useTheme } from '@/shared/lib/context';
-import Image from 'next/image';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useDiagnosticForm } from '../hooks/useDiagnosticForm';
 
 export function DiagnosticTestForm() {
   const router = useRouter();
-  const { isDarkMode } = useTheme();
   const {
     formData,
     errors,
@@ -54,21 +52,18 @@ export function DiagnosticTestForm() {
         }}
         className="flex flex-col items-center gap-6"
       >
-        {/* Info Box */}
-        <div className="w-full bg-success-50 dark:bg-[#1E242D] rounded-2xl py-4 px-5 md:py-5 md:px-6 border border-success-200 dark:border-[#374151]  ">
-          <p className="text-[14px] md:text-[16px] text-dark-900 dark:text-white text-center font-[family-name:var(--font-rubik)] leading-relaxed">
-            Antes de tomar tu Test Gratis de 20 Preguntas, completa los siguientes datos
-          </p>
-        </div>
-
-        {/* Kibi Robot Icon */}
-        <div className="flex justify-center">
-          <Image
-            src={isDarkMode ? "/illustrations/Kibi Icon blanco.svg" : "/illustrations/Kibi Icon.svg"}
-            alt="Kibi Robot"
-            width={100}
-            height={100}
-            priority
+        {/* KibiMessage */}
+        <div className="w-full flex justify-center">
+          <KibiMessage
+            message={
+              <>
+                <span className="font-bold text-[20px]">Antes de tomar tu Test Gratis</span>
+                <br />
+                <span className="text-[16px]">Completa los siguientes datos</span>
+              </>
+            }
+            iconSize={100}
+            className="w-full"
           />
         </div>
 
@@ -82,6 +77,7 @@ export function DiagnosticTestForm() {
             onChange={(e) => handleInputChange('firstName', e.target.value)}
             error={showErrors ? errors.firstName : undefined}
             containerClassName="w-full"
+            className="border border-[#DEE2E6] dark:border-[#374151]"
           />
 
           {/* Last Name */}
@@ -92,6 +88,7 @@ export function DiagnosticTestForm() {
             onChange={(e) => handleInputChange('lastName', e.target.value)}
             error={showErrors ? errors.lastName : undefined}
             containerClassName="w-full"
+            className="border border-[#DEE2E6] dark:border-[#374151]"
           />
 
           {/* Gender Select */}
@@ -103,7 +100,10 @@ export function DiagnosticTestForm() {
               value={formData.gender}
               onValueChange={(value) => handleInputChange('gender', value)}
             >
-              <SelectTrigger className={cn(showErrors && errors.gender && 'border-error-500')}>
+              <SelectTrigger className={cn(
+                'border border-[#DEE2E6] dark:border-[#374151]',
+                showErrors && errors.gender && 'border-error-500'
+              )}>
                 <SelectValue placeholder="Selecciona tu género" />
               </SelectTrigger>
               <SelectContent>
@@ -127,7 +127,7 @@ export function DiagnosticTestForm() {
               type="button"
               onClick={() => setShowCalendar(!showCalendar)}
               className={cn(
-                'flex h-11 w-full items-center justify-between rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#171B22] px-3 py-2 text-sm',
+                'flex h-11 w-full items-center justify-between rounded-lg border border-[#DEE2E6] dark:border-[#374151] bg-white dark:bg-[#171B22] px-3 py-2 text-sm',
                 'hover:border-grey-400 dark:hover:border-grey-600 transition-colors',
                 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                 'text-dark-900 dark:text-white',

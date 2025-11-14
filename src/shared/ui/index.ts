@@ -58,6 +58,7 @@ export { QuizTextInput, type QuizTextInputProps } from "./QuizTextInput";
 export { QuizNavigator, type QuizNavigatorProps } from "./QuizNavigator";
 export { FeedbackToast, type FeedbackToastProps } from "./FeedbackToast";
 export { FeedbackCard, type FeedbackCardProps } from "./FeedbackCard";
+export { KibiMessage, type KibiMessageProps } from "./KibiMessage";
 export {
   MarkdownRenderer,
   type MarkdownRendererProps,
