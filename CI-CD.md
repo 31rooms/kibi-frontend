@@ -104,15 +104,15 @@ URL del backend API:
 ```bash
 # Via CLI (ya configurado)
 vercel env add NEXT_PUBLIC_API_URL production
-# Valor: http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com
+# Valor: https://ec2-3-21-156-50.us-east-2.compute.amazonaws.com
 
 # Via Dashboard
 https://vercel.com/kibis-projects-fe1ff294/kibi/settings/environment-variables
 ```
 
 **Valores configurados:**
-- Production: `http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com` ✅
-- Preview: `http://ec2-18-118-194-177.us-east-2.compute.amazonaws.com` ✅
+- Production: `https://ec2-3-21-156-50.us-east-2.compute.amazonaws.com` ✅
+- Preview: `https://ec2-3-21-156-50.us-east-2.compute.amazonaws.com` ✅
 - Development: `http://localhost:3000` ✅
 
 #### 2. NEXTAUTH_SECRET
