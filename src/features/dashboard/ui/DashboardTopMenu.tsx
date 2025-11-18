@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { CareerTag, SidebarButton } from '@/shared/ui';
 import { Flame, Moon, Menu, Sun, Bell, X, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth, Theme, authAPI } from '@/features/authentication';
+import { useNotificationContext, NotificationDropdown } from '@/features/notifications';
 import type { SectionType } from '../types/dashboard.types';
 
 export interface DashboardTopMenuProps {
@@ -51,9 +52,12 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
     ref
   ) => {
     const { user, updateUser } = useAuth();
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationContext();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+    const notificationButtonRef = useRef<HTMLButtonElement>(null);
 
     // Determine actual theme based on user preference and system preference
     useEffect(() => {
@@ -141,6 +145,11 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
       setIsMobileMenuOpen(false);
     };
 
+    const handleNotificationButtonClick = () => {
+      setIsNotificationDropdownOpen(!isNotificationDropdownOpen);
+      if (onNotificationClick) onNotificationClick();
+    };
+
     // Make exam section active when in exam-simulation
     const isExamenActive = selectedSection === 'examen' || selectedSection === 'exam-simulation';
 
@@ -213,16 +222,33 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
           </button>
 
           {/* Notification Icon */}
-          <button
-            onClick={onNotificationClick}
-            className="relative p-2 rounded-full cursor-pointer"
-            aria-label="Notificaciones"
-          >
-            <Bell className="w-6 h-6" />
-            {notificationCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 bg-error-500 rounded-full w-2 h-2" />
-            )}
-          </button>
+          <div className="relative">
+            <button
+              ref={notificationButtonRef}
+              onClick={handleNotificationButtonClick}
+              className="relative p-2 rounded-full cursor-pointer transition-colors"
+              aria-label="Notificaciones"
+              style={{
+                color: isDarkMode ? '#ffffff' : '#171B22',
+              }}
+            >
+              <Bell className="w-6 h-6" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 bg-error-500 rounded-full w-2 h-2" />
+              )}
+            </button>
+
+            {/* Notification Dropdown */}
+            <NotificationDropdown
+              notifications={notifications}
+              unreadCount={unreadCount}
+              isOpen={isNotificationDropdownOpen}
+              onClose={() => setIsNotificationDropdownOpen(false)}
+              onNotificationClick={() => {}}
+              onMarkAsRead={markAsRead}
+              onMarkAllAsRead={markAllAsRead}
+            />
+          </div>
 
           {/* User Profile (Desktop only) */}
           <button

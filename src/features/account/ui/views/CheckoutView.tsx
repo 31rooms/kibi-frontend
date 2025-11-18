@@ -9,6 +9,7 @@ import { Copy, Loader2 } from 'lucide-react';
 import { Breadcrumb, StripeCardInput } from '../components';
 import { PlanCard } from '../components';
 import { paymentsAPI } from '../../api/payments-service';
+import { useNotificationContext } from '@/features/notifications';
 import type { SelectedPlan, TransferData } from '../types';
 
 interface CheckoutViewProps {
@@ -57,6 +58,7 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
+  const { refresh: refreshNotifications } = useNotificationContext();
 
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'transfer'>('credit');
 
@@ -142,6 +144,12 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
         setIsProcessing(false);
         setCardComplete(false);
         setCardError('');
+
+        // Refrescar notificaciones después de 2 segundos para dar tiempo al webhook
+        setTimeout(() => {
+          console.log('🔔 Refreshing notifications after payment success...');
+          refreshNotifications();
+        }, 2000);
 
         // Llamar al callback de pago exitoso si existe
         if (onPayment) {

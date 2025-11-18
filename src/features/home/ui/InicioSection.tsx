@@ -8,10 +8,11 @@ import { useTheme } from '@/shared/lib/context';
 import { useAuth } from '@/features/authentication';
 import { useMySubjects } from '../hooks/useMySubjects';
 import { useProgress } from '@/features/progress/hooks/useProgress';
+import { useNotificationContext } from '@/features/notifications';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { KibibotFloatingButton } from '@/shared/ui/KibibotFloatingButton';
-import { ChevronRight, CheckCircle } from 'lucide-react';
+import { ChevronRight, CheckCircle, Bell, X } from 'lucide-react';
 
 /**
  * Inicio Section Component
@@ -23,11 +24,14 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     const [imagesLoaded, setImagesLoaded] = useState(false);
     const [showContent, setShowContent] = useState(false);
     const [nextChallengeTime, setNextChallengeTime] = useState('07:07');
+    const [showNotificationPrompt, setShowNotificationPrompt] = useState(true);
+    const [isEnablingNotifications, setIsEnablingNotifications] = useState(false);
     const loadedCountRef = useRef(0);
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
     const { isDarkMode } = useTheme();
     const { user } = useAuth();
+    const { pushState, subscribeToPush } = useNotificationContext();
 
     // Fetch subjects with enabled/disabled state from API
     const { subjects, career, totalQuestions, isLoading, error } = useMySubjects();
@@ -76,6 +80,53 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     const handleKibibotClick = () => {
       router.push('/home?section=kibibot');
     };
+
+    // Handle notification enable
+    const handleEnableNotifications = async () => {
+      setIsEnablingNotifications(true);
+      try {
+        const success = await subscribeToPush();
+        if (success) {
+          // Auto-dismiss on success after short delay
+          setTimeout(() => {
+            setShowNotificationPrompt(false);
+          }, 1500);
+        }
+      } catch (error) {
+        console.error('Error enabling notifications:', error);
+      } finally {
+        setIsEnablingNotifications(false);
+      }
+    };
+
+    // Handle notification prompt dismiss
+    const handleDismissNotificationPrompt = () => {
+      setShowNotificationPrompt(false);
+      // Save to localStorage to remember dismissal
+      localStorage.setItem('notification-prompt-dismissed', Date.now().toString());
+    };
+
+    // Check if notification prompt should be shown
+    useEffect(() => {
+      // Don't show if already subscribed or permission denied
+      if (pushState.isSubscribed || pushState.permission === 'denied') {
+        setShowNotificationPrompt(false);
+        return;
+      }
+
+      // Check if user dismissed it before (don't show for 7 days)
+      const dismissedAt = localStorage.getItem('notification-prompt-dismissed');
+      if (dismissedAt) {
+        const daysSinceDismissal = (Date.now() - parseInt(dismissedAt)) / (1000 * 60 * 60 * 24);
+        if (daysSinceDismissal < 7) {
+          setShowNotificationPrompt(false);
+          return;
+        }
+      }
+
+      // Show the prompt
+      setShowNotificationPrompt(true);
+    }, [pushState.isSubscribed, pushState.permission]);
 
     // Calculate next challenge time (24h from now)
     useEffect(() => {
@@ -234,6 +285,65 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
             </div>
           </Card>
         </div>
+
+        {/* Notification Prompt - Fixed Top Right */}
+        {showNotificationPrompt && pushState.isSupported && (
+          <div
+            className={cn(
+              "fixed top-[121px] right-4 md:right-12 z-20 w-fit hidden md:block",
+              "transition-opacity duration-300",
+              showContent ? "opacity-100" : "opacity-0"
+            )}
+          >
+            <Card
+              variant="elevated"
+              padding="small"
+              className="w-[280px] relative bg-white dark:bg-[#171B22]"
+            >
+              {/* Close button */}
+              <button
+                onClick={handleDismissNotificationPrompt}
+                className="absolute top-2 right-2 p-1 hover:bg-grey-100 dark:hover:bg-grey-700 rounded-full transition-colors"
+                aria-label="Cerrar"
+              >
+                <X className="w-4 h-4 text-grey-600 dark:text-grey-400" />
+              </button>
+
+              <div className="flex items-start gap-3 pr-6">
+                <div className="flex-shrink-0 w-10 h-10 bg-primary-blue/10 rounded-full flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-primary-blue" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-dark-900 dark:text-white mb-1">
+                    ¿Quieres recibir notificaciones en este dispositivo?
+                  </p>
+                  <p className="text-xs text-grey-600 dark:text-grey-400 mb-3">
+                    Te avisaremos sobre tus rachas y logros
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleEnableNotifications}
+                      disabled={isEnablingNotifications}
+                      variant="primary"
+                      size="sm"
+                      className="flex-1 text-xs"
+                    >
+                      {isEnablingNotifications ? 'Activando...' : 'Activar'}
+                    </Button>
+                    <Button
+                      onClick={handleDismissNotificationPrompt}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                    >
+                      Más tarde
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Content container */}
         <div className="relative min-h-[calc(100vh-200px)] pb-[60px]">
