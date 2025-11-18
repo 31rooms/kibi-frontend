@@ -290,7 +290,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
         {showNotificationPrompt && pushState.isSupported && (
           <div
             className={cn(
-              "fixed top-[121px] right-4 md:right-12 z-20 w-fit hidden md:block",
+              "fixed top-20 left-0 right-0 px-4 md:left-auto md:top-[121px] md:right-12 md:px-0 z-20",
               "transition-opacity duration-300",
               showContent ? "opacity-100" : "opacity-0"
             )}
@@ -298,7 +298,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
             <Card
               variant="elevated"
               padding="small"
-              className="w-[280px] relative bg-white dark:bg-[#171B22]"
+              className="w-full md:w-[280px] relative bg-white dark:bg-[#171B22]"
             >
               {/* Close button */}
               <button
