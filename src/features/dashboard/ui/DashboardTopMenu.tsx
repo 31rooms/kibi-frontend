@@ -164,9 +164,6 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
             'sticky top-0 left-0 right-0 z-30',
             className
           )}
-          style={{
-            backgroundColor: isDarkMode ? '#171B22' : '#ffffff'
-          }}
           {...props}
         >
         {/* Inner container with padding */}
@@ -226,11 +223,8 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
             <button
               ref={notificationButtonRef}
               onClick={handleNotificationButtonClick}
-              className="relative p-2 rounded-full cursor-pointer transition-colors"
+              className="relative p-2 rounded-full cursor-pointer transition-colors text-primary-blue dark:text-white"
               aria-label="Notificaciones"
-              style={{
-                color: isDarkMode ? '#ffffff' : '#171B22',
-              }}
             >
               <Bell className="w-6 h-6" />
               {unreadCount > 0 && (

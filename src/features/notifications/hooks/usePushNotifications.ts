@@ -45,7 +45,30 @@ export function usePushNotifications(accessToken: string | null) {
       }
     };
 
+    // Listen for subscription change messages from service worker
+    const handleServiceWorkerMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'PUSH_SUBSCRIPTION_CHANGED' && accessToken) {
+        console.log('🔄 [usePushNotifications] Subscription changed, updating on server...');
+        const subscription = event.data.subscription;
+        const deviceInfo = getDeviceInfo();
+        savePushSubscription({ ...subscription, deviceInfo })
+          .then(() => console.log('✅ [usePushNotifications] Subscription updated on server'))
+          .catch((error) => console.error('❌ [usePushNotifications] Failed to update subscription:', error));
+      }
+    };
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+    }
+
     checkSupport();
+
+    // Cleanup
+    return () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      }
+    };
   }, [accessToken]);
 
   /**
