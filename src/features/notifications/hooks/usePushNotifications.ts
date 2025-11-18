@@ -251,7 +251,8 @@ export function usePushNotifications(accessToken: string | null) {
 }
 
 /**
- * Helper: Convierte ArrayBuffer a Base64
+ * Helper: Convierte ArrayBuffer a Base64 URL-safe
+ * Apple Push requiere Base64 URL-safe (sin +, /, = )
  */
 function arrayBufferToBase64(buffer: ArrayBuffer | null): string {
   if (!buffer) return '';
@@ -261,5 +262,13 @@ function arrayBufferToBase64(buffer: ArrayBuffer | null): string {
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return window.btoa(binary);
+
+  // Convertir a Base64 estándar primero
+  const base64 = window.btoa(binary);
+
+  // Convertir a Base64 URL-safe (requerido por Apple)
+  return base64
+    .replace(/\+/g, '-')  // Reemplazar + con -
+    .replace(/\//g, '_')  // Reemplazar / con _
+    .replace(/=+$/, '');  // Quitar padding =
 }
