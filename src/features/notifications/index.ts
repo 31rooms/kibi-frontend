@@ -23,3 +23,21 @@ export type {
 
 // Utils
 export * from './utils/pushNotification';
+
+// API exports
+export {
+  getVapidPublicKey,
+  savePushSubscription,
+  deletePushSubscription,
+  getUserSubscriptions,
+  deleteAllSubscriptions,
+} from './api/pushSubscriptionApi';
+
+export {
+  getNotifications,
+  getUnreadNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  getUnreadCount,
+  sendTestNotification,
+} from './api/notificationsApi';
