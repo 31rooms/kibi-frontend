@@ -16,7 +16,10 @@
  * ```
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use Next.js API proxy in production to avoid CORS and Mixed Content issues
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api'
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
 
 interface FetchWithAuthOptions extends RequestInit {
   skipAuth?: boolean; // Skip adding Authorization header

@@ -5,7 +5,10 @@ import {
 } from '../types/notification.types';
 import { fetchWithAuth, fetchJSON } from '@/shared/lib/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use Next.js API proxy in production to avoid CORS and Mixed Content issues
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api'
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
 
 /**
  * Obtiene la clave pública VAPID del servidor

@@ -68,7 +68,7 @@ self.addEventListener('notificationclick', function(event) {
 
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || '/home';
+  const urlToOpen = event.notification.data?.url || '/dashboard';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
@@ -100,14 +100,21 @@ self.addEventListener('pushsubscriptionchange', function(event) {
     })
     .then(function(newSubscription) {
       console.log('[Service Worker] New subscription:', newSubscription);
-      // TODO: Send new subscription to server
-      return fetch('/api/push-subscriptions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newSubscription.toJSON()),
-      });
+
+      // Send message to all clients to update subscription
+      // The client has access to the auth token and can make the authenticated request
+      return self.clients.matchAll({ type: 'window' })
+        .then(function(clientList) {
+          clientList.forEach(function(client) {
+            client.postMessage({
+              type: 'PUSH_SUBSCRIPTION_CHANGED',
+              subscription: newSubscription.toJSON()
+            });
+          });
+        });
+    })
+    .catch(function(error) {
+      console.error('[Service Worker] Failed to resubscribe:', error);
     })
   );
 });
