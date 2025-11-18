@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/features/authentication";
+import { NotificationProviderWrapper } from "@/features/notifications";
 import { ThemeProvider } from "@/shared/lib/context";
 import "./globals.css";
 
@@ -52,7 +53,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ThemeProvider>
-            {children}
+            <NotificationProviderWrapper>
+              {children}
+            </NotificationProviderWrapper>
           </ThemeProvider>
         </AuthProvider>
       </body>
