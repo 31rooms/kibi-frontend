@@ -8,7 +8,7 @@ import { useTheme } from '@/shared/lib/context';
 import { useAuth } from '@/features/authentication';
 import { useMySubjects } from '../hooks/useMySubjects';
 import { useProgress } from '@/features/progress/hooks/useProgress';
-import { useNotificationContext } from '@/features/notifications';
+import { useNotificationContext, sendTestNotification } from '@/features/notifications';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { KibibotFloatingButton } from '@/shared/ui/KibibotFloatingButton';
@@ -26,6 +26,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     const [nextChallengeTime, setNextChallengeTime] = useState('07:07');
     const [showNotificationPrompt, setShowNotificationPrompt] = useState(true);
     const [isEnablingNotifications, setIsEnablingNotifications] = useState(false);
+    const [testResult, setTestResult] = useState<string | null>(null);
     const loadedCountRef = useRef(0);
     const internalRef = useRef<HTMLElement>(null);
     const router = useRouter();
@@ -102,9 +103,32 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     // Handle notification prompt dismiss
     const handleDismissNotificationPrompt = () => {
       setShowNotificationPrompt(false);
+      setTestResult(null);
       // Save to localStorage to remember dismissal
       localStorage.setItem('notification-prompt-dismissed', Date.now().toString());
     };
+
+    // Handle test notification
+    const handleTestNotification = async () => {
+      setTestResult('Enviando...');
+      try {
+        const result = await sendTestNotification();
+        if (result.success) {
+          setTestResult('✅ ¡Notificación enviada! Deberías recibirla en unos segundos.');
+        } else {
+          // Show detailed error
+          const errorDetails = result.error
+            ? `${result.message}\n\nDetalles: ${result.error}`
+            : result.message;
+          setTestResult(`❌ ${errorDetails}`);
+        }
+      } catch (error: any) {
+        setTestResult(`❌ Error de conexión: ${error.message}`);
+      }
+    };
+
+    // Check if user is admin (markoayala147@gmail.com)
+    const isAdminUser = user?.email === 'markoayala147@gmail.com';
 
     // Check if notification prompt should be shown
     useEffect(() => {
@@ -336,7 +360,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                       size="sm"
                       className="text-xs"
                     >
-                      Más tarde
+                      Más tardes
                     </Button>
                   </div>
                 </div>

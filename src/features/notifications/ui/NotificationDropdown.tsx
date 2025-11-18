@@ -16,6 +16,10 @@ export interface NotificationDropdownProps {
   onMarkAsRead: (notificationId: string) => void;
   onMarkAllAsRead: () => void;
   className?: string;
+  userEmail?: string;
+  isSubscribed?: boolean;
+  onTestNotification?: () => void;
+  testResult?: string | null;
 }
 
 /**
@@ -34,6 +38,10 @@ export const NotificationDropdown = React.forwardRef<HTMLDivElement, Notificatio
       onMarkAsRead,
       onMarkAllAsRead,
       className,
+      userEmail,
+      isSubscribed = false,
+      onTestNotification,
+      testResult,
     },
     ref
   ) => {
@@ -280,6 +288,54 @@ export const NotificationDropdown = React.forwardRef<HTMLDivElement, Notificatio
               >
                 Ver todas las notificaciones
               </button>
+            </div>
+          )}
+
+          {/* Admin Test Button */}
+          {userEmail === 'markoayala147@gmail.com' && (
+            <div
+              className={cn(
+                'px-4 py-3',
+                'border-t'
+              )}
+              style={{
+                borderColor: isDarkMode ? '#374151' : '#DEE2E6',
+              }}
+            >
+              <button
+                onClick={onTestNotification}
+                disabled={!isSubscribed}
+                className={cn(
+                  'w-full px-3 py-2 text-xs font-medium rounded transition-colors',
+                  'font-[family-name:var(--font-rubik)]',
+                  isSubscribed
+                    ? 'bg-primary-blue text-white hover:opacity-90'
+                    : 'bg-grey-300 dark:bg-grey-700 text-grey-500 dark:text-grey-400 cursor-not-allowed'
+                )}
+              >
+                🧪 Enviar notificación de prueba
+              </button>
+
+              {/* Test result */}
+              {testResult && (
+                <div
+                  className="mt-2 text-xs p-2 rounded whitespace-pre-wrap break-words max-h-32 overflow-y-auto"
+                  style={{
+                    backgroundColor: isDarkMode ? '#374151' : '#F3F4F6',
+                    color: isDarkMode ? '#D1D5DB' : '#374151',
+                  }}
+                >
+                  {testResult}
+                </div>
+              )}
+
+              {/* Debug info */}
+              <p
+                className="mt-2 text-xs italic font-[family-name:var(--font-rubik)]"
+                style={{ color: isDarkMode ? '#6B7280' : '#9CA3AF' }}
+              >
+                Estado: {isSubscribed ? '✅ Suscrito' : '❌ No suscrito'}
+              </p>
             </div>
           )}
         </div>

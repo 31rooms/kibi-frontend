@@ -6,7 +6,7 @@ import { CareerTag, SidebarButton } from '@/shared/ui';
 import { Flame, Moon, Menu, Sun, Bell, X, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth, Theme, authAPI } from '@/features/authentication';
-import { useNotificationContext, NotificationDropdown } from '@/features/notifications';
+import { useNotificationContext, NotificationDropdown, sendTestNotification } from '@/features/notifications';
 import type { SectionType } from '../types/dashboard.types';
 
 export interface DashboardTopMenuProps {
@@ -52,11 +52,12 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
     ref
   ) => {
     const { user, updateUser } = useAuth();
-    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationContext();
+    const { notifications, unreadCount, markAsRead, markAllAsRead, pushState } = useNotificationContext();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+    const [testResult, setTestResult] = useState<string | null>(null);
     const notificationButtonRef = useRef<HTMLButtonElement>(null);
 
     // Determine actual theme based on user preference and system preference
@@ -150,6 +151,23 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
       if (onNotificationClick) onNotificationClick();
     };
 
+    const handleTestNotification = async () => {
+      setTestResult('Enviando...');
+      try {
+        const result = await sendTestNotification();
+        if (result.success) {
+          setTestResult('✅ ¡Notificación enviada! Deberías recibirla en unos segundos.');
+        } else {
+          const errorDetails = result.error
+            ? `${result.message}\n\nDetalles: ${result.error}`
+            : result.message;
+          setTestResult(`❌ ${errorDetails}`);
+        }
+      } catch (error: any) {
+        setTestResult(`❌ Error de conexión: ${error.message}`);
+      }
+    };
+
     // Make exam section active when in exam-simulation
     const isExamenActive = selectedSection === 'examen' || selectedSection === 'exam-simulation';
 
@@ -241,6 +259,10 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
               onNotificationClick={() => {}}
               onMarkAsRead={markAsRead}
               onMarkAllAsRead={markAllAsRead}
+              userEmail={user?.email}
+              isSubscribed={pushState?.isSubscribed || false}
+              onTestNotification={handleTestNotification}
+              testResult={testResult}
             />
           </div>
 
