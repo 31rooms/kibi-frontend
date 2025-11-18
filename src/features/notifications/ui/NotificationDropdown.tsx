@@ -108,8 +108,8 @@ export const NotificationDropdown = React.forwardRef<HTMLDivElement, Notificatio
         <div
           ref={dropdownRef}
           className={cn(
-            'absolute top-full right-0 mt-2',
-            'w-[360px] max-w-[90vw]',
+            'fixed md:absolute top-[73px] md:top-full mt-0 md:mt-2',
+            'left-4 right-4 md:left-auto md:right-0 md:w-[360px]',
             'rounded-lg shadow-xl',
             'z-50 overflow-hidden',
             'border',
