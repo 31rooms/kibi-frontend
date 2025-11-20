@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   DiagnosticTestLayout,
@@ -10,52 +10,20 @@ import {
   QuestionType,
   QuestionDifficultyLevel,
 } from '@/features/diagnostic-test';
+import { useAuth } from '@/features/authentication';
+import { accountAPI } from '@/features/account';
+import { Modal } from '@/shared/ui';
 
 /**
- * Sample quiz data for demonstration
- * Aligned with backend schema (questions.schema.ts)
- * This would typically come from an API or database
+ * Simple diagnostic test with 2 TRUE/FALSE questions
  */
 const sampleQuizConfig: QuizConfig = {
-  title: 'Test Diagnóstico General',
-  description: 'Evalúa tu nivel de conocimiento en diversas áreas',
+  title: 'Test Diagnóstico',
+  description: 'Responde estas preguntas para conocer tu nivel',
   questions: [
-    // 1. Inglés - SINGLE_CHOICE
     {
       id: 'q1',
-      statement: 'What is the correct past tense of "go"?',
-      type: QuestionType.SINGLE_CHOICE,
-      options: [
-        { id: 'a', text: 'goed' },
-        { id: 'b', text: 'went' },
-        { id: 'c', text: 'gone' },
-        { id: 'd', text: 'going' },
-      ],
-      correctAnswers: ['b'],
-      difficultyLevel: QuestionDifficultyLevel.BASIC,
-      subjectId: 'ingles',
-      timeLimit: 30,
-    },
-    // 2. Aritmética - MULTIPLE_CHOICE (múltiples correctas)
-    {
-      id: 'q2',
-      statement: '¿Cuáles de las siguientes operaciones dan como resultado 12? (Selecciona todas las correctas)',
-      type: QuestionType.MULTIPLE_CHOICE,
-      options: [
-        { id: 'a', text: '3 × 4' },
-        { id: 'b', text: '6 + 6' },
-        { id: 'c', text: '25 ÷ 2' },
-        { id: 'd', text: '15 - 3' },
-      ],
-      correctAnswers: ['a', 'b', 'd'],
-      difficultyLevel: QuestionDifficultyLevel.BASIC,
-      subjectId: 'aritmetica',
-      timeLimit: 45,
-    },
-    // 3. Geografía - TRUE_FALSE
-    {
-      id: 'q3',
-      statement: 'El Monte Everest es la montaña más alta del mundo.',
+      statement: 'El agua hierve a 100 grados Celsius al nivel del mar.',
       type: QuestionType.TRUE_FALSE,
       options: [
         { id: 'true', text: 'Verdadero' },
@@ -63,118 +31,34 @@ const sampleQuizConfig: QuizConfig = {
       ],
       correctAnswers: ['true'],
       difficultyLevel: QuestionDifficultyLevel.BASIC,
-      subjectId: 'geografia',
-      timeLimit: 25,
+      subjectId: 'ciencias',
+      timeLimit: 30,
     },
-    // 4. Historia Universal - SINGLE_CHOICE
     {
-      id: 'q4',
-      statement: '¿Quién pintó la Mona Lisa?',
-      type: QuestionType.SINGLE_CHOICE,
-      options: [
-        { id: 'a', text: 'Miguel Ángel' },
-        { id: 'b', text: 'Leonardo da Vinci' },
-        { id: 'c', text: 'Rafael' },
-        { id: 'd', text: 'Donatello' },
-      ],
-      correctAnswers: ['b'],
-      difficultyLevel: QuestionDifficultyLevel.INTERMEDIATE,
-      subjectId: 'historia-universal',
-      timeLimit: 35,
-    },
-    // 5. Química - SINGLE_CHOICE
-    {
-      id: 'q5',
-      statement: '¿Cuál es el número atómico del oxígeno?',
-      type: QuestionType.SINGLE_CHOICE,
-      options: [
-        { id: 'a', text: '6' },
-        { id: 'b', text: '7' },
-        { id: 'c', text: '8' },
-        { id: 'd', text: '9' },
-      ],
-      correctAnswers: ['c'],
-      difficultyLevel: QuestionDifficultyLevel.INTERMEDIATE,
-      subjectId: 'quimica',
-      timeLimit: 35,
-    },
-    // 6. Biología - TEXT_RESPONSE
-    {
-      id: 'q6',
-      statement: 'Explica brevemente qué es la mitosis y cuál es su función principal en los organismos.',
-      type: QuestionType.TEXT_RESPONSE,
-      options: [],
-      correctAnswers: [],
-      difficultyLevel: QuestionDifficultyLevel.INTERMEDIATE,
-      subjectId: 'biologia',
-      timeLimit: 90,
-    },
-    // 7. Física - MULTIPLE_CHOICE
-    {
-      id: 'q7',
-      statement: '¿Cuáles de las siguientes son formas de energía? (Selecciona todas las correctas)',
-      type: QuestionType.MULTIPLE_CHOICE,
-      options: [
-        { id: 'a', text: 'Energía cinética' },
-        { id: 'b', text: 'Energía potencial' },
-        { id: 'c', text: 'Energía térmica' },
-        { id: 'd', text: 'Energía gravitacional' },
-      ],
-      correctAnswers: ['a', 'b', 'c'],
-      difficultyLevel: QuestionDifficultyLevel.INTERMEDIATE,
-      subjectId: 'fisica',
-      timeLimit: 50,
-    },
-    // 8. Álgebra - TRUE_FALSE
-    {
-      id: 'q8',
-      statement: 'La ecuación x² + 1 = 0 tiene soluciones reales.',
+      id: 'q2',
+      statement: 'La Tierra es el planeta más grande del sistema solar.',
       type: QuestionType.TRUE_FALSE,
       options: [
         { id: 'true', text: 'Verdadero' },
         { id: 'false', text: 'Falso' },
       ],
       correctAnswers: ['false'],
-      difficultyLevel: QuestionDifficultyLevel.ADVANCED,
-      subjectId: 'algebra',
-      timeLimit: 40,
-    },
-    // 9. Economía - SINGLE_CHOICE
-    {
-      id: 'q9',
-      statement: '¿Qué significa el término "oferta y demanda"?',
-      type: QuestionType.SINGLE_CHOICE,
-      options: [
-        { id: 'a', text: 'La cantidad de dinero en circulación' },
-        { id: 'b', text: 'La relación entre la cantidad disponible de un bien y su deseo de compra' },
-        { id: 'c', text: 'El precio fijo de los productos' },
-        { id: 'd', text: 'La tasa de inflación' },
-      ],
-      correctAnswers: ['b'],
-      difficultyLevel: QuestionDifficultyLevel.INTERMEDIATE,
-      subjectId: 'economia',
-      timeLimit: 40,
-    },
-    // 10. Literatura - TEXT_RESPONSE
-    {
-      id: 'q10',
-      statement: 'Describe en tus propias palabras qué es una metáfora y proporciona un ejemplo.',
-      type: QuestionType.TEXT_RESPONSE,
-      options: [],
-      correctAnswers: [],
       difficultyLevel: QuestionDifficultyLevel.BASIC,
-      subjectId: 'literatura',
-      timeLimit: 90,
+      subjectId: 'ciencias',
+      timeLimit: 30,
     },
   ],
-  defaultTimePerQuestion: 40,
-  allowReview: true,
+  defaultTimePerQuestion: 30,
+  allowReview: false,
   showTimer: true,
   showProgress: true,
 };
 
 export default function DiagnosticTestPage() {
   const router = useRouter();
+  const { updateUser } = useAuth();
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleExit = () => {
     router.push('/form-diagnostic-test');
@@ -182,8 +66,30 @@ export default function DiagnosticTestPage() {
 
   const handleQuizComplete = (quizResults: QuizResultsType) => {
     console.log('Quiz completed with results:', quizResults);
-    // Optionally send results to backend API here
-    // The QuizContainer component handles the UI flow internally
+    // Show completion modal instead of updating immediately
+    setShowCompletionModal(true);
+  };
+
+  const handleConfirmCompletion = async () => {
+    setIsUpdating(true);
+    try {
+      // Update user's diagnosticCompleted to true
+      const updatedUser = await accountAPI.updateProfile({
+        diagnosticCompleted: true,
+      });
+
+      // Update user in context
+      updateUser(updatedUser);
+
+      // Redirect to home
+      router.push('/home');
+    } catch (error) {
+      console.error('Failed to update diagnosticCompleted:', error);
+      // Still redirect to home even if update fails
+      router.push('/home');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -196,6 +102,20 @@ export default function DiagnosticTestPage() {
         onComplete={handleQuizComplete}
         showTimer={true}
         showProgress={true}
+        skipInternalModals={true}
+      />
+
+      {/* Completion Modal */}
+      <Modal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
+        state="success"
+        title="¡Test completado!"
+        description="Has completado el test diagnóstico. Ahora podrás acceder a todas las funcionalidades de Kibi."
+        confirmText={isUpdating ? "Cargando..." : "Continuar"}
+        showCloseButton={false}
+        singleButton={true}
+        onConfirm={handleConfirmCompletion}
       />
     </DiagnosticTestLayout>
   );

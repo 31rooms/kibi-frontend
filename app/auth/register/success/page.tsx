@@ -10,8 +10,7 @@ export default function RegisterSuccessPage() {
   const { isDarkMode } = useTheme();
 
   const handleStartTest = () => {
-    // TODO: Update this route when diagnostic test page is created
-    router.push('/diagnostic-test');
+    router.push('/form-diagnostic-test');
   };
 
   return (

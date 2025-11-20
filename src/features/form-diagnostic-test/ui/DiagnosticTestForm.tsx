@@ -25,6 +25,8 @@ export function DiagnosticTestForm() {
     showErrors,
     showCalendar,
     dateButtonRef,
+    isSubmitting,
+    isFormComplete,
     handleInputChange,
     handleDateSelect,
     handleSubmit,
@@ -33,8 +35,8 @@ export function DiagnosticTestForm() {
 
   // Handle successful form submission
   const onSuccess = () => {
-    // TODO: Save form data to backend/context
-    router.push('/auth/register/success');
+    // Navigate to diagnostic test after successful profile update
+    router.push('/diagnostic-test');
   };
 
   // Handle skip
@@ -107,9 +109,9 @@ export function DiagnosticTestForm() {
                 <SelectValue placeholder="Selecciona tu género" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="femenino">Femenino</SelectItem>
-                <SelectItem value="masculino">Masculino</SelectItem>
-                <SelectItem value="no-indicar">Prefiero no indicar</SelectItem>
+                <SelectItem value="FEMALE">Femenino</SelectItem>
+                <SelectItem value="MALE">Masculino</SelectItem>
+                <SelectItem value="PREFER_NOT_TO_SAY">Prefiero no indicar</SelectItem>
               </SelectContent>
             </Select>
             {showErrors && errors.gender && (
@@ -193,15 +195,16 @@ export function DiagnosticTestForm() {
           color="green"
           size="large"
           className="w-full mt-2"
+          disabled={!isFormComplete || isSubmitting}
         >
-          Iniciar Test Gratis
+          {isSubmitting ? 'Guardando...' : 'Iniciar Test Gratis'}
         </Button>
 
         {/* Skip Link */}
         <button
           type="button"
           onClick={handleSkip}
-          className="text-[14px] md:text-[16px] font-medium text-primary-green hover:underline transition-all font-[family-name:var(--font-rubik)]"
+          className="text-[14px] md:text-[16px] font-medium transition-all font-[family-name:var(--font-rubik)] text-primary-green hover:underline cursor-pointer"
         >
           Omitir test por ahora
         </button>

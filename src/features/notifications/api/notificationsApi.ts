@@ -97,35 +97,3 @@ export async function getUnreadCount(token: string): Promise<number> {
   const response = await getNotifications(token, false, 1, 1);
   return response.unreadCount;
 }
-
-/**
- * Envía una notificación de prueba (solo para testing)
- */
-export async function sendTestNotification(): Promise<{ success: boolean; message: string; error?: string }> {
-  try {
-    const response = await fetchWithAuth(`${API_BASE_URL}/notifications/test-push`, {
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-      return {
-        success: false,
-        message: 'Error al enviar notificación de prueba',
-        error: error.message || response.statusText,
-      };
-    }
-
-    const data = await response.json();
-    return {
-      success: true,
-      message: data.message || 'Notificación enviada',
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: 'Error de conexión',
-      error: error.message,
-    };
-  }
-}

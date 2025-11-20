@@ -2,15 +2,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/shared/lib/utils';
-import { useAuth } from '@/features/authentication';
+import { useAuth, authAPI } from '@/features/authentication';
+import type { Career } from '@/features/authentication/types/auth.types';
 import { format } from 'date-fns';
 import { Card, Button, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ModalHeader, EditButton, Alert, Checkbox, PasswordInput, SuccessModal, Calendar } from '@/shared/ui';
 import { CheckCircle, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useChangePassword } from '../hooks/useChangePassword';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { accountAPI } from '../api/account-service';
 import { CheckoutView } from './views';
 import { StripeProvider } from '../providers';
+import { MissingDataWarning } from './components';
+import { isFieldEmpty, getGenderLabel, formatDateLocal, formatDateForInput } from '../utils/fieldHelpers';
 import {
   isReportFormComplete,
   getPlanEnum,
@@ -23,23 +27,81 @@ import type { ViewMode, SelectedPlan, ReportData, TransferData } from './types';
  * Account Section Component
  * User profile and account settings with subscription info
  */
+// Avatar mapping helper
+const AVATAR_OPTIONS = [
+  '/illustrations/avatar.svg',
+  '/illustrations/avatar1.svg',
+  '/illustrations/avatar2.svg',
+];
+
+const getAvatarPath = (profilePhotoUrl?: string): string => {
+  if (!profilePhotoUrl) return AVATAR_OPTIONS[0];
+  // If it's already one of our avatar paths, return it
+  if (AVATAR_OPTIONS.includes(profilePhotoUrl)) return profilePhotoUrl;
+  // Otherwise return default
+  return AVATAR_OPTIONS[0];
+};
+
 export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
-    const { user, updateUser } = useAuth();
+    const { user: contextUser, updateUser } = useAuth();
+    const { user, isLoading: isLoadingProfile, updateProfile } = useUserProfile();
     const { changePassword, isLoading, error, success, setError, setSuccess } = useChangePassword();
     const [viewMode, setViewMode] = useState<ViewMode>('view');
     const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
     const [avatarModalOpen, setAvatarModalOpen] = useState(false);
-    const [selectedAvatar, setSelectedAvatar] = useState('/illustrations/avatar.svg');
+    const [selectedAvatar, setSelectedAvatar] = useState(getAvatarPath(user?.profilePhotoUrl));
+    const [careers, setCareers] = useState<Career[]>([]);
+    const [isLoadingCareers, setIsLoadingCareers] = useState(false);
+
+    // Update selected avatar when user profile changes
+    useEffect(() => {
+      if (user?.profilePhotoUrl) {
+        setSelectedAvatar(getAvatarPath(user.profilePhotoUrl));
+      }
+    }, [user?.profilePhotoUrl]);
+
+    // Load careers from API
+    useEffect(() => {
+      const loadCareers = async () => {
+        try {
+          setIsLoadingCareers(true);
+          const data = await authAPI.getCareers();
+          setCareers(data);
+        } catch (err) {
+          console.error('Error loading careers:', err);
+        } finally {
+          setIsLoadingCareers(false);
+        }
+      };
+
+      loadCareers();
+    }, []);
+
     const [formData, setFormData] = useState({
       email: user?.email || '',
       firstName: user?.firstName || '',
       lastName: user?.lastName || '',
-      career: typeof user?.desiredCareer === 'string' ? user.desiredCareer : user?.desiredCareer?.name || '',
+      careerId: typeof user?.desiredCareer === 'object' ? user?.desiredCareer?._id || '' : user?.desiredCareer || '',
       phoneNumber: user?.phoneNumber || '',
-      dateOfBirth: user?.dateOfBirth || '',
-      gender: ''
+      dateOfBirth: formatDateForInput(user?.dateOfBirth),
+      gender: user?.gender || ''
     });
+
+    // Sync formData when user changes
+    useEffect(() => {
+      if (user) {
+        setFormData({
+          email: user.email || '',
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          careerId: typeof user.desiredCareer === 'object' ? user.desiredCareer?._id || '' : user.desiredCareer || '',
+          phoneNumber: user.phoneNumber || '',
+          dateOfBirth: formatDateForInput(user.dateOfBirth),
+          gender: user.gender || ''
+        });
+      }
+    }, [user]);
     const [passwordData, setPasswordData] = useState({
       currentPassword: '',
       newPassword: '',
@@ -1035,7 +1097,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-dark-900 dark:text-white mb-2 font-[family-name:var(--font-rubik)]">
-                    E-Mail
+                    Email
                   </label>
                   <Input
                     type="email"
@@ -1075,14 +1137,20 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                     <label className="block text-sm font-medium text-dark-900 dark:text-white mb-2 font-[family-name:var(--font-rubik)]">
                       Carrera
                     </label>
-                    <Select value={formData.career} onValueChange={(value) => setFormData({ ...formData, career: value })}>
+                    <Select
+                      value={formData.careerId}
+                      onValueChange={(value) => setFormData({ ...formData, careerId: value })}
+                      disabled={true}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar" />
+                        <SelectValue placeholder="Seleccionar carrera" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ingenieria">Ingeniería</SelectItem>
-                        <SelectItem value="medicina">Medicina</SelectItem>
-                        <SelectItem value="derecho">Derecho</SelectItem>
+                        {careers.map((career) => (
+                          <SelectItem key={career._id} value={career._id}>
+                            {career.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1114,16 +1182,17 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-dark-900 dark:text-white mb-2 font-[family-name:var(--font-rubik)]">
-                      Genero
+                      Género
                     </label>
                     <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="masculino">Masculino</SelectItem>
-                        <SelectItem value="femenino">Femenino</SelectItem>
-                        <SelectItem value="otro">Otro</SelectItem>
+                        <SelectItem value="MALE">Masculino</SelectItem>
+                        <SelectItem value="FEMALE">Femenino</SelectItem>
+                        <SelectItem value="OTHER">Otro</SelectItem>
+                        <SelectItem value="PREFER_NOT_TO_SAY">Prefiero no decir</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1136,6 +1205,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                   color="blue"
                   size="medium"
                   onClick={() => setViewMode('view')}
+                  disabled={isLoadingProfile}
                 >
                   Cancelar
                 </Button>
@@ -1143,12 +1213,32 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                   variant="primary"
                   color="green"
                   size="medium"
-                  onClick={() => {
-                    // Aquí iría la lógica para guardar
-                    setViewMode('view');
+                  onClick={async () => {
+                    try {
+                      // Prepare update data - only send profilePhotoUrl if it's a valid URL
+                      const updateData: any = {
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        phoneNumber: formData.phoneNumber,
+                        dateOfBirth: formData.dateOfBirth,
+                        gender: formData.gender,
+                      };
+
+                      // Only include profilePhotoUrl if it's a valid URL (starts with http:// or https://)
+                      if (selectedAvatar && (selectedAvatar.startsWith('http://') || selectedAvatar.startsWith('https://'))) {
+                        updateData.profilePhotoUrl = selectedAvatar;
+                      }
+
+                      await updateProfile(updateData);
+                      setViewMode('view');
+                    } catch (err) {
+                      console.error('Failed to update profile:', err);
+                      alert('Error al guardar los cambios. Por favor intenta de nuevo.');
+                    }
                   }}
+                  disabled={isLoadingProfile}
                 >
-                  Guardar cambios
+                  {isLoadingProfile ? 'Guardando...' : 'Guardar cambios'}
                 </Button>
               </div>
             </div>
@@ -1164,9 +1254,18 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
               <div className="grid grid-cols-3 gap-6 justify-items-center">
                 <button
                   className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    setSelectedAvatar('/illustrations/avatar.svg');
+                  onClick={async () => {
+                    const newAvatar = '/illustrations/avatar.svg';
+                    setSelectedAvatar(newAvatar);
                     setAvatarModalOpen(false);
+
+                    // Update user context immediately so DashboardTopMenu reflects the change
+                    if (user) {
+                      updateUser({
+                        ...user,
+                        profilePhotoUrl: newAvatar
+                      });
+                    }
                   }}
                 >
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-[#E8774A] flex items-center justify-center">
@@ -1184,9 +1283,18 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 </button>
                 <button
                   className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    setSelectedAvatar('/illustrations/avatar1.svg');
+                  onClick={async () => {
+                    const newAvatar = '/illustrations/avatar1.svg';
+                    setSelectedAvatar(newAvatar);
                     setAvatarModalOpen(false);
+
+                    // Update user context immediately so DashboardTopMenu reflects the change
+                    if (user) {
+                      updateUser({
+                        ...user,
+                        profilePhotoUrl: newAvatar
+                      });
+                    }
                   }}
                 >
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-[#F4D58D] flex items-center justify-center">
@@ -1204,9 +1312,18 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 </button>
                 <button
                   className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    setSelectedAvatar('/illustrations/avatar2.svg');
+                  onClick={async () => {
+                    const newAvatar = '/illustrations/avatar2.svg';
+                    setSelectedAvatar(newAvatar);
                     setAvatarModalOpen(false);
+
+                    // Update user context immediately so DashboardTopMenu reflects the change
+                    if (user) {
+                      updateUser({
+                        ...user,
+                        profilePhotoUrl: newAvatar
+                      });
+                    }
                   }}
                 >
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-[#8DA7BE] flex items-center justify-center">
@@ -1261,17 +1378,29 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
               {/* Columna 2: Nombre + Tag + Email (vertical stack) */}
               <div className="flex flex-col gap-1.5">
                 <h2 className="text-[16px] lg:text-[20px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                  {user?.firstName || 'Yohanna'}
+                  {user?.firstName || 'Usuario'}
                 </h2>
-                <span
-                  className="inline-flex items-center px-2 py-0.5 lg:px-2.5 lg:py-1 text-xs lg:text-sm font-medium rounded font-[family-name:var(--font-rubik)] w-fit"
-                  style={{
-                    backgroundColor: 'rgba(71, 131, 14, 0.2)',
-                    color: '#47830E'
-                  }}
-                >
-                  Aspirante a ingeniería
-                </span>
+                {typeof user?.desiredCareer === 'object' && user?.desiredCareer?.name ? (
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 lg:px-2.5 lg:py-1 text-xs lg:text-sm font-medium rounded font-[family-name:var(--font-rubik)] w-fit"
+                    style={{
+                      backgroundColor: 'rgba(71, 131, 14, 0.2)',
+                      color: '#47830E'
+                    }}
+                  >
+                    {user.desiredCareer.name}
+                  </span>
+                ) : (
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 lg:px-2.5 lg:py-1 text-xs lg:text-sm font-medium rounded font-[family-name:var(--font-rubik)] w-fit"
+                    style={{
+                      backgroundColor: 'rgba(71, 131, 14, 0.2)',
+                      color: '#47830E'
+                    }}
+                  >
+                    Sin carrera seleccionada
+                  </span>
+                )}
                 <p
                   className="text-[13px] lg:text-[15px] font-[family-name:var(--font-rubik)]"
                   style={{ color: '#7B7B7B' }}
@@ -1288,9 +1417,13 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 >
                   Fecha de nacimiento
                 </p>
-                <p className="text-[18px] font-medium text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
-                  20/06/1996
-                </p>
+                {!isFieldEmpty(user?.dateOfBirth) ? (
+                  <p className="text-[18px] font-medium text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
+                    {formatDateLocal(user?.dateOfBirth)}
+                  </p>
+                ) : (
+                  <MissingDataWarning />
+                )}
               </div>
 
               {/* Columna 4: Teléfono - Hidden on mobile */}
@@ -1301,9 +1434,13 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 >
                   Teléfono
                 </p>
-                <p className="text-[18px] font-medium text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
-                  {user?.phoneNumber || '+58 777 123456789'}
-                </p>
+                {!isFieldEmpty(user?.phoneNumber) ? (
+                  <p className="text-[18px] font-medium text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
+                    {user?.phoneNumber}
+                  </p>
+                ) : (
+                  <MissingDataWarning />
+                )}
               </div>
 
               {/* Columna 5: Género - Hidden on mobile */}
@@ -1314,9 +1451,13 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
                 >
                   Género
                 </p>
-                <p className="text-[18px] font-medium text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
-                  Femenino
-                </p>
+                {!isFieldEmpty(user?.gender) ? (
+                  <p className="text-[18px] font-medium text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
+                    {getGenderLabel(user?.gender)}
+                  </p>
+                ) : (
+                  <MissingDataWarning />
+                )}
               </div>
 
               {/* Columna 6: Botón de editar */}

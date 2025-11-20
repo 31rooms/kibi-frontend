@@ -1,16 +1,33 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/features/authentication';
+import { accountAPI } from '@/features/account';
 import type { DiagnosticFormData, DiagnosticFormErrors } from '../types/diagnostic.types';
 
 export function useDiagnosticForm() {
-  // Form state
-  const [formData, setFormData] = useState<DiagnosticFormData>({
-    firstName: '',
-    lastName: '',
-    gender: '',
-    birthDate: undefined,
+  const { user, updateUser } = useAuth();
+
+  // Form state - Initialize with user data if available
+  const [formData, setFormData] = useState<DiagnosticFormData>(() => {
+    let birthDate: Date | undefined;
+
+    if (user?.dateOfBirth) {
+      // Parse date without timezone conversion (extract YYYY-MM-DD and create local date)
+      const dateStr = user.dateOfBirth.split('T')[0];
+      const [year, month, day] = dateStr.split('-').map(Number);
+      birthDate = new Date(year, month - 1, day);
+    }
+
+    return {
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      gender: user?.gender || '',
+      birthDate,
+    };
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Validation errors
   const [errors, setErrors] = useState<DiagnosticFormErrors>({});
@@ -95,13 +112,52 @@ export function useDiagnosticForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Check if form is complete
+  const isFormComplete = () => {
+    return (
+      formData.firstName.trim() !== '' &&
+      formData.lastName.trim() !== '' &&
+      formData.gender !== '' &&
+      formData.birthDate !== undefined
+    );
+  };
+
   // Handle form submission
-  const handleSubmit = (onSuccess: () => void) => {
+  const handleSubmit = async (onSuccess: () => void) => {
     // Enable error display on first submit
     setShowErrors(true);
 
-    if (validateForm()) {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Format date to ISO string for backend
+      const dateOfBirth = formData.birthDate
+        ? formData.birthDate.toISOString().split('T')[0]
+        : undefined;
+
+      // Call API to update user profile
+      const updatedUser = await accountAPI.updateProfile({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gender: formData.gender,
+        dateOfBirth: dateOfBirth,
+      });
+
+      // Update user context
+      updateUser(updatedUser);
+
+      // Call success callback
       onSuccess();
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      // You could set an error state here to show to the user
+      alert('Error al guardar la información. Por favor intenta de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -111,6 +167,8 @@ export function useDiagnosticForm() {
     showErrors,
     showCalendar,
     dateButtonRef,
+    isSubmitting,
+    isFormComplete: isFormComplete(),
     handleInputChange,
     handleDateSelect,
     handleSubmit,
