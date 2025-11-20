@@ -143,7 +143,7 @@ export default function RegisterPage() {
         password: formData.password,
         // Generate names from email username
         firstName: nameParts[0] || 'Usuario',
-        lastName: nameParts[1] || 'Kibi',
+        lastName: nameParts[1] || '',
         phoneNumber: formData.phone.trim() || undefined,
         desiredCareer: formData.desiredCareer,
         theme: detectBrowserTheme(),

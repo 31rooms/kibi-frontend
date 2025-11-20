@@ -62,8 +62,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await authAPI.loginUser(email, password);
       handleAuthSuccess(response);
 
-      // Redirect to form diagnostic test after successful login
-      router.push('/form-diagnostic-test');
+      // Redirect based on diagnosticCompleted status
+      if (response.user.diagnosticCompleted) {
+        router.push('/home');
+      } else {
+        router.push('/form-diagnostic-test');
+      }
     } catch (error) {
       setIsLoading(false);
       throw error; // Re-throw to handle in component
@@ -129,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setUser(newUser);
     localStorage.setItem('user', JSON.stringify(newUser));
-  }, [user]);
+  }, []); // Remove user dependency to avoid unnecessary re-renders
 
   // Set up token refresh interval
   useEffect(() => {

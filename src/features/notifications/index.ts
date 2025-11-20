@@ -39,5 +39,4 @@ export {
   markNotificationAsRead,
   markAllNotificationsAsRead,
   getUnreadCount,
-  sendTestNotification,
 } from './api/notificationsApi';

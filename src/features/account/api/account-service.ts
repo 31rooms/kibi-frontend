@@ -1,11 +1,82 @@
 import apiClient from '@/features/authentication/api/config';
 import type { ChangePasswordDto, SuccessResponse, UpdateSubscriptionDto } from '../types/account.types';
+import type { User } from '@/features/authentication/types/auth.types';
 
 /**
  * Account API Service
  * Handles account-related API calls
  */
 export const accountAPI = {
+  /**
+   * Get current user profile
+   * Requires authentication (JWT token automatically added by apiClient interceptor)
+   */
+  async getUserProfile(): Promise<User> {
+    try {
+      console.log('👤 API: Calling GET /users/me');
+      console.log('📍 API URL:', apiClient.defaults.baseURL);
+
+      const response = await apiClient.get<User>('/users/me');
+
+      console.log('✅ API: Profile retrieved successfully');
+      return response.data;
+    } catch (error) {
+      console.error('❌ API: Profile retrieval failed');
+      const errorResponse = error as {
+        response?: {
+          status?: number;
+          data?: { message?: string | string[] }
+        }
+      };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
+
+      if (errorResponse.response?.data?.message) {
+        const message = errorResponse.response.data.message;
+        if (Array.isArray(message)) {
+          throw new Error(message.join(', '));
+        }
+        throw new Error(message);
+      }
+      throw new Error('Failed to retrieve profile. Please try again.');
+    }
+  },
+
+  /**
+   * Update user profile
+   * Requires authentication (JWT token automatically added by apiClient interceptor)
+   */
+  async updateProfile(profileData: Partial<User>): Promise<User> {
+    try {
+      console.log('📝 API: Calling PATCH /users/me');
+      console.log('📍 API URL:', apiClient.defaults.baseURL);
+      console.log('📦 Payload:', profileData);
+
+      const response = await apiClient.patch<User>('/users/me', profileData);
+
+      console.log('✅ API: Profile updated successfully');
+      return response.data;
+    } catch (error) {
+      console.error('❌ API: Profile update failed');
+      const errorResponse = error as {
+        response?: {
+          status?: number;
+          data?: { message?: string | string[] }
+        }
+      };
+      console.error('Status:', errorResponse.response?.status);
+      console.error('Response:', errorResponse.response?.data);
+
+      if (errorResponse.response?.data?.message) {
+        const message = errorResponse.response.data.message;
+        if (Array.isArray(message)) {
+          throw new Error(message.join(', '));
+        }
+        throw new Error(message);
+      }
+      throw new Error('Failed to update profile. Please try again.');
+    }
+  },
   /**
    * Change user password
    * Requires authentication (JWT token automatically added by apiClient interceptor)

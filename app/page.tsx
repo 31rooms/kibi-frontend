@@ -28,7 +28,7 @@ export default function SplashPage() {
     <div className="flex items-center justify-center min-h-screen bg-[var(--color-primary-blue)]">
       <div className="flex flex-col items-center gap-8 animate-fade-in">
         {/* Logo de Kibi */}
-        <Logo size="large" />
+        <Logo size="large" white />
 
         {/* Loading indicator */}
         <div className="flex gap-2">

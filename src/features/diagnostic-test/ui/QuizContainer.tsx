@@ -43,6 +43,9 @@ export interface QuizContainerProps {
 
   /** Subject name to display in tag */
   subjectName?: string;
+
+  /** Skip internal modals and let parent handle completion UI */
+  skipInternalModals?: boolean;
 }
 
 /**
@@ -61,6 +64,7 @@ export function QuizContainer({
   showTimer = config.showTimer ?? true,
   showProgress = config.showProgress ?? true,
   subjectName,
+  skipInternalModals = false,
 }: QuizContainerProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [textAnswer, setTextAnswer] = useState<string>('');
@@ -124,8 +128,13 @@ export function QuizContainer({
         quiz.completeQuiz();
         setIsSubmitting(false);
         isAutoAdvancingRef.current = false;
-        // Show completion modal instead of going directly to results
-        setShowCompletionModal(true);
+        // Show completion modal or let parent handle it
+        if (skipInternalModals && onComplete) {
+          const results = calculateQuizResults(config.questions, quiz.answers);
+          onComplete(results);
+        } else {
+          setShowCompletionModal(true);
+        }
       }, 500);
     } else {
       console.log('➡️ Moving to next question:', quiz.currentQuestionIndex + 2);
@@ -249,8 +258,13 @@ export function QuizContainer({
       setTimeout(() => {
         quiz.completeQuiz();
         setIsSubmitting(false);
-        // Show completion modal instead of going directly to results
-        setShowCompletionModal(true);
+        // Show completion modal or let parent handle it
+        if (skipInternalModals && onComplete) {
+          const results = calculateQuizResults(config.questions, quiz.answers);
+          onComplete(results);
+        } else {
+          setShowCompletionModal(true);
+        }
       }, 500);
     } else {
       quiz.goToNext();

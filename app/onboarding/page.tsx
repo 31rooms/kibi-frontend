@@ -172,7 +172,7 @@ export default function OnboardingPage() {
             color="green"
             size="large"
             onClick={handleLogin}
-            className="w-full border-white text-white hover:bg-white dark:bg-[#171B22]/10"
+            className="w-full border-white text-white hover:bg-white hover:text-black dark:bg-[#171B22]/10 dark:hover:text-black"
           >
             Ya tengo cuenta
           </Button>
