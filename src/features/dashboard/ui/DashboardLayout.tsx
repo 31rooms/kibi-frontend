@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { useDashboardNavigation } from '../hooks/useDashboardNavigation';
 import { useAuth } from '@/features/authentication';
+import { useMySubjects } from '@/features/home/hooks/useMySubjects';
 import { DashboardTopMenu } from './DashboardTopMenu';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardContent } from './DashboardContent';
 import { Button } from '@/shared/ui/Button';
 import { KibiMessage } from '@/shared/ui/KibiMessage';
+import { LoadingScreen } from '@/shared/ui/LoadingScreen';
 import { ArrowRight } from 'lucide-react';
 import type { DashboardLayoutProps } from '../types/dashboard.types';
 
@@ -21,9 +23,15 @@ import type { DashboardLayoutProps } from '../types/dashboard.types';
 export const DashboardLayout = React.forwardRef<HTMLDivElement, DashboardLayoutProps>(
   ({ className, children }, ref) => {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, isLoading: isAuthLoading } = useAuth();
+    const { isLoading: isSubjectsLoading } = useMySubjects();
     const { selectedSection, setSelectedSection, handleLogout } =
       useDashboardNavigation();
+
+    // Show loading screen while user data or subjects are being fetched
+    if (isAuthLoading || !user || isSubjectsLoading) {
+      return <LoadingScreen />;
+    }
 
     // Check if diagnostic test is not completed
     const needsDiagnostic = !user?.diagnosticCompleted;
