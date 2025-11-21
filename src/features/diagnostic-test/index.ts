@@ -42,6 +42,21 @@ export type { UseFeedbackReturn, FeedbackState, FeedbackVariant } from './hooks/
 
 export { useCourseSelection } from './hooks/useCourseSelection';
 
+export { useDiagnosticTest } from './hooks/useDiagnosticTest';
+export type { UseDiagnosticTestReturn, DiagnosticQuestionExtended } from './hooks/useDiagnosticTest';
+
+// API
+export { diagnosticAPI } from './api/diagnosticAPI';
+export type {
+  CheckDiagnosticResponse,
+  StartDiagnosticResponse,
+  DiagnosticQuestion,
+  AnswerDiagnosticQuestionDto,
+  AnswerDiagnosticQuestionResponse,
+  CompleteDiagnosticResponse,
+  SubjectScore,
+} from './api/types';
+
 // UI Components
 export { QuizContainer } from './ui/QuizContainer';
 export type { QuizContainerProps } from './ui/QuizContainer';

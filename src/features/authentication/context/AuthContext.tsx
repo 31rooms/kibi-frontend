@@ -69,8 +69,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/form-diagnostic-test');
       }
     } catch (error) {
-      setIsLoading(false);
       throw error; // Re-throw to handle in component
+    } finally {
+      setIsLoading(false);
     }
   }, [handleAuthSuccess, router]);
 
@@ -83,8 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Redirect to onboarding after successful registration
       router.push('/onboarding');
     } catch (error) {
-      setIsLoading(false);
       throw error; // Re-throw to handle in component
+    } finally {
+      setIsLoading(false);
     }
   }, [handleAuthSuccess, router]);
 

@@ -103,7 +103,10 @@ export function DiagnosticTestLayout({
       />
 
       {/* Main Content */}
-      <div className="max-w-3xl mx-auto px-4 pb-8">
+      <div className={cn(
+        "max-w-3xl mx-auto px-4 pb-8",
+        !showExitButton && "h-screen"
+      )}>
         {children}
       </div>
     </div>
