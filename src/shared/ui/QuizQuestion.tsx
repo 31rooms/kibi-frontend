@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { cn } from '@/shared/lib/utils';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export interface QuizQuestionProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** The question text to display */
+  /** The question text to display (supports Markdown) */
   question: string;
 
   /** Question number (optional, for display) */
@@ -44,9 +45,10 @@ export const QuizQuestion = React.forwardRef<HTMLDivElement, QuizQuestionProps>(
           </div>
         )}
 
-        <p className="text-base md:text-lg font-medium text-primary-blue dark:text-white leading-relaxed">
-          {question}
-        </p>
+        <MarkdownRenderer
+          content={question}
+          className="text-base md:text-lg font-medium text-primary-blue dark:text-white leading-relaxed [&>p]:mb-0"
+        />
       </div>
     );
   }

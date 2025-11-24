@@ -3,9 +3,10 @@
 import React from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Checkbox } from './Checkbox';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export interface QuizOptionProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** The option text to display */
+  /** The option text to display (supports Markdown) */
   text: string;
 
   /** Whether this option is selected */
@@ -74,14 +75,17 @@ export const QuizOption = React.forwardRef<HTMLDivElement, QuizOptionProps>(
         />
 
         {/* Label with option text */}
-        <span
+        <div
           className={cn(
             'flex-1 text-base font-normal text-primary-blue dark:text-white select-none',
             disabled && 'cursor-not-allowed'
           )}
         >
-          {text}
-        </span>
+          <MarkdownRenderer
+            content={text}
+            className="[&>p]:mb-0 [&>p]:inline"
+          />
+        </div>
       </div>
     );
   }
