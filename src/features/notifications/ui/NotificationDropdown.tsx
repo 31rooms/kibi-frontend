@@ -255,8 +255,8 @@ export const NotificationDropdown = React.forwardRef<HTMLDivElement, Notificatio
             )}
           </div>
 
-          {/* Footer */}
-          {localNotifications.length > 0 && (
+          {/* Footer - Comentado: La vista /notifications no existe aún */}
+          {/* {localNotifications.length > 0 && (
             <div
               className={cn(
                 'px-4 py-3 text-center',
@@ -281,7 +281,7 @@ export const NotificationDropdown = React.forwardRef<HTMLDivElement, Notificatio
                 Ver todas las notificaciones
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </>
     );
