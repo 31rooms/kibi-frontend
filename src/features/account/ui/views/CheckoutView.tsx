@@ -21,26 +21,58 @@ interface CheckoutViewProps {
 }
 
 /**
- * Helper function para convertir precio string a centavos
- * Ejemplos: "50,00 $" → 5000 centavos | "0,00 $" → 0 centavos
+ * Helper function para convertir precio a centavos
+ * Usa upgradeCost si es un upgrade, sino priceNumber
  */
-function getPlanAmount(price: string): number {
-  // Si el precio es "0,00 $" o similar, retorna 0
-  if (price.includes('0,00')) return 0;
+function getPlanAmountInCents(plan: SelectedPlan): number {
+  // Si es un upgrade, usar el costo de upgrade
+  if (plan.isUpgrade && plan.upgradeCost !== undefined && plan.upgradeCost > 0) {
+    return Math.round(plan.upgradeCost * 100);
+  }
 
-  // Para precios reales, parsear correctamente
-  // Ej: "50,00 $" → 5000 centavos
-  const numStr = price.replace(/[^0-9,]/g, '').replace(',', '.');
-  return Math.round(parseFloat(numStr) * 100);
+  // Si tenemos priceNumber, usarlo directamente (convertir a centavos)
+  if (plan.priceNumber !== undefined && plan.priceNumber > 0) {
+    return Math.round(plan.priceNumber * 100);
+  }
+
+  // Fallback: parsear el string de precio
+  // Formatos soportados: "$299.00", "299,00 $", "Gratis"
+  if (plan.price === 'Gratis' || plan.price.includes('0.00') || plan.price.includes('0,00')) {
+    return 0;
+  }
+
+  // Extraer solo números y punto/coma decimal
+  const numStr = plan.price
+    .replace(/[^0-9.,]/g, '')  // Eliminar todo excepto números, punto y coma
+    .replace(',', '.');         // Normalizar coma a punto
+
+  const amount = parseFloat(numStr);
+  return isNaN(amount) ? 0 : Math.round(amount * 100);
+}
+
+/**
+ * Helper function para obtener el precio a mostrar (upgrade o completo)
+ */
+function getDisplayPrice(plan: SelectedPlan): string {
+  if (plan.isUpgrade && plan.upgradeCostDisplay) {
+    return plan.upgradeCostDisplay;
+  }
+  return plan.price;
 }
 
 /**
  * Helper function para obtener el tipo de plan
+ * Usa type directamente si está disponible, sino parsea el nombre
  */
-function getPlanType(planName: string): 'GOLD' | 'DIAMOND' {
-  if (planName.includes('Oro')) return 'GOLD';
-  if (planName.includes('Diamante')) return 'DIAMOND';
-  // Por defecto retornar GOLD si no se encuentra
+function getPlanType(plan: SelectedPlan): 'GOLD' | 'DIAMOND' {
+  // Si tenemos type, usarlo directamente
+  if (plan.type && (plan.type === 'GOLD' || plan.type === 'DIAMOND')) {
+    return plan.type;
+  }
+
+  // Fallback: parsear el nombre
+  if (plan.name.includes('Oro') || plan.name.toUpperCase().includes('GOLD')) return 'GOLD';
+  if (plan.name.includes('Diamante') || plan.name.toUpperCase().includes('DIAMOND')) return 'DIAMOND';
   return 'GOLD';
 }
 
@@ -67,10 +99,12 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
   const [cardError, setCardError] = useState<string>('');
   const [cardComplete, setCardComplete] = useState(false);
 
+  const displayPrice = getDisplayPrice(selectedPlan);
+  
   const transferData: TransferData = {
     accountNumber: '1234-5678-9012-3456',
     idNumber: '9876-5432-1098-7654',
-    amount: selectedPlan.price
+    amount: displayPrice
   };
 
   const handleCopyToClipboard = (text: string) => {
@@ -103,8 +137,8 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
 
     try {
       // 1. Obtener el monto y tipo de plan
-      const amount = getPlanAmount(selectedPlan.price);
-      const planType = getPlanType(selectedPlan.name);
+      const amount = getPlanAmountInCents(selectedPlan);
+      const planType = getPlanType(selectedPlan);
 
       // Validar que no sea plan gratuito
       if (amount === 0) {
@@ -114,12 +148,20 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
       }
 
       // Log para debugging
-      console.log('💳 Creating payment intent:', { planType, amount, amountInDollars: amount / 100 });
+      console.log('💳 Creating payment intent:', { 
+        planType, 
+        amount, 
+        amountInPesos: amount / 100,
+        isUpgrade: selectedPlan.isUpgrade,
+        currentPlanType: selectedPlan.currentPlanType,
+      });
 
       // 2. Crear PaymentIntent en el backend
       const { clientSecret } = await paymentsAPI.createPaymentIntent({
         planType,
         amount, // Monto en centavos (ej: 29900 = $299.00)
+        isUpgrade: selectedPlan.isUpgrade,
+        currentPlanType: selectedPlan.currentPlanType,
       });
 
       // 3. Confirmar el pago con Stripe
@@ -216,7 +258,7 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
         {/* Contenedor más acotado para el checkout */}
         <div className="w-full max-w-[474px] mx-auto space-y-6">
           {/* Tag (solo desktop) */}
-          {selectedPlan.name.includes('Oro') && (
+          {(selectedPlan.recommended || selectedPlan.type === 'GOLD') && (
             <div className="hidden md:block relative">
               <div className="absolute -top-3 left-4 z-10">
                 <span
@@ -239,11 +281,26 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
             {/* Mobile: Plan info dentro de la Card */}
             <div className="md:hidden mb-6">
               <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] text-center mb-2">
-                {selectedPlan.name}
+                {selectedPlan.isUpgrade ? `Mejorar a ${selectedPlan.name}` : selectedPlan.name}
               </h3>
-              <p className="text-[20px] font-bold text-primary-green font-[family-name:var(--font-quicksand)] text-center mb-4">
-                {selectedPlan.price}
+              {selectedPlan.isUpgrade && selectedPlan.upgradeCost !== selectedPlan.priceNumber && (
+                <p className="text-sm text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)] text-center mb-1">
+                  Precio original: {selectedPlan.price}
+                </p>
+              )}
+              <p className="text-[20px] font-bold text-primary-green font-[family-name:var(--font-quicksand)] text-center mb-0">
+                {displayPrice}
               </p>
+              {displayPrice !== 'Gratis' && (
+                <p className="text-[10px] text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)] text-center mb-2">
+                  MXN
+                </p>
+              )}
+              {selectedPlan.isUpgrade && selectedPlan.upgradeCost !== selectedPlan.priceNumber && (
+                <p className="text-xs text-grey-500 dark:text-grey-400 font-[family-name:var(--font-rubik)] text-center mb-4">
+                  Solo pagas la diferencia
+                </p>
+              )}
               <div className="border-b border-[#DFE4EA] dark:border-[#374151] mb-6"></div>
             </div>
 

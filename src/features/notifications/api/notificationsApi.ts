@@ -36,11 +36,14 @@ export async function getNotifications(
   }
 
   try {
-    return await fetchJSON<NotificationsResponse>(
+    console.log(`🔔 [getNotifications] Fetching notifications with limit=${limit}, isRead=${isRead}`);
+    const response = await fetchJSON<NotificationsResponse>(
       `${API_BASE_URL}/notifications?${params}`
     );
+    console.log(`✅ [getNotifications] Got ${response.notifications?.length || 0} notifications, unreadCount: ${response.unreadCount}`);
+    return response;
   } catch (error) {
-    console.error('Error fetching notifications:', error);
+    console.error('❌ [getNotifications] Error fetching notifications:', error);
     return {
       notifications: [],
       pagination: {

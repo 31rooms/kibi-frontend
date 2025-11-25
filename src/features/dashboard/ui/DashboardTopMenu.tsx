@@ -52,7 +52,7 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
     ref
   ) => {
     const { user, updateUser } = useAuth();
-    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationContext();
+    const { notifications, unreadCount, markAsRead, markAllAsRead, refresh: refreshNotifications } = useNotificationContext();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -147,7 +147,14 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
     };
 
     const handleNotificationButtonClick = () => {
-      setIsNotificationDropdownOpen(!isNotificationDropdownOpen);
+      const willOpen = !isNotificationDropdownOpen;
+      setIsNotificationDropdownOpen(willOpen);
+
+      // Refresh notifications when opening dropdown
+      if (willOpen) {
+        refreshNotifications();
+      }
+
       if (onNotificationClick) onNotificationClick();
     };
 

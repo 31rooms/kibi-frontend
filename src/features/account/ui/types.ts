@@ -2,11 +2,28 @@
  * Shared types for account UI
  */
 
-import type { PlanData } from './utils/planHelpers';
+import type { PlanColors } from './utils/planHelpers';
 
 export type ViewMode = 'view' | 'edit' | 'change-password' | 'contact' | 'plans' | 'checkout' | 'report-payment';
 
-export type SelectedPlan = PlanData;
+export interface SelectedPlan {
+  _id?: string;
+  type: 'FREE' | 'GOLD' | 'DIAMOND';
+  name: string;
+  price: string;
+  priceNumber: number;
+  currency: string;
+  durationMonths: number;
+  features: string[];
+  colors: PlanColors;
+  recommended?: boolean;
+  // Upgrade-specific fields
+  isUpgrade?: boolean;
+  upgradeCost?: number;
+  upgradeCostDisplay?: string;
+  currentPlanType?: 'FREE' | 'GOLD' | 'DIAMOND';
+  currentPlanPrice?: number;
+}
 
 export interface ReportData {
   referenceNumber: string;

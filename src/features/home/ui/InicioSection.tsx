@@ -108,10 +108,24 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
 
     // Check if notification prompt should be shown
     useEffect(() => {
+      console.log('🔔 [InicioSection] Checking notification prompt:', {
+        isSupported: pushState.isSupported,
+        isSubscribed: pushState.isSubscribed,
+        permission: pushState.permission,
+      });
+
       // Don't show if already subscribed or permission denied
       if (pushState.isSubscribed || pushState.permission === 'denied') {
+        console.log('🔔 [InicioSection] Hiding prompt: isSubscribed or denied');
         setShowNotificationPrompt(false);
         return;
+      }
+
+      // Si el permiso es 'default', limpiar el localStorage de dismissal
+      // porque el usuario quitó los permisos y debemos mostrar el prompt de nuevo
+      if (pushState.permission === 'default') {
+        console.log('🔔 [InicioSection] Permission is default, clearing dismissal localStorage');
+        localStorage.removeItem('notification-prompt-dismissed');
       }
 
       // Check if user dismissed it before (don't show for 7 days)
@@ -119,14 +133,16 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       if (dismissedAt) {
         const daysSinceDismissal = (Date.now() - parseInt(dismissedAt)) / (1000 * 60 * 60 * 24);
         if (daysSinceDismissal < 7) {
+          console.log('🔔 [InicioSection] Hiding prompt: dismissed within 7 days');
           setShowNotificationPrompt(false);
           return;
         }
       }
 
       // Show the prompt
+      console.log('🔔 [InicioSection] Showing notification prompt');
       setShowNotificationPrompt(true);
-    }, [pushState.isSubscribed, pushState.permission]);
+    }, [pushState.isSubscribed, pushState.permission, pushState.isSupported]);
 
     // Calculate next challenge time (24h from now)
     useEffect(() => {
@@ -188,6 +204,15 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     };
 
     const weekDays = getDaysOfWeek();
+
+    // Debug: Log render state
+    console.log('🔔 [InicioSection] Render state:', {
+      showNotificationPrompt,
+      isSupported: pushState.isSupported,
+      isSubscribed: pushState.isSubscribed,
+      permission: pushState.permission,
+      willShowModal: showNotificationPrompt && pushState.isSupported,
+    });
 
     return (
       <main

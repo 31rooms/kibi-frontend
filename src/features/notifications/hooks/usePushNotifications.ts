@@ -13,6 +13,7 @@ import {
   getVapidPublicKey,
   savePushSubscription,
   deletePushSubscription,
+  getUserSubscriptions,
 } from '../api/pushSubscriptionApi';
 import type { PushNotificationState } from '../types/notification.types';
 
@@ -33,6 +34,34 @@ export function usePushNotifications(accessToken: string | null) {
       const isSupported = isPushNotificationSupported();
       const permission = getNotificationPermission();
 
+      console.log('🔔 [usePushNotifications] checkSupport called:', {
+        isSupported,
+        permission,
+        hasAccessToken: !!accessToken,
+      });
+
+      // Si el permiso no es 'granted', resetear isSubscribed a false
+      // Esto ocurre cuando el usuario quita permisos desde el navegador
+      if (permission !== 'granted') {
+        console.log('🔔 [usePushNotifications] Permission is NOT granted, setting state:', {
+          isSupported,
+          permission,
+          isSubscribed: false,
+        });
+        setState(prev => ({
+          ...prev,
+          isSupported,
+          permission,
+          isSubscribed: false,
+          subscription: null,
+        }));
+        return;
+      }
+
+      console.log('🔔 [usePushNotifications] Permission IS granted, setting state:', {
+        isSupported,
+        permission,
+      });
       setState(prev => ({
         ...prev,
         isSupported,
@@ -40,7 +69,7 @@ export function usePushNotifications(accessToken: string | null) {
       }));
 
       // Si tiene permiso, verificar si ya está suscrito
-      if (permission === 'granted' && isSupported && accessToken) {
+      if (isSupported && accessToken) {
         await checkExistingSubscription();
       }
     };
@@ -72,9 +101,12 @@ export function usePushNotifications(accessToken: string | null) {
   }, [accessToken]);
 
   /**
-   * Verifica si ya existe una suscripción activa
+   * Verifica si ya existe una suscripción activa en el navegador Y en el backend
+   * Si tiene suscripción en navegador pero no en backend, re-suscribe automáticamente
    */
   const checkExistingSubscription = useCallback(async () => {
+    if (!accessToken) return;
+
     try {
       const registration = await navigator.serviceWorker.ready;
       const existingSubscription = await registration.pushManager.getSubscription();
@@ -88,16 +120,62 @@ export function usePushNotifications(accessToken: string | null) {
           },
         };
 
-        setState(prev => ({
-          ...prev,
-          isSubscribed: true,
-          subscription,
-        }));
+        // Verificar si esta suscripción está activa en el backend
+        try {
+          const serverSubscriptions = await getUserSubscriptions();
+          const isActiveOnServer = serverSubscriptions.some(
+            (sub: any) => sub.endpoint === existingSubscription.endpoint && sub.isActive
+          );
+
+          if (isActiveOnServer) {
+            // Suscripción activa en navegador y backend
+            setState(prev => ({
+              ...prev,
+              isSubscribed: true,
+              subscription,
+            }));
+            console.log('✅ [checkExistingSubscription] Subscription active on browser and server');
+          } else {
+            // Suscripción en navegador pero NO activa en backend - re-suscribir
+            console.log('⚠️ [checkExistingSubscription] Subscription exists in browser but not active on server, re-subscribing...');
+
+            // Guardar la suscripción existente en el servidor (esto la reactiva)
+            const deviceInfo = getDeviceInfo();
+            await savePushSubscription({ ...subscription, deviceInfo });
+
+            setState(prev => ({
+              ...prev,
+              isSubscribed: true,
+              subscription,
+            }));
+            console.log('✅ [checkExistingSubscription] Subscription re-activated on server');
+          }
+        } catch (serverError) {
+          console.error('❌ [checkExistingSubscription] Error checking server subscription:', serverError);
+          // Si falla la verificación del servidor, asumir que está suscrito localmente
+          setState(prev => ({
+            ...prev,
+            isSubscribed: true,
+            subscription,
+          }));
+        }
+      } else {
+        // No hay suscripción en el navegador, pero tiene permisos - crear una nueva
+        const permission = getNotificationPermission();
+        if (permission === 'granted') {
+          console.log('⚠️ [checkExistingSubscription] Has permission but no browser subscription, will need to re-subscribe');
+          // No hacemos auto-subscribe aquí para evitar loops, pero marcamos que no está suscrito
+          setState(prev => ({
+            ...prev,
+            isSubscribed: false,
+            subscription: null,
+          }));
+        }
       }
     } catch (error) {
       console.error('Error checking existing subscription:', error);
     }
-  }, []);
+  }, [accessToken]);
 
   /**
    * Subscribe to push notifications

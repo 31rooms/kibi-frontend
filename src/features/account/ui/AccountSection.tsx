@@ -19,8 +19,12 @@ import {
   isReportFormComplete,
   getPlanEnum,
   getUserPlanData,
-  getPlanDataByType
+  getUserPlanDataFromPlans,
+  planToSelectedPlan,
+  planToSelectedPlanWithUpgrade,
+  getUpgradeInfo,
 } from './utils';
+import { plansAPI, type Plan, getPlanColors, formatPlanPrice } from '../api/plans-service';
 import type { ViewMode, SelectedPlan, ReportData, TransferData } from './types';
 
 /**
@@ -53,6 +57,8 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
     const [selectedAvatar, setSelectedAvatar] = useState(getAvatarPath(user?.profilePhotoUrl));
     const [careers, setCareers] = useState<Career[]>([]);
     const [isLoadingCareers, setIsLoadingCareers] = useState(false);
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [isLoadingPlans, setIsLoadingPlans] = useState(false);
 
     // Update selected avatar when user profile changes
     useEffect(() => {
@@ -76,6 +82,23 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       };
 
       loadCareers();
+    }, []);
+
+    // Load plans from API
+    useEffect(() => {
+      const loadPlans = async () => {
+        try {
+          setIsLoadingPlans(true);
+          const data = await plansAPI.getPlans();
+          setPlans(data);
+        } catch (err) {
+          console.error('Error loading plans:', err);
+        } finally {
+          setIsLoadingPlans(false);
+        }
+      };
+
+      loadPlans();
     }, []);
 
     const [formData, setFormData] = useState({
@@ -796,6 +819,66 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       // Get user's current plan (default to 'FREE' if not set)
       const currentPlan = user?.subscriptionPlan?.toUpperCase() || 'FREE';
 
+      // Helper to get tag info for each plan
+      const getPlanTag = (planType: string) => {
+        if (currentPlan === planType) {
+          return { text: 'Actual', color: '#22AD5C' };
+        }
+        if (planType === 'GOLD') return { text: 'Recomendado', color: '#E8B600' };
+        if (planType === 'DIAMOND') return { text: 'Experto', color: '#3758F9' };
+        return null;
+      };
+
+      // Helper to get plan icon
+      const getPlanIcon = (planType: string, colors: ReturnType<typeof getPlanColors>) => {
+        if (planType === 'FREE') {
+          return (
+            <Image
+              src="/icons/start-50.svg"
+              alt="Plan Icon"
+              width={24}
+              height={24}
+              className="flex-shrink-0"
+            />
+          );
+        }
+        if (planType === 'GOLD') {
+          return (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill={colors.icon}/>
+            </svg>
+          );
+        }
+        return (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 7V12C4 16.55 7.84 20.74 12 22C16.16 20.74 20 16.55 20 12V7L12 2Z" fill={colors.icon}/>
+          </svg>
+        );
+      };
+
+      // Get current plan info from plans list
+      const getCurrentPlanInfo = (): { price: number; order: number } => {
+        const userPlanType = (user?.subscriptionPlan?.toUpperCase() || 'FREE') as 'FREE' | 'GOLD' | 'DIAMOND';
+        const currentPlan = plans.find((p) => p.type === userPlanType);
+        return {
+          price: currentPlan?.price || 0,
+          order: currentPlan?.order ?? 0,
+        };
+      };
+
+      // Convert a plan to SelectedPlan format with upgrade info
+      const handleSelectPlan = (plan: Plan) => {
+        const { price: currentPlanPrice, order: currentPlanOrder } = getCurrentPlanInfo();
+        const selected = planToSelectedPlanWithUpgrade(
+          plan,
+          user?.subscriptionPlan,
+          currentPlanOrder,
+          currentPlanPrice
+        );
+        setSelectedPlan(selected);
+        setViewMode('checkout');
+      };
+
       return (
         <>
         <main
@@ -836,208 +919,147 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
               Planes
             </h1>
 
-            {/* Grid de 3 cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Plan Free */}
-              <div className="relative flex flex-col">
-                {/* Tag "Actual" - Only show if current plan is FREE */}
-                {currentPlan === 'FREE' && (
-                  <div className="absolute -top-3 left-4 z-10">
-                    <span
-                      className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
-                      style={{ backgroundColor: '#22AD5C' }}
-                    >
-                      Actual
-                    </span>
-                  </div>
-                )}
-
-                {/* Card */}
-                <div
-                  className="relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full bg-[#E7FFE7] dark:bg-[#1DA53433] border border-[#47830E] dark:border-[#95C16B]"
-                >
-                  {/* Header: Icon + Name + Price */}
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/icons/start-50.svg"
-                        alt="Plan Icon"
-                        width={24}
-                        height={24}
-                        className="flex-shrink-0"
-                      />
-                      <h3 className="text-[15px] lg:text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                        Plan Free
-                      </h3>
-                    </div>
-                    <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
-                      Gratis
-                    </span>
-                  </div>
-
-                  {/* Separador */}
-                  <div className="border-b border-[#47830E] dark:border-[#95C16B] mb-4 opacity-30"></div>
-
-                  {/* Features List */}
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#47830E] dark:text-[#95C16B] flex-shrink-0 mt-0.5" />
-                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
-                        Asignaturas habilitadas: Algebra
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#47830E] dark:text-[#95C16B] flex-shrink-0 mt-0.5" />
-                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
-                        Kibi bot: Bloqueado
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            {/* Loading state */}
+            {isLoadingPlans && (
+              <div className="text-center py-8">
+                <p className="text-dark-900 dark:text-white">Cargando planes...</p>
               </div>
+            )}
 
-              {/* Plan Oro */}
-              <div className="relative flex flex-col">
-                {/* Tag - "Actual" if user has GOLD, otherwise "Recomendado" */}
-                <div className="absolute -top-3 left-4 z-10">
-                  <span
-                    className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
-                    style={{ backgroundColor: currentPlan === 'GOLD' ? '#22AD5C' : '#E8B600' }}
-                  >
-                    {currentPlan === 'GOLD' ? 'Actual' : 'Recomendado'}
-                  </span>
-                </div>
+            {/* Grid de planes dinámico */}
+            {!isLoadingPlans && plans.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {plans.map((plan) => {
+                      const tag = getPlanTag(plan.type);
+                      const isCurrent = currentPlan === plan.type;
+                      const priceDisplay = plan.price === 0 ? 'Gratis' : formatPlanPrice(plan.price, plan.currency);
+                      const featuresDisplay = plan.features
+                        .filter((f) => f.included)
+                        .map((f) => f.limit ? `${f.name}: ${f.limit}` : f.name);
 
-                {/* Card */}
-                <div
-                  className="relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full bg-[#FFFAE6] dark:bg-[#FFC80033] border border-[#E8B600] dark:border-[#FFC800]"
-                >
-                  {/* Header: Icon + Name + Price */}
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#E8B600"/>
-                        </svg>
-                      </div>
-                      <h3 className="text-[15px] lg:text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                        Plan Oro
-                      </h3>
-                    </div>
-                    <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
-                      299,00 $
-                    </span>
-                  </div>
+                      // Check if user can upgrade to this plan
+                      const { price: currentPlanPrice, order: currentPlanOrder } = getCurrentPlanInfo();
+                      const upgradeInfo = getUpgradeInfo(currentPlanOrder, currentPlanPrice, plan);
+                      const canUpgrade = upgradeInfo.canUpgrade;
+                      const isDowngrade = upgradeInfo.isDowngrade;
+                      
+                      // Calculate upgrade price display
+                      const upgradePriceDisplay = canUpgrade && upgradeInfo.upgradeCost > 0
+                        ? formatPlanPrice(upgradeInfo.upgradeCost, plan.currency)
+                        : priceDisplay;
 
-                  {/* Separador */}
-                  <div className="border-b border-[#E8B600] dark:border-[#FFC800] mb-4 opacity-30"></div>
+                      // Get plan-specific classes for dark mode support
+                      const cardClasses = cn(
+                        "relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full border",
+                        plan.type === 'FREE' && "bg-[#E7FFE7] dark:bg-[#1DA53433] border-[#47830E] dark:border-[#95C16B]",
+                        plan.type === 'GOLD' && "bg-[#FFFAE6] dark:bg-[#FFC80033] border-[#E8B600] dark:border-[#FFC800]",
+                        plan.type === 'DIAMOND' && "bg-[#EAF0FE] dark:bg-[#2D68F833] border-[#2D68F8]"
+                      );
 
-                  {/* Features List */}
-                  <div className="space-y-2 mb-6 flex-1">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#E8B600] dark:text-[#FFC800] flex-shrink-0 mt-0.5" />
-                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
-                        Asignaturas habilitadas: Todas
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#E8B600] dark:text-[#FFC800] flex-shrink-0 mt-0.5" />
-                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
-                        Kibi bot: Limitado
-                      </span>
-                    </div>
-                  </div>
+                      const separatorClasses = cn(
+                        "border-b mb-4 opacity-30",
+                        plan.type === 'FREE' && "border-[#47830E] dark:border-[#95C16B]",
+                        plan.type === 'GOLD' && "border-[#E8B600] dark:border-[#FFC800]",
+                        plan.type === 'DIAMOND' && "border-[#2D68F8]"
+                      );
 
-                  {/* Upgrade Button - Only show if user doesn't have this plan */}
-                  {currentPlan !== 'GOLD' && (
-                    <div className="flex justify-center lg:justify-end">
-                      <Button
-                        style={{ backgroundColor: '#FFC800', color: '#000000' }}
-                        className="w-full lg:w-auto lg:min-w-[160px] hover:opacity-90 font-[family-name:var(--font-rubik)] dark:text-black"
-                        size="medium"
-                        onClick={() => {
-                          setSelectedPlan(getPlanDataByType('GOLD'));
-                          setViewMode('checkout');
-                        }}
-                      >
-                        Comprar
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                      const iconClasses = cn(
+                        "h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0 mt-0.5",
+                        plan.type === 'FREE' && "text-[#47830E] dark:text-[#95C16B]",
+                        plan.type === 'GOLD' && "text-[#E8B600] dark:text-[#FFC800]",
+                        plan.type === 'DIAMOND' && "text-[#2D68F8]"
+                      );
+
+                      return (
+                        <div key={plan._id} className="relative flex flex-col">
+                          {/* Tag */}
+                          {tag && (
+                            <div className="absolute -top-3 left-4 z-10">
+                              <span
+                                className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
+                                style={{ backgroundColor: tag.color }}
+                              >
+                                {tag.text}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Card */}
+                          <div className={cardClasses}>
+                            {/* Header: Icon + Name + Price */}
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+                              <div className="flex items-start gap-2 min-w-0 shrink">
+                                <div className="w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  {getPlanIcon(plan.type, getPlanColors(plan.type))}
+                                </div>
+                                <h3 className="text-[15px] lg:text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                                  {plan.name}
+                                </h3>
+                              </div>
+                              <div className="flex flex-col items-end shrink-0">
+                                <span className="text-[16px] lg:text-[22px] xl:text-[26px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
+                                  {priceDisplay}
+                                </span>
+                                {plan.price > 0 && (
+                                  <span className="text-[10px] lg:text-[11px] text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
+                                    MXN
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Separador */}
+                            <div className={separatorClasses}></div>
+
+                            {/* Features List */}
+                            <div className={cn("space-y-2 flex-1", plan.type !== 'FREE' && "mb-6")}>
+                              {featuresDisplay.map((feature, index) => (
+                                <div key={index} className="flex items-start gap-2">
+                                  <CheckCircle className={iconClasses} />
+                                  <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
+                                    {feature}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Buy/Upgrade Button - Only show if user can upgrade to this plan */}
+                            {canUpgrade && plan.type !== 'FREE' && (
+                              <div className="flex flex-col items-center lg:items-end gap-1">
+                                {/* Show upgrade price if different from full price */}
+                                {upgradeInfo.upgradeCost > 0 && upgradeInfo.upgradeCost !== plan.price && (
+                                  <span className="text-xs text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
+                                    Paga solo la diferencia: {upgradePriceDisplay}
+                                  </span>
+                                )}
+                                <Button
+                                  style={{
+                                    backgroundColor: plan.type === 'GOLD' ? '#FFC800' : '#2D68F8',
+                                    color: plan.type === 'GOLD' ? '#000000' : '#FFFFFF',
+                                  }}
+                                  className="w-full lg:w-auto lg:min-w-[160px] hover:opacity-90 font-[family-name:var(--font-rubik)]"
+                                  size="medium"
+                                  onClick={() => handleSelectPlan(plan)}
+                                >
+                                  Mejorar plan
+                                </Button>
+                              </div>
+                            )}
+                            
+                            {/* Show message for downgrades - Cannot downgrade */}
+                            {isDowngrade && plan.type !== 'FREE' && !isCurrent && (
+                              <div className="flex justify-center lg:justify-end">
+                                <span className="text-sm text-grey-500 dark:text-grey-400 font-[family-name:var(--font-rubik)] italic">
+                                  No puedes bajar de plan
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
               </div>
-
-              {/* Plan Diamante */}
-              <div className="relative flex flex-col">
-                {/* Tag - "Actual" if user has DIAMOND, otherwise "Experto" */}
-                <div className="absolute -top-3 left-4 z-10">
-                  <span
-                    className="inline-flex items-center px-3 py-1.5 text-sm font-bold rounded text-white font-[family-name:var(--font-rubik)]"
-                    style={{ backgroundColor: currentPlan === 'DIAMOND' ? '#22AD5C' : '#3758F9' }}
-                  >
-                    {currentPlan === 'DIAMOND' ? 'Actual' : 'Experto'}
-                  </span>
-                </div>
-
-                {/* Card */}
-                <div
-                  className="relative pt-8 pb-6 px-6 rounded-[8px] flex flex-col h-full bg-[#EAF0FE] dark:bg-[#2D68F833] border border-[#2D68F8]"
-                >
-                  {/* Header: Icon + Name + Price */}
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L4 7V12C4 16.55 7.84 20.74 12 22C16.16 20.74 20 16.55 20 12V7L12 2Z" fill="#2D68F8"/>
-                        </svg>
-                      </div>
-                      <h3 className="text-[15px] lg:text-[18px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                        Plan Diamante
-                      </h3>
-                    </div>
-                    <span className="text-[18px] lg:text-[28px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)] whitespace-nowrap">
-                      499,00 $
-                    </span>
-                  </div>
-
-                  {/* Separador */}
-                  <div className="border-b border-[#2D68F8] mb-4 opacity-30"></div>
-
-                  {/* Features List */}
-                  <div className="space-y-2 mb-6 flex-1">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#2D68F8] flex-shrink-0 mt-0.5" />
-                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
-                        Asignaturas habilitadas: Todas
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#2D68F8] flex-shrink-0 mt-0.5" />
-                      <span className="text-[12px] lg:text-[13px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)] leading-snug">
-                        Kibi bot: Todas las funciones activas
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Upgrade Button - Only show if user doesn't have this plan */}
-                  {currentPlan !== 'DIAMOND' && (
-                    <div className="flex justify-center lg:justify-end">
-                      <Button
-                        style={{ backgroundColor: '#2D68F8' }}
-                        className="w-full lg:w-auto lg:min-w-[160px] text-white hover:opacity-90 font-[family-name:var(--font-rubik)]"
-                        size="medium"
-                        onClick={() => {
-                          setSelectedPlan(getPlanDataByType('DIAMOND'));
-                          setViewMode('checkout');
-                        }}
-                      >
-                        Comprar
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </main>
         {renderSuccessModal()}
@@ -1534,7 +1556,10 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
             {/* RIGHT COLUMN: Subscription Plan - Order 2 in mobile */}
             <div className="lg:flex-1 order-2">
               {(() => {
-                const planData = getUserPlanData(user?.subscriptionPlan);
+                // Use plans from API if available, otherwise fallback to hardcoded
+                const planData = plans.length > 0
+                  ? getUserPlanDataFromPlans(plans, user?.subscriptionPlan)
+                  : getUserPlanData(user?.subscriptionPlan);
                 const userPlan = user?.subscriptionPlan?.toUpperCase() || 'FREE';
 
                 return (
