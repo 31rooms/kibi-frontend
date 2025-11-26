@@ -1,19 +1,27 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { cn } from '@/shared/lib/utils';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
-import { Mail, MessageCircle, Copy, Share2, AlertTriangle } from 'lucide-react';
+import { Mail, MessageCircle, Copy, Share2, Loader2 } from 'lucide-react';
+import { useSimulationQuota } from '@/features/exam-simulation/hooks/useSimulationQuota';
+import { SimulationPurchaseModal } from '@/features/exam-simulation/ui/SimulationPurchaseModal';
+
+const PRICE_PER_SIMULATION = 299;
 
 export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
     const [referralLink, setReferralLink] = useState('https://www.loremiosumt/5...');
     const [copied, setCopied] = useState(false);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [startModalOpen, setStartModalOpen] = useState(false);
+    const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [isStarting, setIsStarting] = useState(false);
+
+    const { quota, loading, refetch, startSimulation } = useSimulationQuota();
 
     const handleCopy = () => {
       navigator.clipboard.writeText(referralLink);
@@ -23,8 +31,30 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
 
     const handleShare = (platform: string) => {
       console.log(`Compartir en ${platform}`);
-      // Aquí puedes implementar la lógica de compartir en cada plataforma
     };
+
+    const handleStartSimulation = async () => {
+      setIsStarting(true);
+      const success = await startSimulation();
+      setIsStarting(false);
+
+      if (success) {
+        setStartModalOpen(false);
+        window.location.href = '/home?section=exam-simulation';
+      }
+    };
+
+    const handlePurchaseSuccess = () => {
+      refetch();
+      setSuccessModalOpen(true);
+    };
+
+    // Calculate display values
+    const totalUsed = quota?.totalUsed ?? 0;
+    const totalPurchased = quota?.totalPurchased ?? 0;
+    const remaining = quota?.remaining ?? 0;
+    const canPurchaseMore = quota?.canPurchaseMore ?? true;
+    const maxPurchasable = quota?.maxPurchasable ?? 3;
 
     return (
       <main
@@ -136,99 +166,161 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                     Examenes disponibles
                   </h3>
                   <span className="text-[48px] font-bold text-primary-green font-[family-name:var(--font-quicksand)]">
-                    0/3
+                    {loading ? (
+                      <Loader2 className="w-8 h-8 animate-spin" />
+                    ) : (
+                      `${totalUsed}/${totalPurchased}`
+                    )}
                   </span>
                 </div>
 
-                <Link href="/home?section=exam-simulation" className="block w-full">
-                  <Button
-                    variant="primary"
-                    color="green"
-                    size="large"
-                    className="w-full"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setModalOpen(true);
-                    }}
-                  >
-                    Empezar simulación
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          </div>
-
-          {/* Purchase Section */}
-          <Card
-            variant="default"
-            padding="medium"
-            className="mt-6 bg-[#E7FFE7] dark:bg-[#1E242D] border-grey-500 dark:border-dark-500"
-          >
-            <div className="space-y-4">
-              {/* Title */}
-              <h2 className="text-[24px] font-bold text-dark-900 dark:text-white text-center font-[family-name:var(--font-quicksand)]">
-                Adquiere hasta tres simulaciones
-              </h2>
-
-              {/* Inner Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[1, 2, 3].map((index) => (
-                  <Card
-                    key={index}
-                    variant="default"
-                    padding="medium"
-                    className="bg-white dark:bg-[#171B22] border-grey-500 dark:border-dark-500"
-                  >
-                    <div className="text-center space-y-1">
-                      <p className="text-[16px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
-                        Examen simulacro
-                      </p>
-                      <p className="text-[32px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                        0,00 $
-                      </p>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Buy Button */}
-              <div className="flex justify-center">
                 <Button
                   variant="primary"
                   color="green"
                   size="large"
-                  className="px-12"
-                  disabled
+                  className="w-full"
+                  disabled={loading || remaining <= 0}
+                  onClick={() => {
+                    if (remaining > 0) {
+                      setStartModalOpen(true);
+                    }
+                  }}
                 >
-                  Comprar simulación
+                  {remaining <= 0 ? 'Sin simulaciones disponibles' : 'Empezar simulación'}
                 </Button>
+
+                {remaining <= 0 && totalPurchased === 0 && (
+                  <p className="text-sm text-grey-500 dark:text-grey-400 text-center font-[family-name:var(--font-rubik)]">
+                    Compra simulaciones para comenzar
+                  </p>
+                )}
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
+
+          {/* Purchase Section - Only show if can purchase more */}
+          {canPurchaseMore && (
+            <Card
+              variant="default"
+              padding="medium"
+              className="mt-6 bg-[#E7FFE7] dark:bg-[#1E242D] border-grey-500 dark:border-dark-500"
+            >
+              <div className="space-y-4">
+                {/* Title */}
+                <h2 className="text-[24px] font-bold text-dark-900 dark:text-white text-center font-[family-name:var(--font-quicksand)]">
+                  Adquiere hasta {maxPurchasable} simulación{maxPurchasable > 1 ? 'es' : ''}
+                </h2>
+
+                {/* Inner Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[1, 2, 3].map((index) => {
+                    const isAvailable = index <= maxPurchasable;
+                    return (
+                      <Card
+                        key={index}
+                        variant="default"
+                        padding="medium"
+                        className={cn(
+                          "bg-white dark:bg-[#171B22] border-grey-500 dark:border-dark-500",
+                          !isAvailable && "opacity-50"
+                        )}
+                      >
+                        <div className="text-center space-y-1">
+                          <p className="text-[16px] text-dark-900 dark:text-white font-[family-name:var(--font-rubik)]">
+                            {index} Simulación{index > 1 ? 'es' : ''}
+                          </p>
+                          <p className="text-[32px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                            ${index * PRICE_PER_SIMULATION} MXN
+                          </p>
+                          {!isAvailable && (
+                            <p className="text-xs text-grey-500 font-[family-name:var(--font-rubik)]">
+                              No disponible
+                            </p>
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                {/* Buy Button */}
+                <div className="flex justify-center">
+                  <Button
+                    variant="primary"
+                    color="green"
+                    size="large"
+                    className="px-12"
+                    onClick={() => setPurchaseModalOpen(true)}
+                    disabled={loading}
+                  >
+                    Comprar simulación
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Message when all simulations purchased */}
+          {!canPurchaseMore && totalPurchased >= 3 && (
+            <Card
+              variant="default"
+              padding="medium"
+              className="mt-6 bg-success-50 dark:bg-success-900/20 border-success-200 dark:border-success-800"
+            >
+              <div className="text-center space-y-2">
+                <p className="text-lg font-semibold text-success-700 dark:text-success-300 font-[family-name:var(--font-quicksand)]">
+                  ¡Ya tienes todas tus simulaciones!
+                </p>
+                <p className="text-sm text-success-600 dark:text-success-400 font-[family-name:var(--font-rubik)]">
+                  Has adquirido el máximo de 3 simulaciones. ¡Buena suerte en tus exámenes!
+                </p>
+              </div>
+            </Card>
+          )}
         </div>
 
-        {/* Modal de Confirmación */}
+        {/* Modal de Confirmación para Iniciar */}
         <Modal
-          open={modalOpen}
-          onOpenChange={setModalOpen}
+          open={startModalOpen}
+          onOpenChange={setStartModalOpen}
           state="warning"
           title="¿Listo para tu examen simulacro?"
           cancelText="Cancelar"
-          confirmText="Comenzar"
-          onCancel={() => setModalOpen(false)}
-          onConfirm={() => {
-            setModalOpen(false);
-            window.location.href = '/home?section=exam-simulation';
-          }}
+          confirmText={isStarting ? "Iniciando..." : "Comenzar"}
+          onCancel={() => setStartModalOpen(false)}
+          onConfirm={handleStartSimulation}
           className="[&_[class*='iconBg']]:!bg-[#FFD33333]"
         >
           <p className="text-center text-[#7b7b7b] dark:text-grey-400 font-['Inter',sans-serif] text-[16px] w-full">
             El examen que vas a presentar ahora es una simulación muy parecida al examen real que presentarás pronto.
           </p>
           <p className="text-center text-[#7b7b7b] dark:text-grey-400 font-['Inter',sans-serif] text-[16px] w-full mt-4">
-            Antes de empezarlo es muy importante que apartes 3 horas de tu tiempo ya que no habrá pausas. Es una prueba que requiere compromiso, tiempo y mucha preparación. No te recomendamos tomarlo si aún no te sientes seguro de querer probarte al 100%. Pero si estás listo y has practicado lo suficiente, ¡vamos a ello!
+            Antes de empezarlo es muy importante que apartes 3 horas de tu tiempo ya que no habrá pausas. Es una prueba que requiere compromiso, tiempo y mucha preparación.
+          </p>
+          <p className="text-center text-primary-green font-semibold font-['Inter',sans-serif] text-[14px] w-full mt-4">
+            Te quedan {remaining} simulación{remaining !== 1 ? 'es' : ''} disponible{remaining !== 1 ? 's' : ''}
           </p>
         </Modal>
+
+        {/* Modal de Compra */}
+        <SimulationPurchaseModal
+          open={purchaseModalOpen}
+          onOpenChange={setPurchaseModalOpen}
+          maxPurchasable={maxPurchasable}
+          onSuccess={handlePurchaseSuccess}
+        />
+
+        {/* Modal de Éxito */}
+        <Modal
+          open={successModalOpen}
+          onOpenChange={setSuccessModalOpen}
+          state="success"
+          title="¡Compra exitosa!"
+          description="Tus simulaciones han sido añadidas a tu cuenta. ¡Ya puedes comenzar tu preparación!"
+          confirmText="Entendido"
+          singleButton
+          onConfirm={() => setSuccessModalOpen(false)}
+        />
       </main>
     );
   }

@@ -596,7 +596,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
             {/* Contenedor con max-width para el formulario */}
             <div className="w-full max-w-[474px] mx-auto space-y-6">
               {/* Tag (solo desktop) */}
-              {selectedPlan.name.includes('Oro') && (
+              {selectedPlan.recommended && (
                 <div className="hidden md:block relative">
                   <div className="absolute -top-3 left-4 z-10">
                     <span
@@ -820,11 +820,11 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       const currentPlan = user?.subscriptionPlan?.toUpperCase() || 'FREE';
 
       // Helper to get tag info for each plan
-      const getPlanTag = (planType: string) => {
+      const getPlanTag = (planType: string, recommended?: boolean) => {
         if (currentPlan === planType) {
           return { text: 'Actual', color: '#22AD5C' };
         }
-        if (planType === 'GOLD') return { text: 'Recomendado', color: '#E8B600' };
+        if (recommended) return { text: 'Recomendado', color: '#E8B600' };
         if (planType === 'DIAMOND') return { text: 'Experto', color: '#3758F9' };
         return null;
       };
@@ -930,7 +930,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
             {!isLoadingPlans && plans.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {plans.map((plan) => {
-                      const tag = getPlanTag(plan.type);
+                      const tag = getPlanTag(plan.type, plan.recommended);
                       const isCurrent = currentPlan === plan.type;
                       const priceDisplay = plan.price === 0 ? 'Gratis' : formatPlanPrice(plan.price, plan.currency);
                       const featuresDisplay = plan.features

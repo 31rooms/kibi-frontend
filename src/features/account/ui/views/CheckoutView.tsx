@@ -258,7 +258,7 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
         {/* Contenedor más acotado para el checkout */}
         <div className="w-full max-w-[474px] mx-auto space-y-6">
           {/* Tag (solo desktop) */}
-          {(selectedPlan.recommended || selectedPlan.type === 'GOLD') && (
+          {selectedPlan.recommended && (
             <div className="hidden md:block relative">
               <div className="absolute -top-3 left-4 z-10">
                 <span

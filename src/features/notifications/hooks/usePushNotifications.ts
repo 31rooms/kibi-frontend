@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   isPushNotificationSupported,
   getDeviceInfo,
@@ -27,6 +27,11 @@ export function usePushNotifications(accessToken: string | null) {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Flag to trigger auto-resubscription when browser has permission but no subscription
+  const [needsAutoResubscribe, setNeedsAutoResubscribe] = useState(false);
+  // Ref to prevent multiple auto-resubscription attempts
+  const autoResubscribeAttempted = useRef(false);
 
   // Check initial support and permission
   useEffect(() => {
@@ -163,13 +168,16 @@ export function usePushNotifications(accessToken: string | null) {
         // No hay suscripción en el navegador, pero tiene permisos - crear una nueva
         const permission = getNotificationPermission();
         if (permission === 'granted') {
-          console.log('⚠️ [checkExistingSubscription] Has permission but no browser subscription, will need to re-subscribe');
-          // No hacemos auto-subscribe aquí para evitar loops, pero marcamos que no está suscrito
+          console.log('⚠️ [checkExistingSubscription] Has permission but no browser subscription, triggering auto-resubscribe');
           setState(prev => ({
             ...prev,
             isSubscribed: false,
             subscription: null,
           }));
+          // Trigger auto-resubscription (will be handled by useEffect)
+          if (!autoResubscribeAttempted.current) {
+            setNeedsAutoResubscribe(true);
+          }
         }
       }
     } catch (error) {
@@ -273,6 +281,28 @@ export function usePushNotifications(accessToken: string | null) {
       setIsLoading(false);
     }
   }, [accessToken]);
+
+  /**
+   * Auto-resubscribe effect: when browser has permission but no subscription,
+   * automatically create a new subscription. This handles cases where:
+   * - The push server (FCM) invalidated the old subscription (410 error)
+   * - The browser cleared its subscription but we still have permission
+   */
+  useEffect(() => {
+    if (needsAutoResubscribe && !autoResubscribeAttempted.current && accessToken) {
+      autoResubscribeAttempted.current = true;
+      setNeedsAutoResubscribe(false);
+
+      console.log('🔄 [AutoResubscribe] Attempting automatic re-subscription...');
+      subscribe().then((success) => {
+        if (success) {
+          console.log('✅ [AutoResubscribe] Successfully re-subscribed to push notifications');
+        } else {
+          console.log('❌ [AutoResubscribe] Failed to re-subscribe, user may need to manually enable notifications');
+        }
+      });
+    }
+  }, [needsAutoResubscribe, accessToken, subscribe]);
 
   /**
    * Unsubscribe from push notifications
