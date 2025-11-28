@@ -85,3 +85,28 @@ export interface Achievement {
   unlockedAt: Date;
   seen: boolean;
 }
+
+// Weekly Status Types
+export interface WeeklyDayStatus {
+  date: string; // ISO date string YYYY-MM-DD
+  dayLabel: string; // L, M, M, J, V, S, D
+  dailyTestCompleted: boolean;
+  isToday: boolean;
+  isFuture: boolean;
+}
+
+export interface WeeklyStatusResponse {
+  weekDays: WeeklyDayStatus[];
+  currentStreak: number;
+  maxStreak: number;
+}
+
+// Monthly Status Types
+export interface MonthlyStatusResponse {
+  year: number;
+  month: number; // 1-12
+  completedDates: string[]; // Array of ISO date strings YYYY-MM-DD
+  totalCompleted: number;
+  currentStreak: number;
+  maxStreak: number;
+}

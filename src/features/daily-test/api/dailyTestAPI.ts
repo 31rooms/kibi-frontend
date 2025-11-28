@@ -4,7 +4,9 @@ import type {
   DailyTestSession,
   AnswerQuestionRequest,
   AnswerQuestionResponse,
-  CompleteDailyTestResponse
+  CompleteDailyTestResponse,
+  WeeklyStatusResponse,
+  MonthlyStatusResponse
 } from './types';
 
 const DAILY_TEST_BASE_URL = '/daily-test';
@@ -60,5 +62,25 @@ export const dailyTestAPI = {
     } catch (error) {
       return null;
     }
+  },
+
+  /**
+   * Get weekly status for calendar display
+   * Returns which days of the current week have completed daily tests and streak info
+   */
+  getWeeklyStatus: async (): Promise<WeeklyStatusResponse> => {
+    const response = await apiClient.get(`${DAILY_TEST_BASE_URL}/weekly-status`);
+    return response.data;
+  },
+
+  /**
+   * Get monthly status for calendar display
+   * Returns which days of a specific month have completed daily tests
+   * @param year - Year (e.g., 2025)
+   * @param month - Month (1-12)
+   */
+  getMonthlyStatus: async (year: number, month: number): Promise<MonthlyStatusResponse> => {
+    const response = await apiClient.get(`${DAILY_TEST_BASE_URL}/monthly-status/${year}/${month}`);
+    return response.data;
   }
 };

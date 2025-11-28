@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { useProgress } from '../hooks/useProgress';
+import { useActivityTimeChart } from '../hooks/useActivityTimeChart';
 import { ProgresoSectionMobile } from './ProgresoSectionMobile';
 import { ProgresoSectionDesktop } from './ProgresoSectionDesktop';
 
@@ -53,11 +54,18 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
   ({ className, ...props }, ref) => {
     const { dashboard, loading, loadDashboard } = useProgress();
     const [timePeriod, setTimePeriod] = useState('week');
-    const [activityTimePeriod, setActivityTimePeriod] = useState('week');
     const { width, mounted } = useWindowSize();
     const isDesktop = width > 1200;
 
-    // Datos de ejemplo para el gráfico de barras
+    // Hook para obtener datos reales del tiempo de actividad
+    const {
+      data: activityData,
+      period: activityTimePeriod,
+      setPeriod: setActivityTimePeriod,
+      isLoading: isActivityLoading,
+    } = useActivityTimeChart('week');
+
+    // Datos de ejemplo para el gráfico de barras (efectividad)
     const chartData = [
       { category: 'Biología', value: 69.15 },
       { category: 'Historia', value: 28.3 },
@@ -65,17 +73,6 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
       { category: 'Matemática', value: 83.84 },
       { category: 'Comprensión lectora', value: 44.58 },
       { category: 'Geografía', value: 11.34 },
-    ];
-
-    // Datos de ejemplo para el gráfico de línea (tiempo de actividad)
-    const activityData = [
-      { category: 'Lun', value: 20 },
-      { category: 'Mar', value: 45 },
-      { category: 'Mier', value: 65 },
-      { category: 'Jue', value: 65 },
-      { category: 'Vie', value: 50 },
-      { category: 'Sab', value: 70 },
-      { category: 'Dom', value: 72 },
     ];
 
     const weekDays = getDaysOfWeek();

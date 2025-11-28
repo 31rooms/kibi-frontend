@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { CareerTag, SidebarButton } from '@/shared/ui';
-import { Flame, Moon, Menu, Sun, Bell, X, LogOut } from 'lucide-react';
+import { Moon, Menu, Sun, Bell, X, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth, Theme, authAPI } from '@/features/authentication';
 import { useNotificationContext, NotificationDropdown } from '@/features/notifications';
+import { useWeeklyStatus } from '@/features/home/hooks/useWeeklyStatus';
 import type { SectionType } from '../types/dashboard.types';
 
 export interface DashboardTopMenuProps {
@@ -53,6 +54,7 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
   ) => {
     const { user, updateUser } = useAuth();
     const { notifications, unreadCount, markAsRead, markAllAsRead, refresh: refreshNotifications } = useNotificationContext();
+    const { currentStreak } = useWeeklyStatus();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -136,6 +138,23 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
 
     const subscriptionLabel = getSubscriptionLabel(user?.subscriptionPlan);
 
+    // Get the appropriate CareerTag variant based on subscription plan
+    const getSubscriptionVariant = (plan?: string): 'plan-free' | 'plan-gold' | 'plan-diamond' => {
+      if (!plan) return 'plan-free';
+
+      switch (plan.toUpperCase()) {
+        case 'GOLD':
+          return 'plan-gold';
+        case 'DIAMOND':
+          return 'plan-diamond';
+        case 'FREE':
+        default:
+          return 'plan-free';
+      }
+    };
+
+    const subscriptionVariant = getSubscriptionVariant(user?.subscriptionPlan);
+
     const handleMobileMenuToggle = () => {
       setIsMobileMenuOpen(!isMobileMenuOpen);
       if (onMenuClick) onMenuClick();
@@ -195,22 +214,28 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
         <div className="flex items-center gap-2">
           {/* Subscription Plan Tag (Desktop only) */}
           <div className="hidden md:block">
-            <CareerTag career={subscriptionLabel} />
+            <CareerTag career={subscriptionLabel} variant={subscriptionVariant} />
           </div>
 
           {/* Streak Icon with Badge */}
-          {streakCount > 0 && (
-            <button
-              onClick={onStreakClick}
-              className="relative p-2 rounded-full cursor-pointer"
-              aria-label={`Racha: ${streakCount} días`}
-            >
-              <Flame className="w-6 h-6 text-orange-500" />
-              <span className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
-                {streakCount}
+          <button
+            onClick={onStreakClick}
+            className="relative p-1 rounded-full cursor-pointer"
+            aria-label={currentStreak > 0 ? `Racha: ${currentStreak} días` : 'Sin racha'}
+          >
+            <Image
+              src={currentStreak > 0 ? '/icons/fire-streak.svg' : '/icons/fire-streak-off.svg'}
+              alt={currentStreak > 0 ? 'Racha activa' : 'Sin racha'}
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+            {currentStreak > 0 && (
+              <span className="absolute bottom-0 right-1 bg-error-500 text-white text-[10px] font-semibold rounded-full w-4 h-4 flex items-center justify-center">
+                {currentStreak}
               </span>
-            </button>
-          )}
+            )}
+          </button>
 
           {/* Theme Toggle */}
           <button
@@ -337,7 +362,7 @@ export const DashboardTopMenu = React.forwardRef<HTMLDivElement, DashboardTopMen
           </div>
           {/* Subscription Tag in Mobile Menu */}
           <div className="mt-3">
-            <CareerTag career={subscriptionLabel} />
+            <CareerTag career={subscriptionLabel} variant={subscriptionVariant} />
           </div>
         </div>
 

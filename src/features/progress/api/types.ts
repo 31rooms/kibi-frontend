@@ -185,3 +185,16 @@ export interface UserAchievements {
     points: number;
   };
 }
+
+// Activity Time Chart Types
+export interface ActivityTimeChartDataPoint {
+  category: string;
+  value: number;
+}
+
+export interface ActivityTimeChartResponse {
+  period: 'today' | 'week' | 'month';
+  data: ActivityTimeChartDataPoint[];
+  totalMinutes: number;
+  averagePerDay: number;
+}

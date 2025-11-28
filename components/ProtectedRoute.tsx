@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/features/authentication';
+import { useActivityTracker } from '@/features/progress/hooks/useActivityTracker';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,6 +14,9 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Track user activity time (only when authenticated)
+  useActivityTracker({ enabled: isAuthenticated && !isLoading });
 
   useEffect(() => {
     if (!isLoading && requireAuth && !isAuthenticated) {
