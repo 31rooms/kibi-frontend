@@ -404,7 +404,8 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                 // GOLD/DIAMOND users: all subjects are enabled (open)
                 const isSubjectEnabled = isFreeUser ? index >= subjects.length - 2 : true;
                 const iconState = isSubjectEnabled ? 'open' : 'disabled';
-                const iconPath = `/subjects/light/${iconState}/${subject.name}`;
+                const themeFolder = isDarkMode ? 'dark' : 'light';
+                const iconPath = `/subjects/${themeFolder}/${iconState}/${subject.name}`;
 
                 return (
                   <div
@@ -421,7 +422,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                       alt={`${subject.displayName} subject`}
                       width={150}
                       height={90}
-                      className="w-full h-auto"
+                      className="w-full h-auto max-h-[129px]"
                       priority={index < 5}
                       onLoad={handleImageLoad}
                     />

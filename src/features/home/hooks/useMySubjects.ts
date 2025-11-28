@@ -9,13 +9,27 @@ import type { MySubjectsResponse, SubjectWithState } from '../types/careers.type
  * This serves as the master list of all possible subjects
  *
  * svg Naming Convention:
- * - Materia-0.svg = Literatura (id: 23)
- * - Materia-1.svg = Filosofía (id: 22)
- * - ...
- * - Materia-19.svg = Inglés (id: 4)
- * - Materia-20.svg = Redacción Indirecta (id: 3)
- * - Materia-21.svg = Pensamiento Matemático (id: 2)
- * - Materia-22.svg = Comprensión Lectora (id: 1)
+ * - Materia-0.svg = Literatura
+ * - Materia-1.svg = Filosofía
+ * - Materia-2.svg = Premedicina
+ * - Materia-3.svg = Cálculo
+ * - Materia-4.svg = Biología
+ * - Materia-5.svg = Física
+ * - Materia-6.svg = Economía
+ * - Materia-7.svg = Historia de México
+ * - Materia-8.svg = Cálculo Integral
+ * - Materia-9.svg = Aritmética
+ * - Materia-10.svg = Administración
+ * - Materia-11.svg = Química
+ * - Materia-12.svg = Historia
+ * - Materia-13.svg = Geografía
+ * - Materia-14.svg = Ciencias de la salud
+ * - Materia-15.svg = Álgebra
+ * - Materia-16.svg = Finanzas
+ * - Materia-17.svg = Derecho
+ * - Materia-18.svg = Probabilidad y Estadística
+ * - Materia-19.svg = Pensamiento Matemático
+ * - Materia-20.svg = Inglés, Redacción Indirecta, Comprensión Lectora (compartido)
  */
 const LOCAL_SUBJECTS = [
   { id: 23, name: 'Materia-0.svg', displayName: 'Literatura' },
@@ -27,20 +41,20 @@ const LOCAL_SUBJECTS = [
   { id: 17, name: 'Materia-6.svg', displayName: 'Economía' },
   { id: 16, name: 'Materia-7.svg', displayName: 'Historia de México' },
   { id: 15, name: 'Materia-8.svg', displayName: 'Cálculo Integral' },
-  { id: 14, name: 'Materia-9.svg', displayName: 'Administración' },
-  { id: 13, name: 'Materia-10.svg', displayName: 'Química' },
-  { id: 12, name: 'Materia-11.svg', displayName: 'Historia' },
-  { id: 11, name: 'Materia-12.svg', displayName: 'Geografía' },
-  { id: 10, name: 'Materia-13.svg', displayName: 'Ciencias de la salud' },
-  { id: 9, name: 'Materia-14.svg', displayName: 'Álgebra' },
-  { id: 8, name: 'Materia-15.svg', displayName: 'Finanzas' },
-  { id: 7, name: 'Materia-16.svg', displayName: 'Derecho' },
-  { id: 6, name: 'Materia-17.svg', displayName: 'Probabilidad y Estadística' },
-  { id: 5, name: 'Materia-18.svg', displayName: 'Aritmética' },
-  { id: 4, name: 'Materia-19.svg', displayName: 'Inglés' },
-  { id: 3, name: 'Materia-19.svg', displayName: 'Redacción Indirecta' },
-  { id: 2, name: 'Materia-12.svg', displayName: 'Pensamiento Matemático' },
-  { id: 1, name: 'Materia-19.svg', displayName: 'Comprensión Lectora' },
+  { id: 14, name: 'Materia-9.svg', displayName: 'Aritmética' },
+  { id: 13, name: 'Materia-10.svg', displayName: 'Administración' },
+  { id: 12, name: 'Materia-11.svg', displayName: 'Química' },
+  { id: 11, name: 'Materia-12.svg', displayName: 'Historia' },
+  { id: 10, name: 'Materia-13.svg', displayName: 'Geografía' },
+  { id: 9, name: 'Materia-14.svg', displayName: 'Ciencias de la salud' },
+  { id: 8, name: 'Materia-15.svg', displayName: 'Álgebra' },
+  { id: 7, name: 'Materia-16.svg', displayName: 'Finanzas' },
+  { id: 6, name: 'Materia-17.svg', displayName: 'Derecho' },
+  { id: 5, name: 'Materia-18.svg', displayName: 'Probabilidad y Estadística' },
+  { id: 4, name: 'Materia-19.svg', displayName: 'Pensamiento Matemático' },
+  { id: 3, name: 'Materia-20.svg', displayName: 'Inglés' },
+  { id: 2, name: 'Materia-20.svg', displayName: 'Redacción Indirecta' },
+  { id: 1, name: 'Materia-20.svg', displayName: 'Comprensión Lectora' },
 ];
 
 interface UseMySubjectsReturn {

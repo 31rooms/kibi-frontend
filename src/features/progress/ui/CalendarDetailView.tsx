@@ -85,6 +85,8 @@ export const CalendarDetailView = React.forwardRef<HTMLElement, CalendarDetailVi
               showArea={true}
               showPoints={true}
               color="#95C16B"
+              yAxisMax="auto"
+              valueFormatter={(val) => `${val} min`}
             />
 
             {/* Leyenda */}

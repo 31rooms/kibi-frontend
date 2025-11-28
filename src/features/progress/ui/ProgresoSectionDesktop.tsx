@@ -373,6 +373,8 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
                   showArea={true}
                   showPoints={true}
                   color="#95C16B"
+                  yAxisMax="auto"
+                  valueFormatter={(val) => `${val} min`}
                 />
 
                 {/* Leyenda */}
