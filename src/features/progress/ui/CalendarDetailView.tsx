@@ -5,10 +5,11 @@ import { cn } from '@/shared/lib/utils';
 import { Card, MultiSelectCalendar, LineChart, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui';
 import { ArrowLeft } from 'lucide-react';
 import { useMonthlyStatus } from '../hooks/useMonthlyStatus';
+import type { Period } from '../hooks/useActivityTimeChart';
 
 interface CalendarDetailViewProps {
-  activityTimePeriod: string;
-  setActivityTimePeriod: (value: string) => void;
+  activityTimePeriod: Period;
+  setActivityTimePeriod: (value: Period) => void;
   activityData: Array<{ category: string; value: number }>;
   onBack: () => void;
   className?: string;

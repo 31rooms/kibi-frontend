@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { progressAPI } from '../api/progressAPI';
 import type { ActivityTimeChartResponse, ActivityTimeChartDataPoint } from '../api/types';
 
-type Period = 'today' | 'week' | 'month';
+export type Period = 'today' | 'week' | 'month';
 
 interface UseActivityTimeChartResult {
   data: ActivityTimeChartDataPoint[];

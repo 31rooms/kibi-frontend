@@ -6,13 +6,14 @@ import { Card, MultiSelectCalendar, BarChart, LineChart, Select, SelectContent, 
 import { X, Star, TrendingUp, Calendar, Beaker, Search, BookOpen, Trophy, Target } from 'lucide-react';
 import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
 import { useMonthlyStatus } from '../hooks/useMonthlyStatus';
+import type { Period } from '../hooks/useActivityTimeChart';
 
 interface ProgresoSectionDesktopProps {
   dashboard: any;
   timePeriod: string;
   setTimePeriod: (value: string) => void;
-  activityTimePeriod: string;
-  setActivityTimePeriod: (value: string) => void;
+  activityTimePeriod: Period;
+  setActivityTimePeriod: (value: Period) => void;
   chartData: Array<{ category: string; value: number }>;
   activityData: Array<{ category: string; value: number }>;
   className?: string;
