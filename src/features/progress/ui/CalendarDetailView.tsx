@@ -4,10 +4,12 @@ import React from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Card, MultiSelectCalendar, LineChart, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui';
 import { ArrowLeft } from 'lucide-react';
+import { useMonthlyStatus } from '../hooks/useMonthlyStatus';
+import type { Period } from '../hooks/useActivityTimeChart';
 
 interface CalendarDetailViewProps {
-  activityTimePeriod: string;
-  setActivityTimePeriod: (value: string) => void;
+  activityTimePeriod: Period;
+  setActivityTimePeriod: (value: Period) => void;
   activityData: Array<{ category: string; value: number }>;
   onBack: () => void;
   className?: string;
@@ -15,6 +17,14 @@ interface CalendarDetailViewProps {
 
 export const CalendarDetailView = React.forwardRef<HTMLElement, CalendarDetailViewProps>(
   ({ activityTimePeriod, setActivityTimePeriod, activityData, onBack, className }, ref) => {
+    const { activeDates, isLoading, year, month, setYear, setMonth } = useMonthlyStatus();
+
+    // Handle month change from calendar
+    const handleMonthChange = (newYear: number, newMonth: number) => {
+      setYear(newYear);
+      setMonth(newMonth);
+    };
+
     return (
       <main
         ref={ref}
@@ -34,15 +44,21 @@ export const CalendarDetailView = React.forwardRef<HTMLElement, CalendarDetailVi
             <span className="text-[16px] font-medium font-[family-name:var(--font-rubik)]">Volver</span>
           </button>
 
-          {/* Calendario Completo - Sin Card, ocupa 100% */}
-          <MultiSelectCalendar
-            activeDates={[
-              new Date(2025, 0, 31),  // 31 de enero 2025
-              new Date(2025, 0, 1),   // 1 de enero 2025
-            ]}
-            readOnly={false}
-            className="max-w-full"
-          />
+          {/* Calendario Completo - Con datos reales */}
+          <div className="relative">
+            <MultiSelectCalendar
+              activeDates={activeDates}
+              readOnly={true}
+              className="max-w-full"
+              defaultMonth={new Date(year, month - 1)}
+              onMonthChange={handleMonthChange}
+            />
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/50 dark:bg-dark-900/50 flex items-center justify-center rounded-lg">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-green"></div>
+              </div>
+            )}
+          </div>
 
           {/* Gráfico de Tiempo de Actividad */}
           <Card className="p-3 md:p-6">
@@ -70,6 +86,8 @@ export const CalendarDetailView = React.forwardRef<HTMLElement, CalendarDetailVi
               showArea={true}
               showPoints={true}
               color="#95C16B"
+              yAxisMax="auto"
+              valueFormatter={(val) => `${val} min`}
             />
 
             {/* Leyenda */}
@@ -77,7 +95,7 @@ export const CalendarDetailView = React.forwardRef<HTMLElement, CalendarDetailVi
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#95C16B' }} />
                 <span className="text-[14px] text-dark-700 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
-                  2025
+                  {year}
                 </span>
               </div>
             </div>

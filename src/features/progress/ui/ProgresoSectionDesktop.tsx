@@ -5,13 +5,15 @@ import { cn } from '@/shared/lib/utils';
 import { Card, MultiSelectCalendar, BarChart, LineChart, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button, Progress } from '@/shared/ui';
 import { X, Star, TrendingUp, Calendar, Beaker, Search, BookOpen, Trophy, Target } from 'lucide-react';
 import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
+import { useMonthlyStatus } from '../hooks/useMonthlyStatus';
+import type { Period } from '../hooks/useActivityTimeChart';
 
 interface ProgresoSectionDesktopProps {
   dashboard: any;
   timePeriod: string;
   setTimePeriod: (value: string) => void;
-  activityTimePeriod: string;
-  setActivityTimePeriod: (value: string) => void;
+  activityTimePeriod: Period;
+  setActivityTimePeriod: (value: Period) => void;
   chartData: Array<{ category: string; value: number }>;
   activityData: Array<{ category: string; value: number }>;
   className?: string;
@@ -22,6 +24,15 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
     const [showAchievementsModal, setShowAchievementsModal] = useState(false);
     const [activeTab, setActiveTab] = useState<'todos' | 'alcanzados' | 'progreso'>('todos');
     const [showReforzarView, setShowReforzarView] = useState(false);
+
+    // Hook para obtener datos del calendario mensual
+    const { activeDates, isLoading: isCalendarLoading, year, month, setYear, setMonth } = useMonthlyStatus();
+
+    // Handle month change from calendar
+    const handleCalendarMonthChange = (newYear: number, newMonth: number) => {
+      setYear(newYear);
+      setMonth(newMonth);
+    };
 
     // Datos de logros
     const achievements = [
@@ -321,14 +332,19 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
 
             {/* Segunda Columna - Calendario y Gráfico */}
             <div className="space-y-6">
-              <MultiSelectCalendar
-                activeDates={[
-                  new Date(2025, 10, 6),  // 6 de noviembre 2025
-                  new Date(2025, 10, 7),  // 7 de noviembre 2025
-                  new Date(2025, 10, 8),  // 8 de noviembre 2025
-                ]}
-                readOnly
-              />
+              <div className="relative">
+                <MultiSelectCalendar
+                  activeDates={activeDates}
+                  readOnly
+                  defaultMonth={new Date(year, month - 1)}
+                  onMonthChange={handleCalendarMonthChange}
+                />
+                {isCalendarLoading && (
+                  <div className="absolute inset-0 bg-white/50 dark:bg-dark-900/50 flex items-center justify-center rounded-lg">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-green"></div>
+                  </div>
+                )}
+              </div>
 
               {/* Gráfico de Tiempo de Actividad */}
               <Card className="p-3 md:p-6">
@@ -358,6 +374,8 @@ export const ProgresoSectionDesktop = React.forwardRef<HTMLElement, ProgresoSect
                   showArea={true}
                   showPoints={true}
                   color="#95C16B"
+                  yAxisMax="auto"
+                  valueFormatter={(val) => `${val} min`}
                 />
 
                 {/* Leyenda */}

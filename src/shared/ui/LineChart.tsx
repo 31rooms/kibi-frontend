@@ -25,6 +25,9 @@ export interface LineChartProps {
   color?: string;
   className?: string;
   yAxisLabel?: string;
+  yAxisMin?: number;
+  yAxisMax?: number | 'auto';
+  valueFormatter?: (val: number) => string;
 }
 
 export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
@@ -38,14 +41,47 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
       color = '#95C16B',
       className,
       yAxisLabel,
+      yAxisMin = 0,
+      yAxisMax = 100,
+      valueFormatter,
     },
     ref
   ) => {
     const [isMounted, setIsMounted] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = React.useState(false);
 
     React.useEffect(() => {
       setIsMounted(true);
+
+      // Detectar modo dark inicial
+      const checkDarkMode = () => {
+        setIsDarkMode(document.documentElement.classList.contains('dark'));
+      };
+
+      checkDarkMode();
+
+      // Observar cambios en la clase dark
+      const observer = new MutationObserver(checkDarkMode);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+
+      return () => observer.disconnect();
     }, []);
+
+    // Calcular yAxisMax dinámicamente si es 'auto'
+    const calculatedYAxisMax = React.useMemo(() => {
+      if (yAxisMax === 'auto') {
+        const maxValue = Math.max(...data.map((item) => item.value), 0);
+        // Redondear hacia arriba al siguiente múltiplo de 10 o 20 para una mejor visualización
+        if (maxValue <= 10) return 10;
+        if (maxValue <= 30) return Math.ceil(maxValue / 5) * 5;
+        if (maxValue <= 60) return Math.ceil(maxValue / 10) * 10;
+        return Math.ceil(maxValue / 20) * 20;
+      }
+      return yAxisMax;
+    }, [data, yAxisMax]);
 
     const chartOptions: ApexOptions = {
       chart: {
@@ -120,16 +156,19 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
           },
           formatter: function (val) {
             if (typeof val === 'number') {
+              if (valueFormatter) {
+                return valueFormatter(val);
+              }
               return val.toFixed(0);
             }
             return String(val);
           },
         },
-        min: 0,
-        max: 100,
+        min: yAxisMin,
+        max: calculatedYAxisMax,
       },
       grid: {
-        borderColor: '#e9ecef',
+        borderColor: isDarkMode ? '#374151' : '#e9ecef',
         strokeDashArray: 3,
         xaxis: {
           lines: {
@@ -144,11 +183,14 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
       },
       colors: [color],
       tooltip: {
-        theme: 'light',
+        theme: isDarkMode ? 'dark' : 'light',
         y: {
           formatter: function (val) {
             if (typeof val === 'number') {
-              return val.toFixed(2);
+              if (valueFormatter) {
+                return valueFormatter(val);
+              }
+              return val.toFixed(0);
             }
             return String(val);
           },

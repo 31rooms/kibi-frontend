@@ -4,7 +4,8 @@ import type {
   ProjectedScore,
   SubjectsEffectiveness,
   SubjectDetail,
-  UserAchievements
+  UserAchievements,
+  ActivityTimeChartResponse
 } from './types';
 
 const PROGRESS_BASE_URL = '/progress';
@@ -64,5 +65,27 @@ export const progressAPI = {
     await apiClient.patch(`${PROGRESS_BASE_URL}/achievements/mark-seen`, {
       achievementIds
     });
+  },
+
+  /**
+   * Add activity time for today
+   * @param activeSeconds - Active time in seconds to add
+   */
+  addActivityTime: async (activeSeconds: number): Promise<{ success: boolean; totalMinutesToday: number }> => {
+    const response = await apiClient.post(`${PROGRESS_BASE_URL}/activity-time`, {
+      activeSeconds
+    });
+    return response.data;
+  },
+
+  /**
+   * Get activity time chart data
+   * @param period - 'today' | 'week' | 'month'
+   */
+  getActivityTimeChart: async (period: 'today' | 'week' | 'month' = 'week'): Promise<ActivityTimeChartResponse> => {
+    const response = await apiClient.get(`${PROGRESS_BASE_URL}/activity-time/chart`, {
+      params: { period }
+    });
+    return response.data;
   }
 };

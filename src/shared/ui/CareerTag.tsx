@@ -6,7 +6,7 @@ import { cn } from '@/shared/lib/utils';
 
 export interface CareerTagProps extends React.HTMLAttributes<HTMLSpanElement> {
   career?: string;
-  variant?: 'career' | 'recommended';
+  variant?: 'career' | 'recommended' | 'plan-free' | 'plan-gold' | 'plan-diamond';
   bgColorLight?: string;
   bgColorDark?: string;
   textColor?: string;
@@ -19,6 +19,9 @@ export interface CareerTagProps extends React.HTMLAttributes<HTMLSpanElement> {
  * Variants:
  * - career: Light mode bg #47830E33, text #47830E | Dark mode bg #95C16B33, text #95C16B
  * - recommended: bg #4361FF1A, text #3758F9 (both modes)
+ * - plan-free: Light mode bg #E7FFE7, text #47830E | Dark mode bg #1DA53433, text #95C16B
+ * - plan-gold: Light mode bg #FFFAE6, text #E8B600 | Dark mode bg #FFC80033, text #FFC800
+ * - plan-diamond: Light mode bg #EAF0FE, text #2D68F8 | Dark mode bg #2D68F833, text #2D68F8
  *
  * Also supports custom colors via bgColorLight, bgColorDark, and textColor props
  */
@@ -50,6 +53,21 @@ export const CareerTag = React.forwardRef<HTMLSpanElement, CareerTagProps>(
           return {
             backgroundColor: '#4361FF1A',
             color: '#3758F9',
+          };
+        case 'plan-free':
+          return {
+            backgroundColor: isDarkMode ? '#1DA53433' : '#E7FFE7',
+            color: isDarkMode ? '#95C16B' : '#47830E',
+          };
+        case 'plan-gold':
+          return {
+            backgroundColor: isDarkMode ? '#FFC80033' : '#FFFAE6',
+            color: isDarkMode ? '#FFC800' : '#E8B600',
+          };
+        case 'plan-diamond':
+          return {
+            backgroundColor: isDarkMode ? '#2D68F833' : '#EAF0FE',
+            color: '#2D68F8',
           };
         case 'career':
         default:

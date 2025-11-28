@@ -8,6 +8,7 @@ import { useTheme } from '@/shared/lib/context';
 import { useAuth } from '@/features/authentication';
 import { useMySubjects } from '../hooks/useMySubjects';
 import { useProgress } from '@/features/progress/hooks/useProgress';
+import { useWeeklyStatus } from '../hooks/useWeeklyStatus';
 import { useNotificationContext } from '@/features/notifications';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
@@ -36,9 +37,14 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     // Fetch subjects with enabled/disabled state from API
     const { subjects, career, totalQuestions, isLoading, error } = useMySubjects();
     const { dashboard } = useProgress();
+    const { weekDays, currentStreak } = useWeeklyStatus();
 
     // Check if user has FREE plan
     const isFreeUser = !user?.subscriptionPlan || user.subscriptionPlan.toUpperCase() === 'FREE';
+
+    // Check if daily test was completed today
+    const todayStatus = weekDays.find(day => day.isToday);
+    const isDailyTestCompletedToday = todayStatus?.dailyTestCompleted ?? false;
 
     // Combine external ref with internal ref
     React.useImperativeHandle(ref, () => internalRef.current as HTMLElement);
@@ -74,6 +80,14 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     // Handle Daily Session button click
     const handleDailySessionClick = () => {
       router.push('/home?section=daily-session');
+    };
+
+    // Handle Daily Test button click
+    const handleDailyTestClick = () => {
+      if (!isDailyTestCompletedToday) {
+        // TODO: Navigate to daily test when implemented
+        console.log('Navigate to daily test');
+      }
     };
 
     // Handle Kibibot button click
@@ -190,21 +204,6 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       }
     }, [isLoading, subjects.length, imagesLoaded, initialLoading]);
 
-    // Get days of the week with activity status
-    const getDaysOfWeek = () => {
-      const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-      const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-      const mondayIndex = today === 0 ? 6 : today - 1; // Convert to Monday-based index
-
-      return days.map((day, index) => ({
-        label: day,
-        isActive: index <= mondayIndex,
-        isInactive: index > mondayIndex,
-      }));
-    };
-
-    const weekDays = getDaysOfWeek();
-
     // Debug: Log render state
     console.log('🔔 [InicioSection] Render state:', {
       showNotificationPrompt,
@@ -263,11 +262,13 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   key={index}
                   className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all",
-                    day.isActive && "bg-primary-green text-white",
-                    day.isInactive && "bg-gray-700 dark:bg-gray-800 text-gray-400"
+                    day.dailyTestCompleted && "bg-primary-green text-white",
+                    !day.dailyTestCompleted && !day.isFuture && "bg-gray-700 dark:bg-gray-800 text-gray-400",
+                    day.isFuture && "bg-gray-800 dark:bg-gray-900 text-gray-500 opacity-50",
+                    day.isToday && !day.dailyTestCompleted && "ring-2 ring-primary-green"
                   )}
                 >
-                  {day.label}
+                  {day.dayLabel}
                 </div>
               ))}
             </div>
@@ -361,7 +362,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                       size="sm"
                       className="text-xs"
                     >
-                      Más tardes
+                      Más tarde
                     </Button>
                   </div>
                 </div>
@@ -403,7 +404,8 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                 // GOLD/DIAMOND users: all subjects are enabled (open)
                 const isSubjectEnabled = isFreeUser ? index >= subjects.length - 2 : true;
                 const iconState = isSubjectEnabled ? 'open' : 'disabled';
-                const iconPath = `/subjects/light/${iconState}/${subject.name}`;
+                const themeFolder = isDarkMode ? 'dark' : 'light';
+                const iconPath = `/subjects/${themeFolder}/${iconState}/${subject.name}`;
 
                 return (
                   <div
@@ -420,7 +422,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                       alt={`${subject.displayName} subject`}
                       width={150}
                       height={90}
-                      className="w-full h-auto"
+                      className="w-full h-auto max-h-[129px]"
                       priority={index < 5}
                       onLoad={handleImageLoad}
                     />
@@ -430,7 +432,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
           </div>
         </div>
 
-        {/* Daily Session Button - Floating Sticky Bottom */}
+        {/* Daily Session & Test Buttons - Floating Sticky Bottom */}
         <div
           className={cn(
             "sticky bottom-4 left-0 right-0 z-20 flex flex-col items-center pointer-events-none",
@@ -438,21 +440,43 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
             showContent ? "opacity-100" : "opacity-0"
           )}
         >
-          <div className="backdrop-blur bg-white/10 dark:bg-black/10 p-8 flex flex-col items-center gap-2 border border-white/20 dark:border-white/10" style={{ borderRadius: '24px' }}>
-          <Button
-            onClick={handleDailySessionClick}
-            size="lg"
-            className="w-[280px] h-12 text-base font-bold shadow-2xl hover:shadow-3xl transition-all pointer-events-auto"
-            color="green"
-          >
-            Sesión diaria
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </Button>
+          <div className="backdrop-blur bg-white/10 dark:bg-black/10 p-4 md:p-8 flex flex-col items-center gap-2 border border-white/20 dark:border-white/10" style={{ borderRadius: '24px' }}>
+            {/* Buttons container - horizontal on all screens */}
+            <div className="flex flex-row gap-2 md:gap-3">
+              <Button
+                onClick={handleDailySessionClick}
+                size="lg"
+                className="h-12 px-4 md:px-6 text-sm md:text-base font-bold shadow-2xl hover:shadow-3xl transition-all pointer-events-auto whitespace-nowrap"
+                color="green"
+              >
+                Sesión diaria
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 ml-1 md:ml-2 flex-shrink-0" />
+              </Button>
 
-          <p className="text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0A0F1E] px-3 py-1 rounded-full shadow-md pointer-events-none">
-            Próximo reto en{' '}
-            <span className="text-gray-900 dark:text-white font-medium">{nextChallengeTime} h</span>
-          </p>
+              <Button
+                onClick={handleDailyTestClick}
+                size="lg"
+                disabled={isDailyTestCompletedToday}
+                className={cn(
+                  "h-12 px-4 md:px-6 text-sm md:text-base font-bold shadow-2xl transition-all pointer-events-auto whitespace-nowrap",
+                  isDailyTestCompletedToday
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:shadow-3xl"
+                )}
+                color="blue"
+              >
+                Test diario
+                {isDailyTestCompletedToday
+                  ? <CheckCircle className="w-4 h-4 md:w-5 md:h-5 ml-1 md:ml-2 flex-shrink-0" />
+                  : <ChevronRight className="w-4 h-4 md:w-5 md:h-5 ml-1 md:ml-2 flex-shrink-0" />
+                }
+              </Button>
+            </div>
+
+            <p className="text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0A0F1E] px-3 py-1 rounded-full shadow-md pointer-events-none">
+              Próximo reto en{' '}
+              <span className="text-gray-900 dark:text-white font-medium">{nextChallengeTime} h</span>
+            </p>
           </div>
         </div>
 

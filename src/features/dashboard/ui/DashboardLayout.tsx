@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils';
 import { useDashboardNavigation } from '../hooks/useDashboardNavigation';
 import { useAuth } from '@/features/authentication';
 import { useMySubjects } from '@/features/home/hooks/useMySubjects';
+import { useActivityTracker } from '@/features/progress/hooks/useActivityTracker';
 import { DashboardTopMenu } from './DashboardTopMenu';
 import { DashboardSidebar } from './DashboardSidebar';
 import { DashboardContent } from './DashboardContent';
@@ -27,6 +28,9 @@ export const DashboardLayout = React.forwardRef<HTMLDivElement, DashboardLayoutP
     const { isLoading: isSubjectsLoading } = useMySubjects();
     const { selectedSection, setSelectedSection, handleLogout } =
       useDashboardNavigation();
+
+    // Track user activity time
+    useActivityTracker({ enabled: !!user && !isAuthLoading });
 
     // Show loading screen while user data or subjects are being fetched
     if (isAuthLoading || !user || isSubjectsLoading) {

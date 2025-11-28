@@ -7,13 +7,14 @@ import { CheckCircle, Calendar } from 'lucide-react';
 import { CalendarDetailView } from './CalendarDetailView';
 import { AchievementsDetailView } from './AchievementsDetailView';
 import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
+import type { Period } from '../hooks/useActivityTimeChart';
 
 interface ProgresoSectionMobileProps {
   dashboard: any;
   timePeriod: string;
   setTimePeriod: (value: string) => void;
-  activityTimePeriod: string;
-  setActivityTimePeriod: (value: string) => void;
+  activityTimePeriod: Period;
+  setActivityTimePeriod: (value: Period) => void;
   chartData: Array<{ category: string; value: number }>;
   activityData: Array<{ category: string; value: number }>;
   weekDays: Array<{ label: string; isActive: boolean; isInactive: boolean }>;

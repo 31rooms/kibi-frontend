@@ -33,6 +33,8 @@ export interface MultiSelectCalendarProps {
   activeDates?: Date[];
   inactiveDates?: Date[];
   readOnly?: boolean; // Nueva prop para modo solo lectura
+  defaultMonth?: Date; // Mes inicial a mostrar
+  onMonthChange?: (year: number, month: number) => void; // Callback cuando cambia el mes (month 1-12)
 }
 
 const MONTHS = [
@@ -59,10 +61,12 @@ export const MultiSelectCalendar = React.forwardRef<HTMLDivElement, MultiSelectC
       activeDates = [],
       inactiveDates = [],
       readOnly = false,
+      defaultMonth,
+      onMonthChange: onMonthChangeProp,
     },
     ref
   ) => {
-    const [currentMonth, setCurrentMonth] = React.useState(new Date());
+    const [currentMonth, setCurrentMonth] = React.useState(defaultMonth || new Date());
 
     const currentYear = getYear(currentMonth);
     const currentMonthIndex = getMonth(currentMonth);
@@ -107,12 +111,18 @@ export const MultiSelectCalendar = React.forwardRef<HTMLDivElement, MultiSelectC
 
     const handleMonthChange = (value: string) => {
       const monthIndex = parseInt(value);
-      setCurrentMonth(setMonth(currentMonth, monthIndex));
+      const newDate = setMonth(currentMonth, monthIndex);
+      setCurrentMonth(newDate);
+      // Call external callback with year and month (1-12)
+      onMonthChangeProp?.(getYear(newDate), monthIndex + 1);
     };
 
     const handleYearChange = (value: string) => {
       const year = parseInt(value);
-      setCurrentMonth(setYear(currentMonth, year));
+      const newDate = setYear(currentMonth, year);
+      setCurrentMonth(newDate);
+      // Call external callback with year and month (1-12)
+      onMonthChangeProp?.(year, getMonth(newDate) + 1);
     };
 
     const isDateActive = (date: Date) => {
