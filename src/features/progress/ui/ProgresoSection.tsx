@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { useProgress } from '../hooks/useProgress';
 import { useActivityTimeChart } from '../hooks/useActivityTimeChart';
+import { useWeeklyStatus } from '@/features/home/hooks/useWeeklyStatus';
 import { ProgresoSectionMobile } from './ProgresoSectionMobile';
 import { ProgresoSectionDesktop } from './ProgresoSectionDesktop';
 
@@ -37,19 +38,6 @@ const useWindowSize = () => {
   return { ...windowSize, mounted };
 };
 
-// Get days of the week with activity status
-const getDaysOfWeek = () => {
-  const days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const mondayIndex = today === 0 ? 6 : today - 1; // Convert to Monday-based index
-
-  return days.map((day, index) => ({
-    label: day,
-    isActive: index <= mondayIndex,
-    isInactive: index > mondayIndex,
-  }));
-};
-
 export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProps>(
   ({ className, ...props }, ref) => {
     const { dashboard, loading, loadDashboard } = useProgress();
@@ -65,6 +53,9 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
       isLoading: isActivityLoading,
     } = useActivityTimeChart('week');
 
+    // Hook para obtener el estado semanal del calendario (datos reales de la API)
+    const { weekDays } = useWeeklyStatus();
+
     // Datos de ejemplo para el gráfico de barras (efectividad)
     const chartData = [
       { category: 'Biología', value: 69.15 },
@@ -74,8 +65,6 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
       { category: 'Comprensión lectora', value: 44.58 },
       { category: 'Geografía', value: 11.34 },
     ];
-
-    const weekDays = getDaysOfWeek();
 
     useEffect(() => {
       loadDashboard();

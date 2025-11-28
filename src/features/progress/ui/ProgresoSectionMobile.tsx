@@ -8,6 +8,7 @@ import { CalendarDetailView } from './CalendarDetailView';
 import { AchievementsDetailView } from './AchievementsDetailView';
 import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
 import type { Period } from '../hooks/useActivityTimeChart';
+import type { WeeklyDayStatus } from '@/features/daily-test/api/types';
 
 interface ProgresoSectionMobileProps {
   dashboard: any;
@@ -17,7 +18,7 @@ interface ProgresoSectionMobileProps {
   setActivityTimePeriod: (value: Period) => void;
   chartData: Array<{ category: string; value: number }>;
   activityData: Array<{ category: string; value: number }>;
-  weekDays: Array<{ label: string; isActive: boolean; isInactive: boolean }>;
+  weekDays: WeeklyDayStatus[];
   className?: string;
 }
 
@@ -108,11 +109,13 @@ export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSecti
                       key={index}
                       className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all",
-                        day.isActive && "bg-primary-green text-white",
-                        day.isInactive && "bg-gray-700 dark:bg-gray-800 text-gray-400"
+                        day.dailyTestCompleted && "bg-primary-green text-white",
+                        !day.dailyTestCompleted && !day.isFuture && "bg-gray-700 dark:bg-gray-800 text-gray-400",
+                        day.isFuture && "bg-gray-800 dark:bg-gray-900 text-gray-500 opacity-50",
+                        day.isToday && !day.dailyTestCompleted && "ring-2 ring-primary-green"
                       )}
                     >
-                      {day.label}
+                      {day.dayLabel}
                     </div>
                   ))}
                 </div>
