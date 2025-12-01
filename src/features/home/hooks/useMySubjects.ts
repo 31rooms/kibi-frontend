@@ -53,8 +53,8 @@ const LOCAL_SUBJECTS = [
   { id: 5, name: 'Materia-18.svg', displayName: 'Probabilidad y Estadística' },
   { id: 4, name: 'Materia-19.svg', displayName: 'Pensamiento Matemático' },
   { id: 3, name: 'Materia-20.svg', displayName: 'Inglés' },
-  { id: 2, name: 'Materia-20.svg', displayName: 'Redacción Indirecta' },
-  { id: 1, name: 'Materia-20.svg', displayName: 'Comprensión Lectora' },
+  { id: 2, name: 'Materia-22.svg', displayName: 'Redacción Indirecta' },
+  { id: 1, name: 'Materia-21.svg', displayName: 'Comprensión Lectora' },
 ];
 
 interface UseMySubjectsReturn {
