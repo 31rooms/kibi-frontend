@@ -17,7 +17,7 @@ import type { MySubjectsResponse, SubjectWithState } from '../types/careers.type
  * - Materia-5.svg = Física
  * - Materia-6.svg = Economía
  * - Materia-7.svg = Historia de México
- * - Materia-8.svg = Cálculo Integral
+ * - Materia-8.svg = Cálculo diferencial e integral
  * - Materia-9.svg = Aritmética
  * - Materia-10.svg = Administración
  * - Materia-11.svg = Química
@@ -40,7 +40,7 @@ const LOCAL_SUBJECTS = [
   { id: 18, name: 'Materia-5.svg', displayName: 'Física' },
   { id: 17, name: 'Materia-6.svg', displayName: 'Economía' },
   { id: 16, name: 'Materia-7.svg', displayName: 'Historia de México' },
-  { id: 15, name: 'Materia-8.svg', displayName: 'Cálculo Integral' },
+  { id: 15, name: 'Materia-8.svg', displayName: 'Cálculo diferencial e integral' },
   { id: 14, name: 'Materia-9.svg', displayName: 'Aritmética' },
   { id: 13, name: 'Materia-10.svg', displayName: 'Administración' },
   { id: 12, name: 'Materia-11.svg', displayName: 'Química' },
@@ -53,8 +53,8 @@ const LOCAL_SUBJECTS = [
   { id: 5, name: 'Materia-18.svg', displayName: 'Probabilidad y Estadística' },
   { id: 4, name: 'Materia-19.svg', displayName: 'Pensamiento Matemático' },
   { id: 3, name: 'Materia-20.svg', displayName: 'Inglés' },
-  { id: 2, name: 'Materia-20.svg', displayName: 'Redacción Indirecta' },
-  { id: 1, name: 'Materia-20.svg', displayName: 'Comprensión Lectora' },
+  { id: 2, name: 'Materia-22.svg', displayName: 'Redacción Indirecta' },
+  { id: 1, name: 'Materia-21.svg', displayName: 'Comprensión Lectora' },
 ];
 
 interface UseMySubjectsReturn {

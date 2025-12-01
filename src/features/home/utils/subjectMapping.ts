@@ -164,7 +164,7 @@ export const SUBJECTS: Record<number, Subject> = {
     id: 3,
     name: 'Redacción Indirecta',
     slug: 'redaccion-indirecta',
-    iconFilename: 'Materia-19.svg',
+    iconFilename: 'Materia-22.svg',
     description: 'Redacción indirecta',
   },
   2: {
@@ -178,7 +178,7 @@ export const SUBJECTS: Record<number, Subject> = {
     id: 1,
     name: 'Comprensión Lectora',
     slug: 'comprension-lectora',
-    iconFilename: 'Materia-19.svg',
+    iconFilename: 'Materia-21.svg',
     description: 'Comprensión lectora',
   },
 };
