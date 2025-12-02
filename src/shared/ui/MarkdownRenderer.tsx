@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import { visit } from 'unist-util-visit';
+import { getDriveImageUrl, isDriveFileUrl } from '@/shared/lib/utils';
 
 // Custom rehype plugin to convert LaTeX delimiters in text nodes
 // This plugin processes text nodes after HTML parsing to ensure LaTeX works correctly
@@ -100,6 +101,13 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
         .replace(/\\\[/g, '$$')
         .replace(/\\\]/g, '$$');
 
+      // Convert [drive-file-url] to markdown image syntax ![](drive-file-url)
+      // This handles cases where Drive URLs are wrapped in brackets without proper markdown syntax
+      processed = processed.replace(
+        /\[(https:\/\/(?:drive\.google\.com\/file\/d\/|lh3\.googleusercontent\.com\/d\/)[^\]\s]+)\]/g,
+        '![]($1)'
+      );
+
       return processed;
     }, [content]);
 
@@ -119,21 +127,25 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
               </p>
             ),
             a: ({ href, children }) => {
-              // Check if the href is an image URL
+              // Check if the href is an image URL or a Drive file URL
               const isImageUrl = href && /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(href);
+              const isGoogleDrive = href && isDriveFileUrl(href);
 
-              if (isImageUrl) {
+              if (isImageUrl || isGoogleDrive) {
+                // Transform Drive URLs to our proxy for PWA caching
+                const imgSrc = isGoogleDrive ? getDriveImageUrl(href) : href;
+
                 // Render as image if it's an image URL with click to open in new tab
                 return (
                   <a
-                    href={href}
+                    href={imgSrc}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block cursor-pointer my-4 hover:opacity-80 transition-opacity"
                     title="Click para ver en tamaño completo"
                   >
                     <img
-                      src={href}
+                      src={imgSrc}
                       alt={typeof children === 'string' ? children : 'Image'}
                       className="rounded-lg max-w-full h-auto max-h-[400px] object-contain"
                     />
@@ -185,11 +197,14 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
             ),
             img: ({ src, alt }) => {
               // Ensure src is a string
-              const imgSrc = typeof src === 'string' ? src : undefined;
+              const rawSrc = typeof src === 'string' ? src : undefined;
 
-              if (!imgSrc) {
+              if (!rawSrc) {
                 return null;
               }
+
+              // Transform Drive file URLs to our proxy for PWA caching
+              const imgSrc = isDriveFileUrl(rawSrc) ? getDriveImageUrl(rawSrc) : rawSrc;
 
               return (
                 <a

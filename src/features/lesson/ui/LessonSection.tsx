@@ -12,7 +12,7 @@ import {
   Target,
   ArrowLeft,
 } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
+import { cn, getDriveImageUrl, isDriveFileUrl } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/Button';
 
 /**
@@ -147,7 +147,7 @@ export const LessonSection = React.forwardRef<HTMLElement>((props, ref) => {
                     <div className={cn('p-3 rounded-lg', colorClass)}>
                       {subject.icon ? (
                         <img
-                          src={subject.icon}
+                          src={isDriveFileUrl(subject.icon) ? getDriveImageUrl(subject.icon) : subject.icon}
                           alt={subject.name}
                           className="w-6 h-6"
                         />
