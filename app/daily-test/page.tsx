@@ -9,13 +9,12 @@ import type { DailyTestSession, DailyTestQuestion, AnswerQuestionResponse, Compl
 
 // Feature Components
 import { DailyTestSession as DailyTestSessionComponent } from '@/features/daily-test/components/DailyTestSession';
-import { ReportContentModal } from '@/features/daily-test/components/ReportContentModal';
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Alert, AlertDescription } from '@/shared/ui/Alert';
-import { AchievementBadge } from '@/shared/ui/AchievementBadge';
+import { Modal } from '@/shared/ui/Modal';
 
 import {
   Clock,
@@ -43,21 +42,46 @@ export default function DailyTestPage() {
   const [timer, setTimer] = useState(0);
   const [hasTestAvailable, setHasTestAvailable] = useState(false);
   const [checkMessage, setCheckMessage] = useState('');
-  const [showReportModal, setShowReportModal] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   useEffect(() => {
     checkDailyTest();
   }, []);
 
-  // Timer effect
+  const QUESTION_TIME_LIMIT = 60; // 1 minuto por pregunta
+  const FEEDBACK_DISPLAY_TIME = 2000; // 2 segundos para mostrar feedback
+
+  // Timer effect - countdown desde 60 segundos
   useEffect(() => {
     if (viewMode === 'test' && !answerFeedback) {
       const interval = setInterval(() => {
-        setTimer(prev => prev + 1);
+        setTimer(prev => {
+          if (prev <= 1) {
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
       return () => clearInterval(interval);
     }
   }, [viewMode, answerFeedback]);
+
+  // Auto-skip cuando el tiempo llega a 0 (sin respuesta = incorrecto)
+  useEffect(() => {
+    if (timer === 0 && viewMode === 'test' && !answerFeedback && session && !loading) {
+      handleTimeOut();
+    }
+  }, [timer]);
+
+  // Auto-avanzar después de mostrar feedback
+  useEffect(() => {
+    if (answerFeedback && viewMode === 'test') {
+      const timeout = setTimeout(() => {
+        goToNextQuestion();
+      }, FEEDBACK_DISPLAY_TIME);
+      return () => clearTimeout(timeout);
+    }
+  }, [answerFeedback]);
 
   const checkDailyTest = async () => {
     setLoading(true);
@@ -86,7 +110,7 @@ export default function DailyTestPage() {
       setSession(newSession);
       setCurrentQuestionIndex(0);
       setViewMode('test');
-      setTimer(0);
+      setTimer(QUESTION_TIME_LIMIT);
     } catch (error) {
       console.error('Error starting test:', error);
     } finally {
@@ -94,18 +118,24 @@ export default function DailyTestPage() {
     }
   };
 
-  const handleAnswerSelect = async (optionId: string) => {
+  const handleAnswerSelect = (optionId: string) => {
     if (!session || answerFeedback) return;
-
     setSelectedAnswer(optionId);
-    setLoading(true);
+  };
 
+  // Enviar respuesta al endpoint
+  const handleSubmitAnswer = async () => {
+    if (!session || !selectedAnswer || answerFeedback || loading) return;
+
+    setLoading(true);
     try {
       const currentQuestion = session.questions[currentQuestionIndex];
+      // Calcular tiempo usado (60 - tiempo restante)
+      const timeSpent = QUESTION_TIME_LIMIT - timer;
       const feedback = await dailyTestAPI.answerQuestion(session.testId, {
         questionId: currentQuestion._id,
-        selectedAnswer: optionId,
-        timeSpentSeconds: timer
+        selectedAnswer: selectedAnswer,
+        timeSpentSeconds: timeSpent
       });
 
       setAnswerFeedback(feedback);
@@ -116,16 +146,54 @@ export default function DailyTestPage() {
     }
   };
 
-  const handleNextQuestion = () => {
+  // Avanzar a la siguiente pregunta
+  const goToNextQuestion = () => {
+    if (!session) return;
+
     setSelectedAnswer(null);
     setAnswerFeedback(null);
-    setTimer(0);
+    setTimer(QUESTION_TIME_LIMIT);
 
-    if (currentQuestionIndex < (session?.questions.length || 0) - 1) {
+    if (currentQuestionIndex < (session.questions.length || 0) - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       completeTest();
     }
+  };
+
+  // Cuando se agota el tiempo - marcar como incorrecto y mostrar feedback
+  const handleTimeOut = async () => {
+    if (!session || loading) return;
+
+    setLoading(true);
+    try {
+      const currentQuestion = session.questions[currentQuestionIndex];
+      // Enviar sin respuesta o con respuesta vacía - el backend lo marca como incorrecto
+      const feedback = await dailyTestAPI.answerQuestion(session.testId, {
+        questionId: currentQuestion._id,
+        selectedAnswer: selectedAnswer || '', // Enviar vacío si no hay selección
+        timeSpentSeconds: QUESTION_TIME_LIMIT
+      });
+
+      setAnswerFeedback(feedback);
+    } catch (error) {
+      console.error('Error on timeout:', error);
+      // Si hay error, avanzar de todos modos
+      goToNextQuestion();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Manejar click en salir
+  const handleExitClick = () => {
+    setShowExitModal(true);
+  };
+
+  // Confirmar salida del test
+  const handleConfirmExit = () => {
+    setShowExitModal(false);
+    router.push('/home');
   };
 
   const completeTest = async () => {
@@ -147,36 +215,6 @@ export default function DailyTestPage() {
       console.error('Error completing test:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleReport = async (reason: string, details: string) => {
-    if (!session) return;
-    const currentQuestion = session.questions[currentQuestionIndex];
-
-    // TODO: Implementar endpoint de reporte en el backend
-    console.log('Reporting question:', {
-      questionId: currentQuestion._id,
-      reason,
-      details
-    });
-
-    // Simulación de éxito
-    return Promise.resolve();
-  };
-
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-      setSelectedAnswer(null);
-      setAnswerFeedback(null);
-      setTimer(0);
     }
   };
 
@@ -277,16 +315,21 @@ export default function DailyTestPage() {
           timer={timer}
           loading={loading}
           onAnswerSelect={handleAnswerSelect}
-          onNextQuestion={handleNextQuestion}
-          onPrevQuestion={handlePrevQuestion}
-          onReport={() => setShowReportModal(true)}
+          onNextQuestion={handleSubmitAnswer}
+          onExit={handleExitClick}
         />
 
-        <ReportContentModal
-          isOpen={showReportModal}
-          onClose={() => setShowReportModal(false)}
-          questionId={session.questions[currentQuestionIndex]._id}
-          onSubmit={handleReport}
+        {/* Exit Confirmation Modal */}
+        <Modal
+          isOpen={showExitModal}
+          onClose={() => setShowExitModal(false)}
+          state="alert"
+          title="¿Seguro que deseas salir?"
+          description="Si sales ahora, perderás todo el progreso del test diario. Esta acción no se puede deshacer."
+          cancelText="Cancelar"
+          confirmText="Salir del test"
+          onCancel={() => setShowExitModal(false)}
+          onConfirm={handleConfirmExit}
         />
       </ProtectedRoute>
     );
