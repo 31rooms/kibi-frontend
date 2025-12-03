@@ -42,9 +42,26 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
     ref
   ) => {
     const [isMounted, setIsMounted] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = React.useState(false);
 
     React.useEffect(() => {
       setIsMounted(true);
+
+      // Detectar modo dark inicial
+      const checkDarkMode = () => {
+        setIsDarkMode(document.documentElement.classList.contains('dark'));
+      };
+
+      checkDarkMode();
+
+      // Observar cambios en la clase dark
+      const observer = new MutationObserver(checkDarkMode);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+
+      return () => observer.disconnect();
     }, []);
 
     const chartOptions: ApexOptions = {
@@ -121,7 +138,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
         },
       },
       grid: {
-        borderColor: '#e9ecef',
+        borderColor: isDarkMode ? '#374151' : '#e9ecef',
         strokeDashArray: 3,
         xaxis: {
           lines: {
@@ -136,7 +153,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
       },
       colors: [color],
       tooltip: {
-        theme: 'light',
+        theme: isDarkMode ? 'dark' : 'light',
         y: {
           formatter: function (val) {
             if (typeof val === 'number') {

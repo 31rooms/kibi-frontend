@@ -50,8 +50,10 @@ export function useActivityTracker(options: UseActivityTrackerOptions = {}) {
     // Solo sincronizar si hay al menos 60 segundos (1 minuto completo)
     if (secondsToSync >= MIN_SECONDS_TO_SYNC) {
       try {
-        if (DEBUG) console.log('[ActivityTracker] Sending to server:', secondsToSync, 'seconds');
-        const result = await progressAPI.addActivityTime(secondsToSync);
+        // Enviar timestamp UTC del cliente para que el backend determine el bloque horario en hora México
+        const clientTimestampUTC = new Date().toISOString();
+        if (DEBUG) console.log('[ActivityTracker] Sending to server:', secondsToSync, 'seconds at', clientTimestampUTC);
+        const result = await progressAPI.addActivityTime(secondsToSync, clientTimestampUTC);
         if (DEBUG) console.log('[ActivityTracker] Server response:', result);
         lastSyncRef.current = activeTimeRef.current;
       } catch (error) {
@@ -155,13 +157,17 @@ export function useActivityTracker(options: UseActivityTrackerOptions = {}) {
             : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000');
 
           // Usar fetch con keepalive para enviar con headers de auth
+          // Incluir timestamp UTC para determinar bloque horario en México
           fetch(`${baseUrl}/progress/activity-time`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ activeSeconds: secondsToSync }),
+            body: JSON.stringify({
+              activeSeconds: secondsToSync,
+              clientTimestampUTC: new Date().toISOString(),
+            }),
             keepalive: true, // Permite que la request se complete después de cerrar la página
           }).catch(() => {
             // Ignorar errores silenciosamente
