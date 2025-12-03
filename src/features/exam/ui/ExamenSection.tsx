@@ -1,20 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/shared/lib/utils';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
-import { Mail, MessageCircle, Copy, Share2, Loader2 } from 'lucide-react';
+import { Mail, MessageCircle, Copy, Loader2 } from 'lucide-react';
 import { useSimulationQuota } from '@/features/exam-simulation/hooks/useSimulationQuota';
 import { SimulationPurchaseModal } from '@/features/exam-simulation/ui/SimulationPurchaseModal';
+import { referralsAPI, ReferralCodeResponse } from '@/features/exam-simulation/api/referrals-service';
 
 const PRICE_PER_SIMULATION = 299;
 
 export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
-    const [referralLink, setReferralLink] = useState('https://www.loremiosumt/5...');
+    const [referralData, setReferralData] = useState<ReferralCodeResponse | null>(null);
+    const [referralLoading, setReferralLoading] = useState(true);
     const [copied, setCopied] = useState(false);
     const [startModalOpen, setStartModalOpen] = useState(false);
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
@@ -23,14 +25,45 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
 
     const { quota, loading, refetch, startSimulation } = useSimulationQuota();
 
+    // Fetch referral data on mount
+    useEffect(() => {
+      const fetchReferralData = async () => {
+        try {
+          const data = await referralsAPI.getReferralCode();
+          setReferralData(data);
+        } catch (error) {
+          console.error('Error fetching referral code:', error);
+        } finally {
+          setReferralLoading(false);
+        }
+      };
+      fetchReferralData();
+    }, []);
+
+    const referralLink = referralData?.referralLink || '';
+
     const handleCopy = () => {
+      if (!referralLink) return;
       navigator.clipboard.writeText(referralLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleShare = (platform: string) => {
-      console.log(`Compartir en ${platform}`);
+    const handleShareWhatsApp = () => {
+      if (!referralLink) return;
+      const message = encodeURIComponent(
+        `¡Únete a Kibi y prepárate para tu examen de admisión! Usa mi link de referido: ${referralLink}`
+      );
+      window.open(`https://wa.me/?text=${message}`, '_blank');
+    };
+
+    const handleShareEmail = () => {
+      if (!referralLink) return;
+      const subject = encodeURIComponent('Te invito a Kibi - Prepárate para tu examen');
+      const body = encodeURIComponent(
+        `¡Hola!\n\nTe invito a unirte a Kibi, la mejor plataforma para prepararte para tu examen de admisión.\n\nÚnete usando mi link de referido: ${referralLink}\n\n¡Nos vemos en Kibi!`
+      );
+      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
     };
 
     const handleStartSimulation = async () => {
@@ -97,8 +130,7 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   </label>
                   <div className="flex gap-3">
                     <Input
-                      value={referralLink}
-                      onChange={(e) => setReferralLink(e.target.value)}
+                      value={referralLoading ? 'Cargando...' : referralLink}
                       readOnly
                       className="flex-1 bg-white dark:bg-[#171B22] border-grey-500 dark:border-dark-500"
                     />
@@ -108,9 +140,13 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                       size="medium"
                       onClick={handleCopy}
                       className="px-6"
-                      disabled
+                      disabled={referralLoading || !referralLink}
                     >
-                      <Copy className="w-5 h-5" />
+                      {referralLoading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Copy className="w-5 h-5" />
+                      )}
                     </Button>
                   </div>
                   {copied && (
@@ -120,37 +156,25 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                   )}
                 </div>
 
-                {/* Social Icons */}
-                <div className="flex gap-4">
+                {/* Social Icons - Comentados temporalmente */}
+                {/* <div className="flex gap-4">
                   <button
-                    onClick={() => handleShare('email')}
-                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
+                    onClick={handleShareEmail}
+                    disabled={referralLoading || !referralLink}
+                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Compartir por email"
                   >
                     <Mail className="w-5 h-5 text-primary-green dark:text-primary-green" />
                   </button>
                   <button
-                    onClick={() => handleShare('whatsapp')}
-                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
+                    onClick={handleShareWhatsApp}
+                    disabled={referralLoading || !referralLink}
+                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Compartir por WhatsApp"
                   >
                     <MessageCircle className="w-5 h-5 text-primary-green dark:text-primary-green" />
                   </button>
-                  <button
-                    onClick={() => handleShare('facebook')}
-                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
-                    aria-label="Compartir en Facebook"
-                  >
-                    <Share2 className="w-5 h-5 text-primary-green dark:text-primary-green" />
-                  </button>
-                  <button
-                    onClick={() => handleShare('instagram')}
-                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors"
-                    aria-label="Compartir en Instagram"
-                  >
-                    <Share2 className="w-5 h-5 text-primary-green dark:text-primary-green" />
-                  </button>
-                </div>
+                </div> */}
               </div>
             </Card>
 
