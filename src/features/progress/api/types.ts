@@ -197,4 +197,6 @@ export interface ActivityTimeChartResponse {
   data: ActivityTimeChartDataPoint[];
   totalMinutes: number;
   averagePerDay: number;
+  /** Solo presente cuando period='today'. Indica que los datos vienen del tracking real por bloque horario */
+  isRealTimeData?: boolean;
 }

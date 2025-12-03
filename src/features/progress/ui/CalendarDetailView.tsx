@@ -73,7 +73,9 @@ export const CalendarDetailView = React.forwardRef<HTMLElement, CalendarDetailVi
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="today">Hoy</SelectItem>
                     <SelectItem value="week">Esta semana</SelectItem>
+                    <SelectItem value="month">Este mes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

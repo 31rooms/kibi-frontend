@@ -70,10 +70,15 @@ export const progressAPI = {
   /**
    * Add activity time for today
    * @param activeSeconds - Active time in seconds to add
+   * @param clientTimestampUTC - ISO timestamp (UTC) for determining hour block in Mexico timezone
    */
-  addActivityTime: async (activeSeconds: number): Promise<{ success: boolean; totalMinutesToday: number }> => {
+  addActivityTime: async (
+    activeSeconds: number,
+    clientTimestampUTC?: string,
+  ): Promise<{ success: boolean; totalMinutesToday: number }> => {
     const response = await apiClient.post(`${PROGRESS_BASE_URL}/activity-time`, {
-      activeSeconds
+      activeSeconds,
+      clientTimestampUTC,
     });
     return response.data;
   },
