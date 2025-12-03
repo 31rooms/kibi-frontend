@@ -41,6 +41,7 @@ export interface RegisterDto {
   phoneNumber?: string;
   desiredCareer: string;
   theme?: Theme;
+  referralCode?: string;
 }
 
 export interface User {

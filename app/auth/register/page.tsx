@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useCallback, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Input, Button, PasswordInput, Card, KibiMessage } from '@/shared/ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/Select';
@@ -10,10 +10,14 @@ import { useAuth, authAPI, type RegisterDto, type Career, Theme } from '@/featur
 import { useTheme } from '@/shared/lib/context';
 import { cn } from '@/shared/lib/utils';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { register } = useAuth();
   const { isDarkMode } = useTheme();
+
+  // Get referral code from URL if present
+  const referralCode = searchParams.get('ref') || undefined;
 
   const [formData, setFormData] = useState({
     email: '',
@@ -147,12 +151,9 @@ export default function RegisterPage() {
         phoneNumber: formData.phone.trim() || undefined,
         desiredCareer: formData.desiredCareer,
         theme: detectBrowserTheme(),
+        ...(referralCode && { referralCode }),
       };
 
-      console.log('📤 Sending registration request with data:', {
-        ...registrationData,
-        password: '***HIDDEN***'
-      });
 
       // Call register function from AuthContext
       await register(registrationData);
@@ -400,5 +401,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen w-full items-center justify-center bg-white dark:bg-primary-blue">
+        <div className="animate-pulse text-dark-600 dark:text-grey-400">Cargando...</div>
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 }
