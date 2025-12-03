@@ -14,17 +14,13 @@ import { ReportContentModal } from '@/features/daily-test/components/ReportConte
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
-import { Progress } from '@/shared/ui/progress';
-import { Badge } from '@/shared/ui/Badge';
 import { Alert, AlertDescription } from '@/shared/ui/Alert';
 import { AchievementBadge } from '@/shared/ui/AchievementBadge';
 
 import {
   Clock,
   CheckCircle,
-  XCircle,
   ChevronRight,
-  ChevronLeft,
   Zap,
   Trophy,
   Flame,
@@ -67,22 +63,17 @@ export default function DailyTestPage() {
     setLoading(true);
     try {
       const check = await dailyTestAPI.checkDailyTest();
-      setHasTestAvailable(check.hasTestAvailable);
-      setCheckMessage(check.message || '');
+      // Use 'available' from new API (backward compatible with hasTestAvailable)
+      setHasTestAvailable(check.available);
 
-      if (check.hasTestAvailable) {
-        // Check if there's an ongoing session
-        const existingSession = await dailyTestAPI.getCurrentSession();
-        if (existingSession && !existingSession.completed) {
-          setSession(existingSession);
-          // Find last answered question
-          const lastAnswered = existingSession.questions.findIndex(q => !q.userAnswer);
-          setCurrentQuestionIndex(lastAnswered === -1 ? 0 : lastAnswered);
-          setViewMode('test');
-        }
+      if (check.completedToday) {
+        setCheckMessage('Ya completaste tu test diario de hoy. ¡Vuelve mañana!');
+      } else if (!check.available) {
+        setCheckMessage('El test diario no está disponible en este momento.');
       }
     } catch (error) {
       console.error('Error checking daily test:', error);
+      setCheckMessage('Error al verificar disponibilidad del test.');
     } finally {
       setLoading(false);
     }
@@ -110,10 +101,11 @@ export default function DailyTestPage() {
     setLoading(true);
 
     try {
-      const feedback = await dailyTestAPI.answerQuestion(session.id, {
-        questionId: session.questions[currentQuestionIndex].question.id,
-        selectedOptionId: optionId,
-        timeSpent: timer
+      const currentQuestion = session.questions[currentQuestionIndex];
+      const feedback = await dailyTestAPI.answerQuestion(session.testId, {
+        questionId: currentQuestion._id,
+        selectedAnswer: optionId,
+        timeSpentSeconds: timer
       });
 
       setAnswerFeedback(feedback);
@@ -141,12 +133,16 @@ export default function DailyTestPage() {
 
     setLoading(true);
     try {
-      const testResults = await dailyTestAPI.completeDailyTest(session.id);
+      const testResults = await dailyTestAPI.completeDailyTest(session.testId);
       setResults(testResults);
       setViewMode('results');
 
       // Refresh dashboard data
-      await progressAPI.getDashboard();
+      try {
+        await progressAPI.getDashboard();
+      } catch {
+        // Ignore errors from progress API
+      }
     } catch (error) {
       console.error('Error completing test:', error);
     } finally {
@@ -166,7 +162,7 @@ export default function DailyTestPage() {
 
     // TODO: Implementar endpoint de reporte en el backend
     console.log('Reporting question:', {
-      questionId: currentQuestion.question.id,
+      questionId: currentQuestion._id,
       reason,
       details
     });
@@ -198,7 +194,7 @@ export default function DailyTestPage() {
               </div>
               <CardTitle className="text-2xl">Test Diario</CardTitle>
               <CardDescription>
-                10 preguntas para mantener tu racha activa
+                Preguntas personalizadas para mantener tu racha activa
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -210,7 +206,7 @@ export default function DailyTestPage() {
                 <>
                   <div className="text-center space-y-4">
                     <p className="text-muted-foreground">
-                      Completa tu test diario para mantener tu racha y ganar experiencia
+                      Completa tu test diario para desbloquear tu sesión de estudio
                     </p>
 
                     <div className="grid grid-cols-3 gap-4 py-4">
@@ -218,13 +214,13 @@ export default function DailyTestPage() {
                         <div className="flex justify-center mb-2">
                           <CheckCircle className="w-6 h-6 text-blue-500" />
                         </div>
-                        <p className="text-sm font-medium">10 Preguntas</p>
+                        <p className="text-sm font-medium">7-10 Preguntas</p>
                       </div>
                       <div className="text-center">
                         <div className="flex justify-center mb-2">
                           <Clock className="w-6 h-6 text-blue-500" />
                         </div>
-                        <p className="text-sm font-medium">~15 minutos</p>
+                        <p className="text-sm font-medium">~10 minutos</p>
                       </div>
                       <div className="text-center">
                         <div className="flex justify-center mb-2">
@@ -249,7 +245,7 @@ export default function DailyTestPage() {
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      {checkMessage || 'Ya completaste tu test diario de hoy. Vuelve mañana!'}
+                      {checkMessage || 'Ya completaste tu test diario de hoy. ¡Vuelve mañana!'}
                     </AlertDescription>
                   </Alert>
 
@@ -289,7 +285,7 @@ export default function DailyTestPage() {
         <ReportContentModal
           isOpen={showReportModal}
           onClose={() => setShowReportModal(false)}
-          questionId={session.questions[currentQuestionIndex].question.id}
+          questionId={session.questions[currentQuestionIndex]._id}
           onSubmit={handleReport}
         />
       </ProtectedRoute>
@@ -298,7 +294,7 @@ export default function DailyTestPage() {
 
   // RESULTS VIEW
   if (viewMode === 'results' && results) {
-    const percentage = (results.correctAnswers / results.totalQuestions) * 100;
+    const percentage = results.results.effectiveness;
 
     return (
       <ProtectedRoute>
@@ -320,12 +316,12 @@ export default function DailyTestPage() {
                   )} />
                 </div>
               </div>
-              <CardTitle className="text-2xl">Test Completado!</CardTitle>
+              <CardTitle className="text-2xl">¡Test Completado!</CardTitle>
               <CardDescription>
-                {results.streakUpdated && results.newStreak > 0 && (
+                {results.streakUpdated && results.currentStreak > 0 && (
                   <span className="flex items-center justify-center gap-2 mt-2 text-orange-500 font-medium">
                     <Flame className="w-4 h-4" />
-                    Racha: {results.newStreak} días
+                    Racha: {results.currentStreak} días
                   </span>
                 )}
               </CardDescription>
@@ -334,60 +330,52 @@ export default function DailyTestPage() {
               {/* Score */}
               <div className="text-center">
                 <div className="text-5xl font-bold mb-2">
-                  {results.correctAnswers}/{results.totalQuestions}
+                  {results.results.correctAnswers}/{results.results.totalQuestions}
                 </div>
                 <p className="text-muted-foreground">
-                  {percentage.toFixed(0)}% de respuestas correctas
+                  {percentage.toFixed(0)}% de efectividad
                 </p>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 py-4 border-y">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600">
-                    {results.correctAnswers}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Correctas</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-600">
-                    +{results.experienceGained}
-                  </p>
-                  <p className="text-sm text-muted-foreground">XP ganada</p>
-                </div>
-              </div>
-
-              {/* Achievements */}
-              {results.achievements && results.achievements.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Target className="w-4 h-4" />
-                    Logros Desbloqueados
-                  </h3>
-                  <div className="flex flex-wrap gap-3 justify-center">
-                    {results.achievements.map((achievement) => (
-                      <AchievementBadge
-                        key={achievement.id}
-                        achievement={{
-                          ...achievement,
-                          code: achievement.type,
-                          type: achievement.type as any,
-                          icon: '🏆',
-                          rarity: 'COMMON' as const,
-                          points: 100,
-                          category: achievement.type
-                        }}
-                        size="md"
-                        animate={true}
-                      />
+              {/* Subject Breakdown */}
+              {results.results.subjectBreakdown && results.results.subjectBreakdown.length > 0 && (
+                <div className="space-y-3 py-4 border-y">
+                  <h3 className="font-semibold text-center">Por Asignatura</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {results.results.subjectBreakdown.map((subject) => (
+                      <div key={subject.subjectName} className="text-center p-3 bg-muted rounded-lg">
+                        <p className="text-sm text-muted-foreground">{subject.subjectName}</p>
+                        <p className="text-lg font-bold">
+                          {subject.correct}/{subject.total}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
 
+              {/* Session Unlocked */}
+              {results.sessionUnlocked && (
+                <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800 dark:text-green-200">
+                    {results.message || '¡Tu sesión de estudio está desbloqueada!'}
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Actions */}
               <div className="flex flex-col gap-3 pt-4">
-                <Button onClick={() => router.push('/home')} size="lg">
+                {results.sessionUnlocked && (
+                  <Button onClick={() => router.push('/session')} size="lg">
+                    Ir a mi sesión de estudio
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+                <Button
+                  onClick={() => router.push('/home')}
+                  variant={results.sessionUnlocked ? 'outline' : 'default'}
+                >
                   Volver al inicio
                 </Button>
                 <Button

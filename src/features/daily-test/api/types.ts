@@ -1,95 +1,123 @@
-// Daily Test Types
+// Daily Test Types - Aligned with backend API
+
+// === Enums ===
+export type DifficultyLevel = 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+
+export enum LessonStatus {
+  LOCKED = 'LOCKED',
+  AVAILABLE = 'AVAILABLE',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+}
+
+// === Check Daily Test ===
 export interface DailyTestCheck {
-  hasTestAvailable: boolean;
-  lastTestDate?: string;
-  nextTestAvailable?: string;
-  currentStreak: number;
-  message?: string;
+  available: boolean;
+  completedToday: boolean;
+  testId?: string;
 }
 
-export interface DailyTestSession {
-  id: string;
-  userId: string;
-  questions: DailyTestQuestion[];
-  startTime: Date;
-  endTime?: Date;
-  completed: boolean;
-  score?: number;
-  correctAnswers?: number;
-  totalQuestions: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Backward compatible alias
+export interface CheckDailyTestResponse extends DailyTestCheck {}
 
-export interface DailyTestQuestion {
-  id: string;
-  question: {
-    id: string;
-    text: string;
-    imageUrl?: string;
-    explanation?: string;
-    topic: {
-      id: string;
-      name: string;
-    };
-    subtopic: {
-      id: string;
-      name: string;
-    };
-    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
-  };
-  options: QuestionOption[];
-  userAnswer?: string;
-  isCorrect?: boolean;
-  timeSpent?: number;
-}
-
+// === Question Types ===
 export interface QuestionOption {
   id: string;
   text: string;
   imageUrl?: string;
-  isCorrect?: boolean;
 }
 
+export interface DailyTestQuestion {
+  _id: string;
+  statement: string;
+  type: string;
+  options: QuestionOption[];
+  subjectId: string;
+  subjectName?: string;
+  difficultyLevel: DifficultyLevel;
+  order: number;
+  questionImage?: string;
+}
+
+// === Daily Test Session ===
+export interface DailyTestSession {
+  testId: string;
+  questions: DailyTestQuestion[];
+  date: Date | string;
+  totalQuestions: number;
+}
+
+// Backward compatible alias
+export interface GenerateDailyTestResponse extends DailyTestSession {}
+
+// === Answer Question ===
 export interface AnswerQuestionRequest {
   questionId: string;
-  selectedOptionId: string;
-  timeSpent: number;
+  selectedAnswer: string | string[];
+  timeSpentSeconds: number;
 }
 
 export interface AnswerQuestionResponse {
   isCorrect: boolean;
+  questionId: string;
   correctOptionId: string;
   explanation?: string;
-  progress: {
-    answered: number;
-    total: number;
-  };
+  feedback?: string;
+  nextQuestion?: number;
+}
+
+// === Complete Daily Test ===
+export interface SubjectBreakdown {
+  subjectName: string;
+  correct: number;
+  total: number;
+}
+
+export interface DailyTestResults {
+  totalQuestions: number;
+  correctAnswers: number;
+  effectiveness: number;
+  totalTimeSeconds: number;
+  subjectBreakdown: SubjectBreakdown[];
 }
 
 export interface CompleteDailyTestResponse {
-  score: number;
-  correctAnswers: number;
-  totalQuestions: number;
+  results: DailyTestResults;
+  sessionUnlocked: boolean;
   streakUpdated: boolean;
-  newStreak: number;
-  achievements?: Achievement[];
-  experienceGained: number;
+  currentStreak: number;
+  message: string;
 }
 
-export interface Achievement {
-  id: string;
-  type: string;
+// === Daily Session (Recommended Lessons) ===
+export interface RecommendedLesson {
+  _id: string;
   title: string;
-  description: string;
-  unlockedAt: Date;
-  seen: boolean;
+  description?: string;
+  subtopicId: string;
+  subtopicName: string;
+  subjectId: string;
+  subjectName: string;
+  subjectIconUrl?: string;
+  difficultyLevel: DifficultyLevel;
+  estimatedTimeMinutes: number;
+  reason: string;
+  status: LessonStatus;
+  progress: number;
+  order: number;
 }
 
-// Weekly Status Types
+export interface GenerateDailySessionResponse {
+  recommendedLessons: RecommendedLesson[];
+  totalLessons: number;
+  estimatedTotalTime: number;
+  message: string;
+}
+
+// === Weekly Status Types ===
 export interface WeeklyDayStatus {
-  date: string; // ISO date string YYYY-MM-DD
-  dayLabel: string; // L, M, M, J, V, S, D
+  date: string;
+  dayLabel: string;
   dailyTestCompleted: boolean;
   isToday: boolean;
   isFuture: boolean;
@@ -101,12 +129,22 @@ export interface WeeklyStatusResponse {
   maxStreak: number;
 }
 
-// Monthly Status Types
+// === Monthly Status Types ===
 export interface MonthlyStatusResponse {
   year: number;
-  month: number; // 1-12
-  completedDates: string[]; // Array of ISO date strings YYYY-MM-DD
+  month: number;
+  completedDates: string[];
   totalCompleted: number;
   currentStreak: number;
   maxStreak: number;
+}
+
+// === Achievement ===
+export interface Achievement {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  unlockedAt: Date;
+  seen: boolean;
 }

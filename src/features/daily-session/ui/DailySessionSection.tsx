@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { dailySessionAPI } from '../api/dailySessionAPI';
-import type { DailySessionRecommendation } from '../api/types';
+import { dailyTestAPI } from '@/features/daily-test/api/dailyTestAPI';
+import type { RecommendedLesson } from '@/features/daily-test/api/types';
 import { Card, CardContent } from '@/shared/ui/Card';
 import { Badge } from '@/shared/ui/Badge';
 import { Button } from '@/shared/ui/Button';
@@ -14,21 +14,22 @@ import {
   BookText,
   Globe,
   Target,
+  AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
 /**
  * Daily Session Section Component
  * Displays personalized lesson recommendations within the dashboard
- * This is a wrapper component that can be used in the dashboard layout
+ * Uses the new daily-test/session/generate endpoint that follows
+ * the 3-subject rotation algorithm based on the day
  */
 export const DailySessionSection = React.forwardRef<HTMLElement>(
   (props, ref) => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const [recommendations, setRecommendations] = useState<
-      DailySessionRecommendation[]
-    >([]);
+    const [recommendations, setRecommendations] = useState<RecommendedLesson[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const hasLoadedRef = React.useRef(false);
 
     useEffect(() => {
@@ -41,14 +42,23 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
 
       const loadRecommendations = async () => {
         setLoading(true);
+        setError(null);
         try {
-          const data = await dailySessionAPI.getRecommendations();
-          setRecommendations(data.recommendations || []);
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            console.error('Error loading recommendations:', error.message);
+          // Use the new endpoint that follows the 3-subject rotation algorithm
+          const data = await dailyTestAPI.generateDailySession();
+          setRecommendations(data.recommendedLessons || []);
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            console.error('Error loading daily session:', err.message);
+            // Check if it's a "must complete daily test first" error
+            if (err.message.includes('daily test') || err.message.includes('must complete')) {
+              setError('Debes completar el test diario antes de acceder a la sesión de estudio');
+            } else {
+              setError(err.message);
+            }
           } else {
-            console.error('Error loading recommendations:', error);
+            console.error('Error loading daily session:', err);
+            setError('Error al cargar las recomendaciones');
           }
           setRecommendations([]);
         } finally {
@@ -61,7 +71,7 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
 
     const getSubjectIcon = (subjectName: string) => {
       const name = subjectName.toLowerCase();
-      if (name.includes('matemática') || name.includes('álgebra'))
+      if (name.includes('matemática') || name.includes('álgebra') || name.includes('cálculo'))
         return BookOpen;
       if (
         name.includes('ciencia') ||
@@ -69,9 +79,9 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
         name.includes('química')
       )
         return FlaskConical;
-      if (name.includes('lectura') || name.includes('comprensión'))
+      if (name.includes('lectura') || name.includes('comprensión') || name.includes('redacción'))
         return BookText;
-      if (name.includes('historia') || name.includes('geografía'))
+      if (name.includes('historia') || name.includes('geografía') || name.includes('economía'))
         return Globe;
       return Target;
     };
@@ -86,10 +96,10 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
       return colors[index % colors.length];
     };
 
-    const handleStartLesson = (recommendation: DailySessionRecommendation) => {
-      // Solo permitir navegación si hay contenido disponible
-      if (recommendation.hasContent && recommendation.lessonId) {
-        window.location.href = `/daily-session/lesson/${recommendation.lessonId}`;
+    const handleStartLesson = (recommendation: RecommendedLesson) => {
+      // Navigate to lesson if available
+      if (recommendation.status !== 'LOCKED') {
+        window.location.href = `/daily-session/lesson/${recommendation._id}`;
       }
     };
 
@@ -121,17 +131,35 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
             </div>
           )}
 
+          {/* Error State - Must complete daily test */}
+          {!loading && error && (
+            <div className="text-center py-20">
+              <div className="inline-flex p-4 bg-orange-100 dark:bg-orange-900/20 rounded-full mb-4">
+                <AlertCircle className="w-12 h-12 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-bold text-grey-900 dark:text-white mb-2">
+                {error}
+              </h3>
+              <p className="text-grey-600 dark:text-gray-400 mb-6">
+                Completa el test diario para desbloquear tu sesión de estudio personalizada
+              </p>
+              <Button onClick={() => router.push('/daily-test')}>
+                Ir al Test Diario
+              </Button>
+            </div>
+          )}
+
           {/* Recommendations Grid */}
-          {!loading && recommendations.length > 0 && (
+          {!loading && !error && recommendations.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {recommendations.map((rec, index) => {
                 const IconComponent = getSubjectIcon(rec.subjectName);
                 const colorClass = getSubjectColor(index);
-                const isDisabled = !rec.hasContent;
+                const isDisabled = rec.status === 'LOCKED';
 
                 return (
                   <Card
-                    key={`${rec.subjectId}-${rec.lessonId || index}`}
+                    key={`${rec.subjectId}-${rec._id}`}
                     className={cn(
                       'bg-white dark:bg-[#131820] border-grey-200 dark:border-gray-800 transition-all duration-200',
                       isDisabled
@@ -144,9 +172,9 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
                       {/* Icon and Subject Tag */}
                       <div className="flex items-start gap-3 mb-4">
                         <div className={cn('p-3 rounded-lg flex-shrink-0', colorClass)}>
-                          {rec.iconUrl ? (
+                          {rec.subjectIconUrl ? (
                             <img
-                              src={rec.iconUrl}
+                              src={rec.subjectIconUrl}
                               alt={rec.subjectName}
                               className="w-6 h-6"
                             />
@@ -166,12 +194,12 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
                             : 'text-grey-900 dark:text-white group-hover:text-primary-green'
                         )}
                       >
-                        {rec.lessonTitle}
+                        {rec.title}
                       </h3>
 
                       {/* Topic & Subtopic */}
                       <p className="text-sm text-grey-600 dark:text-gray-400 mb-3 font-[family-name:var(--font-rubik)]">
-                        {rec.topicName} • {rec.subtopicName}
+                        {rec.subjectName} • {rec.subtopicName || rec.difficultyLevel}
                       </p>
 
                       {/* Reason */}
@@ -185,16 +213,30 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
                         </p>
                       </div>
 
-                      {/* Improvement Badge */}
-                      {rec.hasContent &&
-                        rec.potentialImprovement &&
-                        rec.potentialImprovement !== '0%' && (
-                          <div className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 rounded-full">
-                            <span className="text-xs font-medium text-green-500">
-                              +{rec.potentialImprovement} mejora potencial
-                            </span>
-                          </div>
-                        )}
+                      {/* Status Badge */}
+                      {rec.status === 'IN_PROGRESS' && rec.progress > 0 && (
+                        <div className="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/10 rounded-full">
+                          <span className="text-xs font-medium text-blue-500">
+                            {rec.progress}% completado
+                          </span>
+                        </div>
+                      )}
+
+                      {rec.status === 'COMPLETED' && (
+                        <div className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 rounded-full">
+                          <span className="text-xs font-medium text-green-500">
+                            Completado
+                          </span>
+                        </div>
+                      )}
+
+                      {rec.status === 'AVAILABLE' && (
+                        <div className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 rounded-full">
+                          <span className="text-xs font-medium text-green-500">
+                            +20% mejora potencial
+                          </span>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 );
@@ -203,7 +245,7 @@ export const DailySessionSection = React.forwardRef<HTMLElement>(
           )}
 
           {/* Empty State */}
-          {!loading && recommendations.length === 0 && (
+          {!loading && !error && recommendations.length === 0 && (
             <div className="text-center py-20">
               <div className="inline-flex p-4 bg-grey-200 dark:bg-gray-800/50 rounded-full mb-4">
                 <Target className="w-12 h-12 text-grey-500 dark:text-gray-500" />

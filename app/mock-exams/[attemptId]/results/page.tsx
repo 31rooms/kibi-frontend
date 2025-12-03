@@ -127,7 +127,7 @@ export default function MockExamResultsPage({
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{subject.subjectName}</span>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {subject.correctAnswers}/{subject.totalQuestions} ({subject.percentage.toFixed(1)}%)
+                        {subject.correct}/{subject.total} ({subject.percentage.toFixed(1)}%)
                       </span>
                     </div>
                     <div className="relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -142,9 +142,6 @@ export default function MockExamResultsPage({
                         )}
                         style={{ width: `${subject.percentage}%` }}
                       />
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                      <span>Efectividad: {subject.effectiveness.toFixed(1)}%</span>
                     </div>
                   </div>
                 ))}

@@ -85,8 +85,7 @@ export const InicioSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     // Handle Daily Test button click
     const handleDailyTestClick = () => {
       if (!isDailyTestCompletedToday) {
-        // TODO: Navigate to daily test when implemented
-        console.log('Navigate to daily test');
+        router.push('/daily-test');
       }
     };
 

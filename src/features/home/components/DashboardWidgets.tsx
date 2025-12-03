@@ -191,7 +191,7 @@ export function DashboardWidgets() {
           </CardHeader>
           <CardContent>
             {check ? (
-              check.hasTestAvailable ? (
+              check.available ? (
                 <div className="space-y-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-purple-600">Disponible</p>

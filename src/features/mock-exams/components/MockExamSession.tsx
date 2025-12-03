@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { mockExamsAPI } from '../api/mockExamsAPI';
-import type { MockExamAttempt, MockExamQuestion, AnswerMockExamRequest } from '../api/types';
+import type { StartMockExamResponse, MockExamQuestion, AnswerMockExamRequest } from '../api/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Alert, AlertDescription } from '@/shared/ui/Alert';
@@ -19,18 +19,25 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-// Using alert for notifications (can be replaced with a toast library if needed)
 
 interface MockExamSessionProps {
   attemptId: string;
 }
 
+// Track answers locally since questions don't have userAnswer field
+interface QuestionState {
+  answered: boolean;
+  selectedAnswer: string | null;
+  markedForReview: boolean;
+}
+
 export function MockExamSession({ attemptId }: MockExamSessionProps) {
   const router = useRouter();
-  const [attempt, setAttempt] = useState<MockExamAttempt | null>(null);
+  const [attempt, setAttempt] = useState<StartMockExamResponse | null>(null);
+  const [questionStates, setQuestionStates] = useState<Map<string, QuestionState>>(new Map());
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState(0); // seconds
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [showNavigationGrid, setShowNavigationGrid] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,30 +51,51 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
   const loadAttempt = async () => {
     setLoading(true);
     try {
-      const data = await mockExamsAPI.getAttemptDetails(attemptId);
-      setAttempt(data);
+      // Get attempt summary to check status and time
+      const summary = await mockExamsAPI.getAttemptSummary(attemptId);
 
-      // Calculate time remaining
-      const startTime = new Date(data.startTime).getTime();
-      const currentTime = Date.now();
-      const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-      const totalSeconds = data.timeLimit * 60;
-      const remaining = Math.max(0, totalSeconds - elapsedSeconds);
-      setTimeRemaining(remaining);
-
-      // Auto-submit if time is up
-      if (remaining === 0 && !data.completed) {
-        handleComplete(true);
+      // If already completed, redirect to results
+      if (summary.status === 'COMPLETED') {
+        router.push(`/mock-exams/${attemptId}/results`);
+        return;
       }
 
-      // Load current question's answer if exists
-      const currentQ = data.questions[currentQuestionIndex];
-      if (currentQ?.userAnswer) {
-        setSelectedAnswer(currentQ.userAnswer);
+      // For now, we need to get the questions from the initial start response
+      // which should be stored or refetched. Using the attempt details endpoint
+      const attemptData = await mockExamsAPI.getAttemptDetails(attemptId);
+
+      // Build a minimal StartMockExamResponse-like structure
+      const attemptResponse: StartMockExamResponse = {
+        attemptId: attemptId,
+        mockExamId: attemptData.mockExamId,
+        mockExamName: summary.mockExamName,
+        totalQuestions: attemptData.totalQuestions,
+        timeLimitMinutes: attemptData.timeLimit,
+        timeRemainingSeconds: summary.timeRemainingSeconds,
+        questions: attemptData.questions,
+        startedAt: attemptData.startTime,
+      };
+
+      setAttempt(attemptResponse);
+      setTimeRemaining(summary.timeRemainingSeconds);
+
+      // Initialize question states
+      const states = new Map<string, QuestionState>();
+      attemptData.questions.forEach((q: MockExamQuestion) => {
+        states.set(q._id, {
+          answered: false,
+          selectedAnswer: null,
+          markedForReview: false,
+        });
+      });
+      setQuestionStates(states);
+
+      // Auto-submit if time is up (status is either IN_PROGRESS or EXPIRED here since COMPLETED redirects)
+      if (summary.timeRemainingSeconds === 0) {
+        handleComplete(true);
       }
     } catch (error) {
       console.error('Error loading attempt:', error);
-      console.error('Error loading exam');
       router.push('/mock-exams');
     } finally {
       setLoading(false);
@@ -76,7 +104,7 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
 
   // Timer countdown
   useEffect(() => {
-    if (timeRemaining <= 0 || !attempt || attempt.completed) return;
+    if (timeRemaining <= 0 || !attempt) return;
 
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
@@ -98,40 +126,42 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
     return () => clearInterval(interval);
   }, [timeRemaining, attempt]);
 
-  // Format time as MM:SS
+  // Format time as HH:MM:SS for long durations
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Handle answer selection
   const handleAnswerSelect = async (optionId: string) => {
-    if (!attempt || attempt.completed) return;
+    if (!attempt) return;
 
     setSelectedAnswer(optionId);
 
     try {
       const currentQ = attempt.questions[currentQuestionIndex];
-      const answerData: AnswerMockExamRequest = {
-        questionId: currentQ.question.id,
-        selectedOptionId: optionId,
-        timeSpent: 0, // Track this if needed
-        markForReview: currentQ.markedForReview || false,
-      };
 
-      await mockExamsAPI.answerQuestion(attemptId, answerData);
+      await mockExamsAPI.answerQuestion(attemptId, {
+        questionId: currentQ._id,
+        selectedAnswer: optionId,
+        timeSpentSeconds: 0, // Track this if needed
+      });
 
       // Update local state
-      const updatedQuestions = [...attempt.questions];
-      updatedQuestions[currentQuestionIndex] = {
-        ...currentQ,
-        userAnswer: optionId,
-      };
-
-      setAttempt({
-        ...attempt,
-        questions: updatedQuestions,
+      setQuestionStates((prev) => {
+        const newStates = new Map(prev);
+        newStates.set(currentQ._id, {
+          ...newStates.get(currentQ._id)!,
+          answered: true,
+          selectedAnswer: optionId,
+        });
+        return newStates;
       });
     } catch (error) {
       console.error('Error saving answer:', error);
@@ -139,38 +169,20 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
   };
 
   // Toggle mark for review
-  const handleToggleMarkForReview = async () => {
-    if (!attempt || attempt.completed) return;
+  const handleToggleMarkForReview = () => {
+    if (!attempt) return;
 
     const currentQ = attempt.questions[currentQuestionIndex];
-    const newMarkStatus = !currentQ.markedForReview;
 
-    try {
-      const answerData: AnswerMockExamRequest = {
-        questionId: currentQ.question.id,
-        selectedOptionId: currentQ.userAnswer || '',
-        timeSpent: 0,
-        markForReview: newMarkStatus,
-      };
-
-      await mockExamsAPI.answerQuestion(attemptId, answerData);
-
-      // Update local state
-      const updatedQuestions = [...attempt.questions];
-      updatedQuestions[currentQuestionIndex] = {
-        ...currentQ,
-        markedForReview: newMarkStatus,
-      };
-
-      setAttempt({
-        ...attempt,
-        questions: updatedQuestions,
+    setQuestionStates((prev) => {
+      const newStates = new Map(prev);
+      const currentState = newStates.get(currentQ._id)!;
+      newStates.set(currentQ._id, {
+        ...currentState,
+        markedForReview: !currentState.markedForReview,
       });
-
-      console.log(newMarkStatus ? 'Marked for review' : 'Mark removed');
-    } catch (error) {
-      console.error('Error toggling mark:', error);
-    }
+      return newStates;
+    });
   };
 
   // Navigation
@@ -178,7 +190,11 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
     if (currentQuestionIndex > 0) {
       const newIndex = currentQuestionIndex - 1;
       setCurrentQuestionIndex(newIndex);
-      setSelectedAnswer(attempt?.questions[newIndex].userAnswer || null);
+      const prevQ = attempt?.questions[newIndex];
+      if (prevQ) {
+        const state = questionStates.get(prevQ._id);
+        setSelectedAnswer(state?.selectedAnswer || null);
+      }
     }
   };
 
@@ -186,13 +202,19 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
     if (attempt && currentQuestionIndex < attempt.questions.length - 1) {
       const newIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex(newIndex);
-      setSelectedAnswer(attempt?.questions[newIndex].userAnswer || null);
+      const nextQ = attempt.questions[newIndex];
+      const state = questionStates.get(nextQ._id);
+      setSelectedAnswer(state?.selectedAnswer || null);
     }
   };
 
   const handleNavigateToQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
-    setSelectedAnswer(attempt?.questions[index].userAnswer || null);
+    const q = attempt?.questions[index];
+    if (q) {
+      const state = questionStates.get(q._id);
+      setSelectedAnswer(state?.selectedAnswer || null);
+    }
     setShowNavigationGrid(false);
   };
 
@@ -200,8 +222,13 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
   const getStatistics = () => {
     if (!attempt) return { answered: 0, unanswered: 0, marked: 0 };
 
-    const answered = attempt.questions.filter((q) => q.userAnswer).length;
-    const marked = attempt.questions.filter((q) => q.markedForReview).length;
+    let answered = 0;
+    let marked = 0;
+
+    questionStates.forEach((state) => {
+      if (state.answered) answered++;
+      if (state.markedForReview) marked++;
+    });
 
     return {
       answered,
@@ -216,12 +243,7 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
 
     setIsSubmitting(true);
     try {
-      const response = await mockExamsAPI.completeMockExam(attemptId, {
-        confirmComplete: true,
-        timeUp,
-      });
-
-      console.log('Exam completed!');
+      await mockExamsAPI.completeMockExam(attemptId);
       router.push(`/mock-exams/${attemptId}/results`);
     } catch (error) {
       console.error('Error completing exam:', error);
@@ -250,6 +272,11 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
   }
 
   const currentQuestion = attempt.questions[currentQuestionIndex];
+  const currentState = questionStates.get(currentQuestion._id) || {
+    answered: false,
+    selectedAnswer: null,
+    markedForReview: false,
+  };
   const stats = getStatistics();
 
   return (
@@ -319,25 +346,28 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-10 gap-2">
-                {attempt.questions.map((q, index) => (
-                  <button
-                    key={q.id}
-                    onClick={() => handleNavigateToQuestion(index)}
-                    className={cn(
-                      'aspect-square rounded-lg border-2 flex items-center justify-center text-sm font-medium relative',
-                      index === currentQuestionIndex
-                        ? 'border-blue-600 bg-blue-100 text-blue-700'
-                        : q.userAnswer
-                        ? 'border-green-600 bg-green-100 text-green-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                    )}
-                  >
-                    {index + 1}
-                    {q.markedForReview && (
-                      <Flag className="w-3 h-3 absolute top-1 right-1 text-orange-600" />
-                    )}
-                  </button>
-                ))}
+                {attempt.questions.map((q, index) => {
+                  const state = questionStates.get(q._id);
+                  return (
+                    <button
+                      key={q._id}
+                      onClick={() => handleNavigateToQuestion(index)}
+                      className={cn(
+                        'aspect-square rounded-lg border-2 flex items-center justify-center text-sm font-medium relative',
+                        index === currentQuestionIndex
+                          ? 'border-blue-600 bg-blue-100 text-blue-700'
+                          : state?.answered
+                          ? 'border-green-600 bg-green-100 text-green-700'
+                          : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                      )}
+                    >
+                      {index + 1}
+                      {state?.markedForReview && (
+                        <Flag className="w-3 h-3 absolute top-1 right-1 text-orange-600" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               <div className="mt-4 flex justify-end">
                 <Button onClick={() => setShowNavigationGrid(false)}>Cerrar</Button>
@@ -354,14 +384,12 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  <span className="font-medium">{currentQuestion.question.subject.name}</span>
+                  <span className="font-medium">{currentQuestion.subjectName || 'Materia'}</span>
                   <span>•</span>
-                  <span>{currentQuestion.question.topic.name}</span>
-                  <span>•</span>
-                  <span>{currentQuestion.question.subtopic.name}</span>
+                  <span>Pregunta {currentQuestion.order || currentQuestionIndex + 1}</span>
                 </div>
                 <CardTitle className="text-xl">
-                  {currentQuestion.question.text}
+                  {currentQuestion.statement}
                 </CardTitle>
               </div>
               <Button
@@ -369,21 +397,21 @@ export function MockExamSession({ attemptId }: MockExamSessionProps) {
                 size="sm"
                 onClick={handleToggleMarkForReview}
                 className={cn(
-                  currentQuestion.markedForReview && 'border-orange-600 text-orange-600'
+                  currentState.markedForReview && 'border-orange-600 text-orange-600'
                 )}
               >
                 <Flag
-                  className={cn('w-4 h-4', currentQuestion.markedForReview && 'fill-current')}
+                  className={cn('w-4 h-4', currentState.markedForReview && 'fill-current')}
                 />
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Question Image */}
-            {currentQuestion.question.imageUrl && (
+            {currentQuestion.questionImage && (
               <div className="rounded-lg overflow-hidden border border-gray-200">
                 <img
-                  src={currentQuestion.question.imageUrl}
+                  src={currentQuestion.questionImage}
                   alt="Question"
                   className="w-full"
                 />

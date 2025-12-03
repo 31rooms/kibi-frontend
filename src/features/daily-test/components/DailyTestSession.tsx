@@ -94,10 +94,10 @@ export function DailyTestSession({
                   </span>
                 </div>
                 <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                  {currentQuestion.question.subtopic?.name || 'Matemáticas'}
+                  {currentQuestion.subjectName || 'Matemáticas'}
                 </CardTitle>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {currentQuestion.question.topic?.name || 'Álgebra'}
+                  Nivel: {currentQuestion.difficultyLevel || 'INTERMEDIATE'}
                 </p>
               </div>
             </div>
@@ -108,15 +108,15 @@ export function DailyTestSession({
             <div className="mb-8">
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 border-l-4 border-blue-500">
                 <p className="text-lg font-medium text-gray-900 dark:text-white leading-relaxed">
-                  {currentQuestion.question.text}
+                  {currentQuestion.statement}
                 </p>
               </div>
 
               {/* Question Image */}
-              {currentQuestion.question.imageUrl && (
+              {currentQuestion.questionImage && (
                 <div className="mt-4">
                   <img
-                    src={currentQuestion.question.imageUrl}
+                    src={currentQuestion.questionImage}
                     alt="Question illustration"
                     className="rounded-lg max-w-full h-auto border border-gray-200 dark:border-gray-700"
                   />
