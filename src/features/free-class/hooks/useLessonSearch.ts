@@ -32,6 +32,8 @@ interface UseLessonSearchResult {
   setSubjectId: (value: string) => void;
   difficultyLevel: DifficultyLevel | '';
   setDifficultyLevel: (value: DifficultyLevel | '') => void;
+  viewedOnly: boolean;
+  setViewedOnly: (value: boolean) => void;
 
   // Actions
   refresh: () => void;
@@ -47,6 +49,7 @@ export function useLessonSearch(options: UseLessonSearchOptions = {}): UseLesson
   const [searchValue, setSearchValue] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [difficultyLevel, setDifficultyLevel] = useState<DifficultyLevel | ''>('');
+  const [viewedOnly, setViewedOnly] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,7 +71,7 @@ export function useLessonSearch(options: UseLessonSearchOptions = {}): UseLesson
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, subjectId, difficultyLevel]);
+  }, [debouncedSearch, subjectId, difficultyLevel, viewedOnly]);
 
   // Fetch lessons
   const fetchLessons = useCallback(async () => {
@@ -94,6 +97,10 @@ export function useLessonSearch(options: UseLessonSearchOptions = {}): UseLesson
         params.difficultyLevel = difficultyLevel;
       }
 
+      if (viewedOnly) {
+        params.viewedOnly = true;
+      }
+
       const response = await searchLessons(params);
       setLessons(response.lessons);
       setTotal(response.total);
@@ -105,7 +112,7 @@ export function useLessonSearch(options: UseLessonSearchOptions = {}): UseLesson
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, subjectId, difficultyLevel, currentPage, pageSize]);
+  }, [debouncedSearch, subjectId, difficultyLevel, viewedOnly, currentPage, pageSize]);
 
   // Fetch lessons when filters or page changes
   useEffect(() => {
@@ -142,6 +149,8 @@ export function useLessonSearch(options: UseLessonSearchOptions = {}): UseLesson
     setSubjectId,
     difficultyLevel,
     setDifficultyLevel,
+    viewedOnly,
+    setViewedOnly,
 
     // Actions
     refresh,

@@ -56,8 +56,11 @@ export const FreeLessonView = React.forwardRef<HTMLDivElement, FreeLessonViewPro
         const lessonData = await getLessonFull(lessonId);
         setLesson(lessonData.lesson);
 
+        // Use categorizedQuestions.lessonContent if available, otherwise fallback to questions array
         const practiceQuestions =
-          lessonData.lesson.categorizedQuestions?.lessonContent || [];
+          lessonData.lesson.categorizedQuestions?.lessonContent ||
+          lessonData.lesson.questions ||
+          [];
         setQuestions(practiceQuestions);
 
         const initialStates: { [key: string]: QuestionState } = {};
@@ -123,24 +126,67 @@ export const FreeLessonView = React.forwardRef<HTMLDivElement, FreeLessonViewPro
 
     const handleValidateAnswer = async (questionId: string) => {
       const state = questionStates[questionId];
-      if (!state.selectedAnswer || state.isCorrect || !sessionId) {
+      if (!state.selectedAnswer || state.isCorrect) {
         return;
       }
 
-      try {
-        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
-        const response = await answerQuestion(lessonId, questionId, {
-          sessionId,
-          givenAnswer: state.selectedAnswer,
-          timeSpentSeconds: timeSpent,
-        });
+      // If sessionId is available, use backend validation
+      if (sessionId) {
+        try {
+          const response = await answerQuestion(lessonId, questionId, {
+            sessionId,
+            givenAnswer: state.selectedAnswer,
+            timeSpentSeconds: timeSpent,
+          });
+
+          setQuestionStates((prev) => ({
+            ...prev,
+            [questionId]: {
+              ...prev[questionId],
+              isCorrect: response.isCorrect,
+              answered: true,
+              timeSpent,
+              showTemporaryFeedback: true,
+              isValidated: true,
+            },
+          }));
+
+          if (!response.isCorrect) {
+            setTimeout(() => {
+              setQuestionStates((prev) => {
+                const currentState = prev[questionId];
+                if (currentState?.showTemporaryFeedback) {
+                  return {
+                    ...prev,
+                    [questionId]: {
+                      ...currentState,
+                      selectedAnswer: null,
+                      showTemporaryFeedback: false,
+                      answered: false,
+                    },
+                  };
+                }
+                return prev;
+              });
+            }, 3000);
+          }
+        } catch (error) {
+          console.error('Error validating answer:', error);
+        }
+      } else {
+        // Local validation using correctAnswers from question data
+        const question = questions.find((q) => q._id === questionId);
+        if (!question) return;
+
+        const isCorrect = question.correctAnswers?.includes(state.selectedAnswer) || false;
 
         setQuestionStates((prev) => ({
           ...prev,
           [questionId]: {
             ...prev[questionId],
-            isCorrect: response.isCorrect,
+            isCorrect,
             answered: true,
             timeSpent,
             showTemporaryFeedback: true,
@@ -148,7 +194,7 @@ export const FreeLessonView = React.forwardRef<HTMLDivElement, FreeLessonViewPro
           },
         }));
 
-        if (!response.isCorrect) {
+        if (!isCorrect) {
           setTimeout(() => {
             setQuestionStates((prev) => {
               const currentState = prev[questionId];
@@ -167,8 +213,6 @@ export const FreeLessonView = React.forwardRef<HTMLDivElement, FreeLessonViewPro
             });
           }, 3000);
         }
-      } catch (error) {
-        console.error('Error validating answer:', error);
       }
     };
 
@@ -241,7 +285,7 @@ export const FreeLessonView = React.forwardRef<HTMLDivElement, FreeLessonViewPro
     }
 
     return (
-      <div ref={ref} className="h-full bg-grey-50 dark:bg-[#171B22] pb-12">
+      <div ref={ref} className="min-h-full bg-grey-50 dark:bg-[#171B22] pb-12">
         {/* Header with breadcrumb */}
         <div>
           <div className="max-w-4xl mx-auto px-6 py-4">

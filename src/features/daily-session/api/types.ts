@@ -26,7 +26,8 @@ export interface LessonQuestion {
   statement?: string; // New field from backend
   imageUrl?: string;
   options: {
-    _id: string;
+    _id?: string;
+    id?: string; // Backend can return 'id' instead of '_id'
     text: string;
     imageUrl?: string;
   }[];
@@ -77,6 +78,7 @@ export interface StartLessonRequest {
 export interface StartLessonResponse {
   sessionId: string;
   lesson: Lesson;
+  questions: LessonQuestion[];
 }
 
 export interface AnswerQuestionRequest {

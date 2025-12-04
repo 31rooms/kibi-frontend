@@ -46,7 +46,7 @@ export const DashboardLayout = React.forwardRef<HTMLDivElement, DashboardLayoutP
     };
 
     return (
-      <div ref={ref} className={cn('h-screen flex flex-col relative', className)}>
+      <div ref={ref} className={cn('h-screen flex flex-col relative overflow-hidden', className)}>
         {/* Top Navigation */}
         <DashboardTopMenu
           logoSrc="/illustrations/logo.svg"

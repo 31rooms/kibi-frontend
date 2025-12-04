@@ -48,6 +48,9 @@ export async function searchLessons(params: SearchLessonsParams): Promise<Search
   if (params.offset !== undefined) {
     queryParams.append('offset', params.offset.toString());
   }
+  if (params.viewedOnly) {
+    queryParams.append('viewedOnly', 'true');
+  }
 
   const queryString = queryParams.toString();
   const url = `${API_BASE_URL}/lessons/search${queryString ? `?${queryString}` : ''}`;

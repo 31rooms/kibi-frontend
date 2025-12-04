@@ -46,6 +46,7 @@ export interface SearchLessonsParams {
   difficultyLevel?: DifficultyLevel;
   limit?: number;
   offset?: number;
+  viewedOnly?: boolean;
 }
 
 // ============================================================================
@@ -99,6 +100,7 @@ export interface Lesson {
   order?: number;
   estimatedMinutes: number;
   categorizedQuestions?: CategorizedQuestions;
+  questions?: LessonQuestion[];
 }
 
 export interface LessonFullResponse {

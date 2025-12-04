@@ -35,6 +35,8 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
       setSubjectId,
       difficultyLevel,
       setDifficultyLevel,
+      viewedOnly,
+      setViewedOnly,
     } = useLessonSearch({
       pageSize: 5,
       debounceDelay: 400,
@@ -51,9 +53,8 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
       console.log('[ClaseLibreSection] subjects:', subjects, 'isLoading:', isLoadingSubjects, 'error:', subjectsError);
     }, [subjects, isLoadingSubjects, subjectsError]);
 
-    // Toggle states (disabled for now)
+    // Toggle states (recomendados disabled for now)
     const [recomendados, setRecomendados] = React.useState(false);
-    const [temasVistos, setTemasVistos] = React.useState(false);
 
     // Handle card click to navigate to lesson
     const handleCardClick = (lesson: LessonSearchResult) => {
@@ -160,7 +161,7 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
               </Select>
             </div>
 
-            {/* Toggles - disabled for now */}
+            {/* Toggles */}
             <div className="flex items-center gap-6 ml-auto">
               <Toggle
                 checked={recomendados}
@@ -171,12 +172,11 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
                 disabled
               />
               <Toggle
-                checked={temasVistos}
-                onCheckedChange={setTemasVistos}
+                checked={viewedOnly}
+                onCheckedChange={setViewedOnly}
                 label="Temas Vistos"
                 labelPosition="right"
                 style="1"
-                disabled
               />
             </div>
           </div>

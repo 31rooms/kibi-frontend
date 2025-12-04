@@ -19,7 +19,7 @@ export default function FreeLessonPage() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <FreeLessonView lessonId={lessonId} />
         </main>
       </DashboardLayout>
