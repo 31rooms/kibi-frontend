@@ -6,7 +6,7 @@ import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { Modal } from '@/shared/ui/Modal';
-import { Mail, MessageCircle, Copy, Loader2 } from 'lucide-react';
+import { Copy, Loader2 } from 'lucide-react';
 import { useSimulationQuota } from '@/features/exam-simulation/hooks/useSimulationQuota';
 import { SimulationPurchaseModal } from '@/features/exam-simulation/ui/SimulationPurchaseModal';
 import { referralsAPI, ReferralCodeResponse } from '@/features/exam-simulation/api/referrals-service';
@@ -21,9 +21,9 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     const [startModalOpen, setStartModalOpen] = useState(false);
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [successModalOpen, setSuccessModalOpen] = useState(false);
-    const [isStarting, setIsStarting] = useState(false);
 
-    const { quota, loading, refetch, startSimulation } = useSimulationQuota();
+    // Use simulation quota hook for purchases
+    const { quota, loading, error, refetch } = useSimulationQuota();
 
     // Fetch referral data on mount
     useEffect(() => {
@@ -67,14 +67,11 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
     };
 
     const handleStartSimulation = async () => {
-      setIsStarting(true);
-      const success = await startSimulation();
-      setIsStarting(false);
-
-      if (success) {
-        setStartModalOpen(false);
-        window.location.href = '/home?section=exam-simulation';
-      }
+      // Just navigate to exam simulation - credit will be checked/consumed there
+      // Credit is ONLY consumed when the exam is COMPLETED (not when started)
+      // This allows users to pause and resume without losing credits
+      setStartModalOpen(false);
+      window.location.href = '/home?section=exam-simulation';
     };
 
     const handlePurchaseSuccess = () => {
@@ -82,10 +79,12 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
       setSuccessModalOpen(true);
     };
 
-    // Calculate display values
+    // Calculate display values from quota (handle null case)
     const totalUsed = quota?.totalUsed ?? 0;
     const totalPurchased = quota?.totalPurchased ?? 0;
     const remaining = quota?.remaining ?? 0;
+
+    // Calculate if user can purchase more (max 3 total)
     const canPurchaseMore = quota?.canPurchaseMore ?? true;
     const maxPurchasable = quota?.maxPurchasable ?? 3;
 
@@ -155,26 +154,6 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                     </p>
                   )}
                 </div>
-
-                {/* Social Icons - Comentados temporalmente */}
-                {/* <div className="flex gap-4">
-                  <button
-                    onClick={handleShareEmail}
-                    disabled={referralLoading || !referralLink}
-                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Compartir por email"
-                  >
-                    <Mail className="w-5 h-5 text-primary-green dark:text-primary-green" />
-                  </button>
-                  <button
-                    onClick={handleShareWhatsApp}
-                    disabled={referralLoading || !referralLink}
-                    className="w-12 h-12 rounded-full border border-grey-500 dark:border-dark-500 bg-white dark:bg-dark-800 flex items-center justify-center hover:bg-grey-100 dark:hover:bg-dark-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Compartir por WhatsApp"
-                  >
-                    <MessageCircle className="w-5 h-5 text-primary-green dark:text-primary-green" />
-                  </button>
-                </div> */}
               </div>
             </Card>
 
@@ -216,6 +195,12 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
                 {remaining <= 0 && totalPurchased === 0 && (
                   <p className="text-sm text-grey-500 dark:text-grey-400 text-center font-[family-name:var(--font-rubik)]">
                     Compra simulaciones para comenzar
+                  </p>
+                )}
+
+                {error && (
+                  <p className="text-sm text-error-500 text-center font-[family-name:var(--font-rubik)]">
+                    {error}
                   </p>
                 )}
               </div>
@@ -310,7 +295,7 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
           state="warning"
           title="¿Listo para tu examen simulacro?"
           cancelText="Cancelar"
-          confirmText={isStarting ? "Iniciando..." : "Comenzar"}
+          confirmText="Comenzar"
           onCancel={() => setStartModalOpen(false)}
           onConfirm={handleStartSimulation}
           className="[&_[class*='iconBg']]:!bg-[#FFD33333]"
@@ -319,7 +304,7 @@ export const ExamenSection = React.forwardRef<HTMLElement, React.HTMLAttributes<
             El examen que vas a presentar ahora es una simulación muy parecida al examen real que presentarás pronto.
           </p>
           <p className="text-center text-[#7b7b7b] dark:text-grey-400 font-['Inter',sans-serif] text-[16px] w-full mt-4">
-            Antes de empezarlo es muy importante que apartes 3 horas de tu tiempo ya que no habrá pausas. Es una prueba que requiere compromiso, tiempo y mucha preparación.
+            Antes de empezarlo es muy importante que apartes 4.5 horas de tu tiempo ya que no habrá pausas. Es una prueba que requiere compromiso, tiempo y mucha preparación.
           </p>
           <p className="text-center text-primary-green font-semibold font-['Inter',sans-serif] text-[14px] w-full mt-4">
             Te quedan {remaining} simulación{remaining !== 1 ? 'es' : ''} disponible{remaining !== 1 ? 's' : ''}

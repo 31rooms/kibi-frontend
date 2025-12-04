@@ -33,10 +33,16 @@ export const QuizTimer = React.forwardRef<HTMLDivElement, QuizTimerProps>(
     },
     ref
   ) => {
-    // Format time as MM:SS
+    // Format time as HH:MM:SS or MM:SS depending on duration
     const formatTime = (seconds: number): string => {
-      const mins = Math.floor(seconds / 60);
+      const hours = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
       const secs = seconds % 60;
+
+      // Show HH:MM:SS format if there are hours, otherwise MM:SS
+      if (hours > 0) {
+        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
@@ -83,7 +89,8 @@ export const QuizTimer = React.forwardRef<HTMLDivElement, QuizTimerProps>(
         <span
           className={cn(
             'text-base font-rubik tabular-nums font-bold',
-            timeRemaining <= 15 ? 'text-[#DC2626]' : 'text-[#373737] dark:text-white',
+            // Show warning color when less than 5 minutes (300 seconds) or 15 seconds for short timers
+            timeRemaining <= (initialTime > 300 ? 300 : 15) ? 'text-[#DC2626]' : 'text-[#373737] dark:text-white',
             !isRunning && 'opacity-50'
           )}
         >

@@ -9,6 +9,8 @@
 export { useExamSimulation } from './hooks/useExamSimulation';
 export type { UseExamSimulationOptions, UseExamSimulationReturn } from './hooks/useExamSimulation';
 export { useSimulationQuota } from './hooks/useSimulationQuota';
+export { useMockExam } from './hooks/useMockExam';
+export type { UseMockExamOptions, UseMockExamReturn } from './hooks/useMockExam';
 
 // API Services
 export { simulationsAPI } from './api/simulations-service';
@@ -19,6 +21,7 @@ export type {
   StartSimulationResponse,
   SimulationHistoryResponse,
 } from './api/simulations-service';
+export { mockExamsAPI } from './api/mock-exams-service';
 
 // UI Components
 export { ExamQuestionView } from './ui/ExamQuestionView';

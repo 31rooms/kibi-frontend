@@ -199,8 +199,8 @@ export default function ExamSimulationPage() {
               totalQuestions={exam.totalQuestions}
               selectedAnswers={exam.selectedAnswers}
               isAnswered={exam.isAnswered}
-              timeRemaining={exam.timeRemaining}
-              initialTime={exam.initialTime}
+              timeRemaining={exam.globalTimeRemaining}
+              initialTime={exam.initialGlobalTime}
               isTimerRunning={exam.isTimerRunning}
               subjectName={examConfig.subjectName}
               onSelectOption={handleSelectOption}
