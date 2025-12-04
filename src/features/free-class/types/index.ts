@@ -1,41 +1,76 @@
-// Daily Session Types (Lecciones y Cápsulas de Ciencia)
+/**
+ * Free Class Feature Types
+ */
 
-export interface DailySessionRecommendation {
-  subjectId: string;
-  subjectName: string;
-  topicId: string;
-  topicName: string;
-  subtopicId: string;
-  subtopicName: string;
-  lessonId: string;
-  lessonTitle: string;
-  reason: string;
-  potentialImprovement: string;
-  priority: number;
+export type DifficultyLevel = 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+
+export interface Subject {
+  _id: string;
+  name: string;
+  description: string;
   iconUrl?: string;
-  hasContent: boolean; // Indica si la materia tiene contenido disponible
+  examWeight: number;
 }
 
-export interface RecommendationsResponse {
-  recommendations: DailySessionRecommendation[];
+export interface MySubjectsResponse {
+  subjects: Subject[];
+  careerName?: string;
+}
+
+export interface LessonSearchResult {
+  _id: string;
+  title: string;
+  description?: string;
+  summary: string;
+  difficultyLevel: DifficultyLevel;
+  estimatedMinutes: number;
+  subject: {
+    _id: string;
+    name: string;
+    iconUrl?: string;
+  } | null;
+  subtopicName?: string;
+  topicName?: string;
+}
+
+export interface SearchLessonsResponse {
+  lessons: LessonSearchResult[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface SearchLessonsParams {
+  search?: string;
+  subjectId?: string;
+  difficultyLevel?: DifficultyLevel;
+  limit?: number;
+  offset?: number;
+  viewedOnly?: boolean;
+}
+
+// ============================================================================
+// LESSON TYPES (for lesson view)
+// ============================================================================
+
+export interface LessonQuestionOption {
+  _id?: string;
+  id?: string;
+  text: string;
+  imageUrl?: string;
 }
 
 export interface LessonQuestion {
   _id: string;
-  questionText?: string; // For compatibility
-  statement?: string; // New field from backend
+  questionText?: string;
+  statement?: string;
   imageUrl?: string;
-  options: {
-    _id?: string;
-    id?: string; // Backend can return 'id' instead of '_id'
-    text: string;
-    imageUrl?: string;
-  }[];
+  options: LessonQuestionOption[];
   explanation?: string;
-  stepByStepExplanation?: string; // From backend for LESSON_CONTENT
-  correctAnswers?: string[]; // From backend for LESSON_CONTENT
+  stepByStepExplanation?: string;
+  correctAnswers?: string[];
   difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
-  difficultyLevel?: string; // From backend
+  difficultyLevel?: string;
   type?: string;
   purpose?: string[];
 }
@@ -44,7 +79,7 @@ export interface CategorizedQuestions {
   examPractice: LessonQuestion[];
   diagnosticTest: LessonQuestion[];
   dailyTest: LessonQuestion[];
-  lessonContent: LessonQuestion[]; // Now includes correctAnswers and stepByStepExplanation
+  lessonContent: LessonQuestion[];
   generalBank: LessonQuestion[];
 }
 
@@ -58,13 +93,14 @@ export interface Lesson {
   tips?: string;
   summary: string;
   learnMoreResources?: string;
-  images?: any[];
+  images?: unknown[];
   videoUrl?: string;
   keyConcepts?: string[];
-  difficultyLevel: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+  difficultyLevel: DifficultyLevel;
   order?: number;
   estimatedMinutes: number;
   categorizedQuestions?: CategorizedQuestions;
+  questions?: LessonQuestion[];
 }
 
 export interface LessonFullResponse {
@@ -78,7 +114,6 @@ export interface StartLessonRequest {
 export interface StartLessonResponse {
   sessionId: string;
   lesson: Lesson;
-  questions: LessonQuestion[];
 }
 
 export interface AnswerQuestionRequest {
@@ -102,15 +137,15 @@ export interface CompleteLessonRequest {
 
 export interface CompleteLessonResponse {
   sessionCompleted: boolean;
-  progress: any;
+  progress: unknown;
 }
 
-// Question state for tracking answers
 export interface QuestionState {
   questionId: string;
   selectedAnswer: string | null;
   isCorrect: boolean | null;
   answered: boolean;
   timeSpent: number;
-  feedback?: string;
+  showTemporaryFeedback: boolean;
+  isValidated: boolean;
 }

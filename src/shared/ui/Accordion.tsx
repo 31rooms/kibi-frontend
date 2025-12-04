@@ -24,7 +24,7 @@ const accordionRootVariants = cva("space-y-4", {
 });
 
 const accordionItemVariants = cva(
-  "w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D] overflow-hidden",
+  "w-full rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#1E242D]",
   {
     variants: {
       variant: {
@@ -54,7 +54,7 @@ const accordionTriggerVariants = cva(
 );
 
 const accordionContentVariants = cva(
-  "overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+  "transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
   {
     variants: {
       variant: {

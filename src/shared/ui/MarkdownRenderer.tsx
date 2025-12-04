@@ -101,12 +101,23 @@ export const MarkdownRenderer = React.forwardRef<HTMLDivElement, MarkdownRendere
         .replace(/\\\[/g, '$$')
         .replace(/\\\]/g, '$$');
 
-      // Convert [drive-file-url] to markdown image syntax ![](drive-file-url)
-      // This handles cases where Drive URLs are wrapped in brackets without proper markdown syntax
+      // Convert [drive-url](drive-url) markdown links to image syntax ![](drive-url)
+      // This handles cases where the same Drive URL is used as both link text and href
       processed = processed.replace(
-        /\[(https:\/\/(?:drive\.google\.com\/file\/d\/|lh3\.googleusercontent\.com\/d\/)[^\]\s]+)\]/g,
+        /\[(https:\/\/(?:drive\.google\.com\/file\/d\/|lh3\.googleusercontent\.com\/d\/)[^\]]+)\]\(\1\)/g,
         '![]($1)'
       );
+
+      // Convert [drive-file-url] or (drive-file-url) to markdown image syntax ![](drive-file-url)
+      // This handles cases where Drive URLs are wrapped in brackets or parentheses without proper markdown syntax
+      processed = processed.replace(
+        /[\[(](https:\/\/(?:drive\.google\.com\/file\/d\/|lh3\.googleusercontent\.com\/d\/)[^\]\)\s]+)[\])]/g,
+        '![]($1)'
+      );
+
+      // Remove empty markdown image syntax ![] or ![]()
+      processed = processed.replace(/!\[\]\(\)/g, '');
+      processed = processed.replace(/!\[\](?!\()/g, '');
 
       return processed;
     }, [content]);

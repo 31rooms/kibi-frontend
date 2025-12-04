@@ -137,10 +137,16 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
     const loadLesson = async () => {
       setLoading(true);
       try {
-        const lessonData = await dailySessionAPI.getLessonFull(lessonId);
-        setLesson(lessonData.lesson);
+        // Start lesson and get session + 3 random questions in one call
+        const sessionResponse = await dailySessionAPI.startLesson(lessonId, {
+          type: 'DAILY_SESSION',
+        });
 
-        const practiceQuestions = lessonData.lesson.categorizedQuestions?.lessonContent || [];
+        setSessionId(sessionResponse.sessionId);
+        setLesson(sessionResponse.lesson);
+
+        // Use questions from startLesson response (3 random questions)
+        const practiceQuestions = sessionResponse.questions || [];
         setQuestions(practiceQuestions);
 
         const initialStates: { [key: string]: DailyQuestionState } = {};
@@ -156,11 +162,6 @@ export const DailyLessonView = React.forwardRef<HTMLDivElement, DailyLessonViewP
           };
         });
         setQuestionStates(initialStates);
-
-        const sessionResponse = await dailySessionAPI.startLesson(lessonId, {
-          type: 'DAILY_SESSION',
-        });
-        setSessionId(sessionResponse.sessionId);
         setStartTime(Date.now());
       } catch (error) {
         console.error('Error loading lesson:', error);
