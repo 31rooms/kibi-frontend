@@ -86,3 +86,4 @@ export { BarChart, type BarChartProps, type BarChartData } from "./BarChart";
 export { LineChart, type LineChartProps, type LineChartData } from "./LineChart";
 export { Progress, type ProgressProps } from "./progress";
 export { LoadingScreen, type LoadingScreenProps } from "./LoadingScreen";
+export { Pagination, type PaginationProps } from "./Pagination";

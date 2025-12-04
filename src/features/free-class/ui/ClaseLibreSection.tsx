@@ -3,51 +3,71 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
-import { Search, SlidersHorizontal } from 'lucide-react';
-import { Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Toggle, Card, KibiIcon, CareerTag } from '@/shared/ui';
+import { Search, Loader2 } from 'lucide-react';
+import { Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Toggle, Card, CareerTag, Pagination } from '@/shared/ui';
 import Image from 'next/image';
+import { useLessonSearch, useMySubjects } from '../hooks';
+import type { DifficultyLevel, LessonSearchResult } from '../types';
 
-// Mock data para las cards
-const mockResults = [
-  {
-    id: 1,
-    subject: 'Matemáticas',
-    title: 'Ecuaciones lineales y sistemas de ecuaciones',
-    recommended: false,
-  },
-  {
-    id: 2,
-    subject: 'Ciencias',
-    title: 'Estructura y función de las células',
-    recommended: false,
-  },
-  {
-    id: 3,
-    subject: 'Comprensión lectora',
-    title: 'Identificación de ideas principales y secundarias',
-    recommended: true,
-    kibiMessage: 'Tu comprensión lectora esta en 89% puedes mejorar mas!',
-  },
-  {
-    id: 4,
-    subject: 'Historia y Geografía',
-    title: 'Revolución Mexicana y sus causas',
-    recommended: false,
-  },
-];
+// Map difficulty levels to Spanish labels
+const difficultyLabels: Record<DifficultyLevel, string> = {
+  BASIC: 'Basico',
+  INTERMEDIATE: 'Intermedio',
+  ADVANCED: 'Avanzado',
+};
 
 export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
     const router = useRouter();
-    const [searchValue, setSearchValue] = React.useState('');
-    const [subject, setSubject] = React.useState('');
-    const [level, setLevel] = React.useState('');
+
+    // Hooks for data fetching
+    const {
+      lessons,
+      total,
+      isLoading: isLoadingLessons,
+      error: lessonsError,
+      currentPage,
+      totalPages,
+      setPage,
+      searchValue,
+      setSearchValue,
+      subjectId,
+      setSubjectId,
+      difficultyLevel,
+      setDifficultyLevel,
+    } = useLessonSearch({
+      pageSize: 5,
+      debounceDelay: 400,
+    });
+
+    const {
+      subjects,
+      isLoading: isLoadingSubjects,
+      error: subjectsError,
+    } = useMySubjects();
+
+    // Debug: log subjects
+    React.useEffect(() => {
+      console.log('[ClaseLibreSection] subjects:', subjects, 'isLoading:', isLoadingSubjects, 'error:', subjectsError);
+    }, [subjects, isLoadingSubjects, subjectsError]);
+
+    // Toggle states (disabled for now)
     const [recomendados, setRecomendados] = React.useState(false);
     const [temasVistos, setTemasVistos] = React.useState(false);
 
-    // Handle card click to navigate to daily session
-    const handleCardClick = () => {
-      router.push('/home?section=daily-session');
+    // Handle card click to navigate to lesson
+    const handleCardClick = (lesson: LessonSearchResult) => {
+      router.push(`/free-class/lesson/${lesson._id}`);
+    };
+
+    // Handle difficulty change
+    const handleDifficultyChange = (value: string) => {
+      setDifficultyLevel(value === 'all' ? '' : value as DifficultyLevel);
+    };
+
+    // Handle subject change
+    const handleSubjectChange = (value: string) => {
+      setSubjectId(value === 'all' ? '' : value);
     };
 
     return (
@@ -82,56 +102,65 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
             </h1>
           </div>
 
-          {/* Search bar with filter icon */}
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <Input
-                placeholder="¿Que quieres estudiar hoy?"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                leadingIcon={<Search className="w-5 h-5" />}
-              />
-            </div>
-            <button
-              className="flex items-center justify-center w-[48px] h-[48px] rounded-lg border border-grey-300 dark:border-[#374151] bg-white dark:bg-[#171B22] hover:bg-grey-50 dark:hover:bg-[#1f2937] transition-colors"
-              aria-label="Filtros"
-            >
-              <SlidersHorizontal className="w-5 h-5 text-grey-600 dark:text-grey-400" />
-            </button>
+          {/* Search bar */}
+          <div className="w-full">
+            <Input
+              placeholder="Que quieres estudiar hoy?"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              leadingIcon={<Search className="w-5 h-5" />}
+            />
           </div>
 
           {/* Filters row */}
           <div className="flex flex-wrap items-center gap-4">
-            {/* Asignatura dropdown */}
+            {/* Materia dropdown */}
             <div className="w-full sm:w-[200px]">
-              <Select value={subject} onValueChange={setSubject}>
+              <Select value={subjectId || 'all'} onValueChange={handleSubjectChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Asignatura" />
+                  <SelectValue placeholder="Materia" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="matematicas">Matemáticas</SelectItem>
-                  <SelectItem value="fisica">Física</SelectItem>
-                  <SelectItem value="quimica">Química</SelectItem>
-                  <SelectItem value="biologia">Biología</SelectItem>
+                  <SelectItem value="all">Todas las materias</SelectItem>
+                  {isLoadingSubjects ? (
+                    <SelectItem value="loading" disabled>
+                      Cargando...
+                    </SelectItem>
+                  ) : subjectsError ? (
+                    <SelectItem value="error" disabled>
+                      Error al cargar
+                    </SelectItem>
+                  ) : subjects.length === 0 ? (
+                    <SelectItem value="empty" disabled>
+                      Sin materias
+                    </SelectItem>
+                  ) : (
+                    subjects.map((subject) => (
+                      <SelectItem key={subject._id} value={subject._id}>
+                        {subject.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             {/* Nivel dropdown */}
             <div className="w-full sm:w-[200px]">
-              <Select value={level} onValueChange={setLevel}>
+              <Select value={difficultyLevel || 'all'} onValueChange={handleDifficultyChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Nivel" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="basico">Básico</SelectItem>
-                  <SelectItem value="intermedio">Intermedio</SelectItem>
-                  <SelectItem value="avanzado">Avanzado</SelectItem>
+                  <SelectItem value="all">Todos los niveles</SelectItem>
+                  <SelectItem value="BASIC">Basico</SelectItem>
+                  <SelectItem value="INTERMEDIATE">Intermedio</SelectItem>
+                  <SelectItem value="ADVANCED">Avanzado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Toggles */}
+            {/* Toggles - disabled for now */}
             <div className="flex items-center gap-6 ml-auto">
               <Toggle
                 checked={recomendados}
@@ -139,6 +168,7 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
                 label="Recomendados"
                 labelPosition="right"
                 style="1"
+                disabled
               />
               <Toggle
                 checked={temasVistos}
@@ -146,6 +176,7 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
                 label="Temas Vistos"
                 labelPosition="right"
                 style="1"
+                disabled
               />
             </div>
           </div>
@@ -153,53 +184,88 @@ export const ClaseLibreSection = React.forwardRef<HTMLElement, React.HTMLAttribu
           {/* Results section */}
           <div className="mt-8 space-y-4">
             <h2 className="text-[20px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-              Resultados <span className="text-[#95C16B]">({mockResults.length})</span>
+              Resultados <span className="text-[#95C16B]">({total})</span>
             </h2>
 
-            <div className="space-y-4">
-              {mockResults.map((result) => (
-                <Card
-                  key={result.id}
-                  className="relative p-6 cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={handleCardClick}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-3">
-                      {/* Subject tag */}
-                      <CareerTag
-                        variant="career"
-                        career={result.subject}
-                        className="text-sm font-[family-name:var(--font-rubik)]"
-                      />
+            {/* Loading state */}
+            {isLoadingLessons && (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 text-[#95C16B] animate-spin" />
+              </div>
+            )}
 
-                      {/* Title */}
-                      <h3 className="text-[18px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
-                        {result.title}
-                      </h3>
+            {/* Error state */}
+            {lessonsError && !isLoadingLessons && (
+              <div className="text-center py-12">
+                <p className="text-red-500">{lessonsError}</p>
+              </div>
+            )}
 
-                      {/* Kibi message if present */}
-                      {result.kibiMessage && (
-                        <div className="flex items-start gap-2 mt-4">
-                          <KibiIcon size={24} className="flex-shrink-0 mt-0.5" />
-                          <p className="text-sm text-[#7B7B7B] dark:text-[#B9B9B9] font-[family-name:var(--font-rubik)]">
-                            {result.kibiMessage}
-                          </p>
+            {/* Empty state */}
+            {!isLoadingLessons && !lessonsError && lessons.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-grey-500 dark:text-grey-400">
+                  No se encontraron lecciones con los filtros seleccionados.
+                </p>
+              </div>
+            )}
+
+            {/* Results list */}
+            {!isLoadingLessons && !lessonsError && lessons.length > 0 && (
+              <div className="space-y-4">
+                {lessons.map((lesson) => (
+                  <Card
+                    key={lesson._id}
+                    className="relative p-6 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleCardClick(lesson)}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-3">
+                        {/* Subject tag */}
+                        {lesson.subject && (
+                          <CareerTag
+                            variant="career"
+                            career={lesson.subject.name}
+                            className="text-sm font-[family-name:var(--font-rubik)]"
+                          />
+                        )}
+
+                        {/* Title */}
+                        <h3 className="text-[18px] font-semibold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                          {lesson.title}
+                        </h3>
+
+                        {/* Difficulty badge */}
+                        <div className="flex items-center gap-2">
+                          <span className={cn(
+                            "text-xs px-2 py-1 rounded-full font-medium",
+                            lesson.difficultyLevel === 'BASIC' && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+                            lesson.difficultyLevel === 'INTERMEDIATE' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+                            lesson.difficultyLevel === 'ADVANCED' && "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+                          )}>
+                            {difficultyLabels[lesson.difficultyLevel]}
+                          </span>
+                          {lesson.estimatedMinutes > 0 && (
+                            <span className="text-xs text-grey-500 dark:text-grey-400">
+                              ~{lesson.estimatedMinutes} min
+                            </span>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
+                  </Card>
+                ))}
 
-                    {/* Recommended badge */}
-                    {result.recommended && (
-                      <CareerTag
-                        variant="recommended"
-                        career="Recomendado"
-                        className="font-[family-name:var(--font-rubik)]"
-                      />
-                    )}
-                  </div>
-                </Card>
-              ))}
-            </div>
+                {/* Pagination */}
+                <div className="flex justify-center pt-6">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
