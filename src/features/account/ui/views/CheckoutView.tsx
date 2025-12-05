@@ -567,13 +567,13 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
             )}
 
             {/* Botones dentro de la Card (solo mobile) */}
-            <div className="md:hidden flex gap-4 justify-around mt-6">
+            <div className="md:hidden flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-around mt-6">
               <Button
                 variant="secondary"
                 color="green"
                 size="large"
                 onClick={onCancel}
-                className="flex-1 max-w-[200px]"
+                className="w-full sm:flex-1 sm:max-w-[200px]"
                 disabled={isProcessing}
               >
                 Cancelar
@@ -582,12 +582,12 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
                 variant="primary"
                 color="green"
                 size="large"
-                className="flex-1 max-w-[200px]"
+                className="w-full sm:flex-1 sm:max-w-[200px]"
                 onClick={handlePayment}
                 disabled={!isFormComplete || isProcessing}
               >
                 {isProcessing ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     {paymentMethod === 'oxxo' ? 'Generando...' : 'Procesando...'}
                   </span>

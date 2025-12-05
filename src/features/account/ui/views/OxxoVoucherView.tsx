@@ -95,7 +95,7 @@ export const OxxoVoucherView: React.FC<OxxoVoucherViewProps> = ({
                 Número de referencia
               </label>
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-grey-100 dark:bg-dark-800 rounded-lg px-4 py-3 font-mono text-lg text-dark-900 dark:text-white">
+                <div className="flex-1 min-w-0 bg-grey-100 dark:bg-dark-800 rounded-lg px-3 sm:px-4 py-3 font-mono text-sm sm:text-lg text-dark-900 dark:text-white break-all">
                   {voucherData.reference}
                 </div>
                 <button
