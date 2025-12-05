@@ -410,7 +410,7 @@ export default function DailyTestPage() {
               {/* Actions */}
               <div className="flex flex-col gap-3 pt-4">
                 {results.sessionUnlocked && (
-                  <Button onClick={() => router.push('/session')} size="lg">
+                  <Button onClick={() => router.push('/home?section=daily-session')} size="lg">
                     Ir a mi sesión de estudio
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
