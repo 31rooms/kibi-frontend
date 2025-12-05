@@ -5,6 +5,8 @@ import { cn } from '@/shared/lib/utils';
 import { useProgress } from '../hooks/useProgress';
 import { useActivityTimeChart } from '../hooks/useActivityTimeChart';
 import { useWeeklyStatus } from '@/features/home/hooks/useWeeklyStatus';
+import { useProjectedExamScore } from '../hooks/useProjectedExamScore';
+import { useEffectivenessHistory } from '../hooks/useEffectivenessHistory';
 import { ProgresoSectionMobile } from './ProgresoSectionMobile';
 import { ProgresoSectionDesktop } from './ProgresoSectionDesktop';
 
@@ -41,7 +43,6 @@ const useWindowSize = () => {
 export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProps>(
   ({ className, ...props }, ref) => {
     const { dashboard, loading, loadDashboard } = useProgress();
-    const [timePeriod, setTimePeriod] = useState('week');
     const { width, mounted } = useWindowSize();
     const isDesktop = width > 1200;
 
@@ -56,15 +57,17 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
     // Hook para obtener el estado semanal del calendario (datos reales de la API)
     const { weekDays } = useWeeklyStatus();
 
-    // Datos de ejemplo para el gráfico de barras (efectividad)
-    const chartData = [
-      { category: 'Biología', value: 69.15 },
-      { category: 'Historia', value: 28.3 },
-      { category: 'Ciencias', value: 66.36 },
-      { category: 'Matemática', value: 83.84 },
-      { category: 'Comprensión lectora', value: 44.58 },
-      { category: 'Geografía', value: 11.34 },
-    ];
+    // Hook para obtener el puntaje proyectado del examen
+    const { data: projectedExamScore, isLoading: isProjectedScoreLoading } = useProjectedExamScore();
+
+    // Hook para obtener el historial de efectividad por materias
+    const {
+      chartData,
+      hasData: hasEffectivenessData,
+      period: timePeriod,
+      setPeriod: setTimePeriod,
+      isLoading: isEffectivenessLoading,
+    } = useEffectivenessHistory('week');
 
     useEffect(() => {
       loadDashboard();
@@ -100,7 +103,10 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
           activityTimePeriod={activityTimePeriod}
           setActivityTimePeriod={setActivityTimePeriod}
           chartData={chartData}
+          hasEffectivenessData={hasEffectivenessData}
+          isEffectivenessLoading={isEffectivenessLoading}
           activityData={activityData}
+          projectedExamScore={projectedExamScore}
           className={className}
           {...props}
         />
@@ -116,8 +122,11 @@ export const ProgresoSection = React.forwardRef<HTMLElement, ProgresoSectionProp
         activityTimePeriod={activityTimePeriod}
         setActivityTimePeriod={setActivityTimePeriod}
         chartData={chartData}
+        hasEffectivenessData={hasEffectivenessData}
+        isEffectivenessLoading={isEffectivenessLoading}
         activityData={activityData}
         weekDays={weekDays}
+        projectedExamScore={projectedExamScore}
         className={className}
         {...props}
       />

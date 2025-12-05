@@ -186,6 +186,55 @@ export interface UserAchievements {
   };
 }
 
+// Projected Exam Score Types
+export interface ProjectedExamScoreSubjectBreakdown {
+  subjectId: string;
+  subjectName: string;
+  subjectLetter: string;
+  maxPoints: number;
+  earnedPoints: number;
+  effectiveness: number;
+  totalAnswered: number;
+  correctAnswers: number;
+  hasData: boolean;
+}
+
+export interface ProjectedExamScore {
+  projectedScore: number;
+  maxScore: number;
+  percentage: number;
+  subjectBreakdown: ProjectedExamScoreSubjectBreakdown[];
+  dataSources: string[];
+  message: string;
+  lastUpdated: string;
+}
+
+// Effectiveness History Types
+export type EffectivenessHistoryPeriod = 'week' | 'month' | 'quarter';
+export type EffectivenessHistorySource = 'DAILY_TEST' | 'MOCK_EXAM' | 'ALL';
+export type EffectivenessTrend = 'IMPROVING' | 'STABLE' | 'DECLINING';
+
+export interface EffectivenessDataPoint {
+  date: string;
+  effectiveness: number;
+  source: string;
+}
+
+export interface EffectivenessSubject {
+  subjectId: string;
+  subjectName: string;
+  dataPoints: EffectivenessDataPoint[];
+  currentEffectiveness: number;
+  trend: EffectivenessTrend;
+}
+
+export interface EffectivenessHistoryResponse {
+  period: EffectivenessHistoryPeriod;
+  source: EffectivenessHistorySource;
+  subjects: EffectivenessSubject[];
+  globalTrend: EffectivenessTrend;
+}
+
 // Activity Time Chart Types
 export interface ActivityTimeChartDataPoint {
   category: string;

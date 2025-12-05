@@ -9,21 +9,25 @@ import { AchievementsDetailView } from './AchievementsDetailView';
 import { ReforzarPuntosDebiles } from './ReforzarPuntosDebiles';
 import type { Period } from '../hooks/useActivityTimeChart';
 import type { WeeklyDayStatus } from '@/features/daily-test/api/types';
+import type { ProjectedExamScore, EffectivenessHistoryPeriod } from '../api/types';
 
 interface ProgresoSectionMobileProps {
   dashboard: any;
-  timePeriod: string;
-  setTimePeriod: (value: string) => void;
+  timePeriod: EffectivenessHistoryPeriod;
+  setTimePeriod: (value: EffectivenessHistoryPeriod) => void;
   activityTimePeriod: Period;
   setActivityTimePeriod: (value: Period) => void;
   chartData: Array<{ category: string; value: number }>;
+  hasEffectivenessData: boolean;
+  isEffectivenessLoading: boolean;
   activityData: Array<{ category: string; value: number }>;
   weekDays: WeeklyDayStatus[];
+  projectedExamScore: ProjectedExamScore | null;
   className?: string;
 }
 
 export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSectionMobileProps>(
-  ({ dashboard, timePeriod, setTimePeriod, activityTimePeriod, setActivityTimePeriod, chartData, activityData, weekDays, className }, ref) => {
+  ({ dashboard, timePeriod, setTimePeriod, activityTimePeriod, setActivityTimePeriod, chartData, hasEffectivenessData, isEffectivenessLoading, activityData, weekDays, projectedExamScore, className }, ref) => {
     const [showCalendarDetail, setShowCalendarDetail] = useState(false);
     const [showAchievementsDetail, setShowAchievementsDetail] = useState(false);
     const [showReforzarView, setShowReforzarView] = useState(false);
@@ -142,7 +146,7 @@ export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSecti
                 </div>
                 <div className="bg-[#E7FFE7] dark:bg-[#1E242D] px-2 py-1.5 rounded-lg flex-shrink-0">
                   <div className="text-[20px] font-bold font-[family-name:var(--font-quicksand)] leading-tight" style={{ color: '#47830E' }}>
-                    {dashboard?.projectedScore?.score || 20} Pts.
+                    {projectedExamScore?.projectedScore ?? dashboard?.projectedScore?.score ?? 0} Pts.
                   </div>
                 </div>
               </div>
@@ -240,28 +244,41 @@ export const ProgresoSectionMobile = React.forwardRef<HTMLElement, ProgresoSecti
                   % de Efectividad
                 </h3>
                 <div className="w-40">
-                  <Select value={timePeriod} onValueChange={setTimePeriod}>
+                  <Select value={timePeriod} onValueChange={(value) => setTimePeriod(value as EffectivenessHistoryPeriod)}>
                     <SelectTrigger className="text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="week">Esta semana</SelectItem>
                       <SelectItem value="month">Este mes</SelectItem>
-                      <SelectItem value="year">Este año</SelectItem>
-                      <SelectItem value="all">Todo el tiempo</SelectItem>
+                      <SelectItem value="quarter">Este trimestre</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               {/* Gráfico */}
-              <BarChart
-                data={mobileChartData}
-                height={250}
-                horizontal={true}
-                showValues={true}
-                color="#95C16B"
-              />
+              {isEffectivenessLoading ? (
+                <div className="flex items-center justify-center h-[250px]">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-green"></div>
+                </div>
+              ) : !hasEffectivenessData ? (
+                <div className="flex items-center justify-center h-[250px] text-dark-600 dark:text-grey-400">
+                  <p className="text-center text-[13px] font-[family-name:var(--font-rubik)]">
+                    No hay datos de efectividad disponibles.<br />
+                    Completa algunos ejercicios para ver tu progreso.
+                  </p>
+                </div>
+              ) : (
+                <BarChart
+                  data={mobileChartData}
+                  height={250}
+                  horizontal={true}
+                  showValues={true}
+                  color="#95C16B"
+                  maxValue={100}
+                />
+              )}
 
               {/* Leyenda */}
               <div className="flex items-center justify-center mt-3">
