@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { useChangePassword } from '../hooks/useChangePassword';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { accountAPI } from '../api/account-service';
-import { CheckoutView } from './views';
+import { CheckoutView, OxxoVoucherView } from './views';
 import { StripeProvider } from '../providers';
 import { MissingDataWarning } from './components';
 import { isFieldEmpty, getGenderLabel, formatDateLocal, formatDateForInput } from '../utils/fieldHelpers';
@@ -25,7 +25,7 @@ import {
   getUpgradeInfo,
 } from './utils';
 import { plansAPI, type Plan, getPlanColors, formatPlanPrice } from '../api/plans-service';
-import type { ViewMode, SelectedPlan, ReportData, TransferData } from './types';
+import type { ViewMode, SelectedPlan, ReportData, TransferData, OxxoVoucherData } from './types';
 
 /**
  * Account Section Component
@@ -59,6 +59,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
     const [isLoadingCareers, setIsLoadingCareers] = useState(false);
     const [plans, setPlans] = useState<Plan[]>([]);
     const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+    const [oxxoVoucherData, setOxxoVoucherData] = useState<OxxoVoucherData | null>(null);
 
     // Update selected avatar when user profile changes
     useEffect(() => {
@@ -196,6 +197,15 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
           });
         }
       }
+    };
+
+    /**
+     * Handler para cuando se genera un voucher OXXO
+     * Guarda los datos del voucher y cambia a la vista de voucher
+     */
+    const handleOxxoVoucher = (data: OxxoVoucherData) => {
+      setOxxoVoucherData(data);
+      setViewMode('oxxo-voucher');
     };
 
     // Función para enviar el reporte de pago
@@ -796,6 +806,20 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
       );
     }
 
+    // Vista del voucher OXXO
+    if (viewMode === 'oxxo-voucher' && oxxoVoucherData) {
+      return (
+        <OxxoVoucherView
+          voucherData={oxxoVoucherData}
+          onClose={() => {
+            setOxxoVoucherData(null);
+            setViewMode('view');
+          }}
+          className={className}
+        />
+      );
+    }
+
     // Vista de checkout
     if (viewMode === 'checkout' && selectedPlan) {
       return (
@@ -806,6 +830,7 @@ export const AccountSection = React.forwardRef<HTMLElement, React.HTMLAttributes
               onBack={() => setViewMode('view')}
               onCancel={() => setViewMode('plans')}
               onPayment={handlePayment}
+              onOxxoVoucher={handleOxxoVoucher}
               className={className}
             />
           </StripeProvider>

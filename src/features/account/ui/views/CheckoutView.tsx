@@ -5,18 +5,19 @@ import { useRouter } from 'next/navigation';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { cn } from '@/shared/lib/utils';
 import { Card, Button, Input, Radio } from '@/shared/ui';
-import { Copy, Loader2 } from 'lucide-react';
+import { Copy, Loader2, Store } from 'lucide-react';
 import { Breadcrumb, StripeCardInput } from '../components';
 import { PlanCard } from '../components';
 import { paymentsAPI } from '../../api/payments-service';
 import { useNotificationContext } from '@/features/notifications';
-import type { SelectedPlan, TransferData } from '../types';
+import type { SelectedPlan, TransferData, OxxoVoucherData } from '../types';
 
 interface CheckoutViewProps {
   selectedPlan: SelectedPlan;
   onBack: () => void;
   onCancel: () => void;
   onPayment?: (paymentMethod: 'credit' | 'transfer') => void;
+  onOxxoVoucher?: (voucherData: OxxoVoucherData) => void;
   className?: string;
 }
 
@@ -85,6 +86,7 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
   onBack,
   onCancel,
   onPayment,
+  onOxxoVoucher,
   className
 }) => {
   const router = useRouter();
@@ -92,7 +94,7 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
   const elements = useElements();
   const { refresh: refreshNotifications } = useNotificationContext();
 
-  const [paymentMethod, setPaymentMethod] = useState<'credit' | 'transfer'>('credit');
+  const [paymentMethod, setPaymentMethod] = useState<'credit' | 'transfer' | 'oxxo'>('credit');
 
   // Stripe states
   const [isProcessing, setIsProcessing] = useState(false);
@@ -216,11 +218,80 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
   };
 
   /**
+   * Maneja el pago con OXXO
+   */
+  const handleOxxoPayment = async () => {
+    setIsProcessing(true);
+    setCardError('');
+
+    try {
+      const amount = getPlanAmountInCents(selectedPlan);
+      const planType = getPlanType(selectedPlan);
+
+      // Validar monto mínimo para OXXO ($10 MXN = 1000 centavos)
+      if (amount < 1000) {
+        setCardError('OXXO requiere un monto mínimo de $10.00 MXN');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Validar monto máximo para OXXO ($10,000 MXN = 1,000,000 centavos)
+      if (amount > 1000000) {
+        setCardError('OXXO tiene un monto máximo de $10,000.00 MXN');
+        setIsProcessing(false);
+        return;
+      }
+
+      console.log('🏪 Creating OXXO payment intent:', {
+        planType,
+        amount,
+        amountInPesos: amount / 100,
+        isUpgrade: selectedPlan.isUpgrade,
+        currentPlanType: selectedPlan.currentPlanType,
+      });
+
+      const response = await paymentsAPI.createPaymentIntent({
+        planType,
+        amount,
+        isUpgrade: selectedPlan.isUpgrade,
+        currentPlanType: selectedPlan.currentPlanType,
+        paymentMethodType: 'oxxo',
+      });
+
+      if (!response.oxxoVoucherUrl || !response.oxxoReference || !response.oxxoExpiresAt) {
+        throw new Error('No se pudo generar el voucher OXXO');
+      }
+
+      // Llamar al callback con los datos del voucher
+      if (onOxxoVoucher) {
+        onOxxoVoucher({
+          voucherUrl: response.oxxoVoucherUrl,
+          reference: response.oxxoReference,
+          expiresAt: response.oxxoExpiresAt,
+          amount: getDisplayPrice(selectedPlan),
+          planName: selectedPlan.name,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error al generar voucher OXXO:', error);
+      setCardError(
+        error.response?.data?.message ||
+        error.message ||
+        'Error al generar voucher OXXO. Intenta de nuevo.'
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  /**
    * Maneja el click en el botón "Pagar"
    */
   const handlePayment = () => {
     if (paymentMethod === 'credit') {
       handleStripePayment();
+    } else if (paymentMethod === 'oxxo') {
+      handleOxxoPayment();
     } else {
       // Para transferencia, llamar al callback que cambia a la vista de reportar pago
       if (onPayment) {
@@ -231,7 +302,7 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
 
   const isFormComplete = paymentMethod === 'credit'
     ? cardComplete && !isProcessing
-    : true;
+    : !isProcessing;
 
   return (
     <main className={cn(
@@ -309,12 +380,20 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
             </h2>
 
             {/* Radio buttons para método de pago */}
-            <div className="flex gap-8 mb-6">
+            <div className="flex flex-wrap gap-4 sm:gap-8 mb-6">
               <Radio
                 name="paymentMethod"
                 checked={paymentMethod === 'credit'}
                 onCheckedChange={() => setPaymentMethod('credit')}
                 label="Crédito/Debito"
+                labelClassName="text-[14px] font-[family-name:var(--font-rubik)]"
+                disabled={isProcessing}
+              />
+              <Radio
+                name="paymentMethod"
+                checked={paymentMethod === 'oxxo'}
+                onCheckedChange={() => setPaymentMethod('oxxo')}
+                label="OXXO"
                 labelClassName="text-[14px] font-[family-name:var(--font-rubik)]"
                 disabled={isProcessing}
               />
@@ -349,6 +428,58 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
                   <div className="flex items-center gap-2 text-sm text-primary-green font-[family-name:var(--font-rubik)]">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Procesando pago...</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Información de OXXO */}
+            {paymentMethod === 'oxxo' && (
+              <div className="space-y-4">
+                {/* Icono y descripción */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-[#CC0000] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Store className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-bold text-dark-900 dark:text-white font-[family-name:var(--font-quicksand)]">
+                      Pago en OXXO
+                    </h3>
+                    <p className="text-sm text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
+                      Paga en efectivo en cualquier tienda OXXO
+                    </p>
+                  </div>
+                </div>
+
+                {/* Información importante */}
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <p className="text-sm text-dark-700 dark:text-grey-300 font-[family-name:var(--font-rubik)] mb-3">
+                    Al continuar, se generará un voucher con un número de referencia para pagar en cualquier tienda OXXO.
+                  </p>
+                  <ul className="space-y-1 text-xs text-grey-600 dark:text-grey-400 font-[family-name:var(--font-rubik)]">
+                    <li className="flex items-start gap-2">
+                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                      <span>Tienes <strong>3 días</strong> para realizar el pago</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                      <span>Tu plan se activa automáticamente al confirmar el pago</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Error message */}
+                {cardError && (
+                  <p className="text-sm text-error-500 font-[family-name:var(--font-rubik)]">
+                    {cardError}
+                  </p>
+                )}
+
+                {/* Indicador de procesamiento */}
+                {isProcessing && (
+                  <div className="flex items-center gap-2 text-sm text-primary-green font-[family-name:var(--font-rubik)]">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generando voucher...</span>
                   </div>
                 )}
               </div>
@@ -436,13 +567,13 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
             )}
 
             {/* Botones dentro de la Card (solo mobile) */}
-            <div className="md:hidden flex gap-4 justify-around mt-6">
+            <div className="md:hidden flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-around mt-6">
               <Button
                 variant="secondary"
                 color="green"
                 size="large"
                 onClick={onCancel}
-                className="flex-1 max-w-[200px]"
+                className="w-full sm:flex-1 sm:max-w-[200px]"
                 disabled={isProcessing}
               >
                 Cancelar
@@ -451,17 +582,17 @@ const CheckoutForm: React.FC<CheckoutViewProps> = ({
                 variant="primary"
                 color="green"
                 size="large"
-                className="flex-1 max-w-[200px]"
+                className="w-full sm:flex-1 sm:max-w-[200px]"
                 onClick={handlePayment}
                 disabled={!isFormComplete || isProcessing}
               >
                 {isProcessing ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Procesando...
+                    {paymentMethod === 'oxxo' ? 'Generando...' : 'Procesando...'}
                   </span>
                 ) : (
-                  paymentMethod === 'transfer' ? 'Continuar' : 'Pagar'
+                  paymentMethod === 'transfer' ? 'Continuar' : paymentMethod === 'oxxo' ? 'Generar Voucher' : 'Pagar'
                 )}
               </Button>
             </div>
