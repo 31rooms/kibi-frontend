@@ -116,3 +116,8 @@ export interface SuccessResponse {
 
 // Social login providers
 export type SocialProvider = 'google' | 'apple' | 'facebook';
+
+// Google Auth DTO
+export interface GoogleAuthDto {
+  token: string;
+}

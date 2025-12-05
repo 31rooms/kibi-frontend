@@ -13,6 +13,7 @@ import type {
   VerifyEmailDto,
   SuccessResponse,
   Theme,
+  GoogleAuthDto,
 } from "../types/auth.types";
 
 // API functions
@@ -260,6 +261,38 @@ export const authAPI = {
         throw new Error(errorResponse.response.data.message);
       }
       throw new Error("Failed to update profile. Please try again.");
+    }
+  },
+
+  /**
+   * Login with Google OAuth
+   * Sends the Google ID token to the backend for verification
+   */
+  async loginWithGoogle(googleIdToken: string): Promise<AuthResponse> {
+    try {
+      console.log("🔐 API: Calling POST /auth/google");
+
+      const payload: GoogleAuthDto = { token: googleIdToken };
+
+      const response = await apiClient.post<AuthResponse>(
+        "/auth/google",
+        payload
+      );
+
+      console.log("✅ API: Google login successful, received tokens");
+      return response.data;
+    } catch (error) {
+      console.error("❌ API: Google login failed");
+      const errorResponse = error as {
+        response?: { status?: number; data?: { message?: string } };
+      };
+      console.error("Status:", errorResponse.response?.status);
+      console.error("Response:", errorResponse.response?.data);
+
+      if (errorResponse.response?.data?.message) {
+        throw new Error(errorResponse.response.data.message);
+      }
+      throw new Error("Failed to login with Google. Please try again.");
     }
   },
 };

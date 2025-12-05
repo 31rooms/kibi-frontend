@@ -10,6 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (googleIdToken: string) => Promise<void>;
   register: (data: RegisterDto) => Promise<void>;
   logout: () => Promise<void>;
   refreshToken: () => Promise<void>;
@@ -63,6 +64,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       handleAuthSuccess(response);
 
       // Redirect based on diagnosticCompleted status
+      if (response.user.diagnosticCompleted) {
+        router.push('/home');
+      } else {
+        router.push('/form-diagnostic-test');
+      }
+    } catch (error) {
+      throw error; // Re-throw to handle in component
+    } finally {
+      setIsLoading(false);
+    }
+  }, [handleAuthSuccess, router]);
+
+  const loginWithGoogle = useCallback(async (googleIdToken: string) => {
+    try {
+      setIsLoading(true);
+      const response = await authAPI.loginWithGoogle(googleIdToken);
+      handleAuthSuccess(response);
+
+      // Redirect based on diagnosticCompleted status
+      // For Google login, new users will have diagnosticCompleted = false
       if (response.user.diagnosticCompleted) {
         router.push('/home');
       } else {
@@ -154,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     login,
+    loginWithGoogle,
     register,
     logout,
     refreshToken,

@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/shared/ui/Alert';
 import { useTheme } from '@/shared/lib/context';
 import { cn } from '@/shared/lib/utils';
 import type { LoginFormData } from '../types/auth.types';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 export interface LoginFormProps {
   formData: LoginFormData;
@@ -15,6 +16,8 @@ export interface LoginFormProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onSocialLogin?: (provider: 'google' | 'apple' | 'facebook') => void;
+  onGoogleSuccess?: (idToken: string) => void | Promise<void>;
+  onGoogleError?: (error: Error) => void;
   onRegisterClick?: () => void;
   rememberMe?: boolean;
   onRememberMeChange?: (checked: boolean | "indeterminate") => void;
@@ -29,6 +32,8 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
     onChange,
     onSubmit,
     onSocialLogin,
+    onGoogleSuccess,
+    onGoogleError,
     onRegisterClick,
     rememberMe = false,
     onRememberMeChange,
@@ -159,26 +164,36 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
 
                 {/* Social Login Buttons */}
                 <div className="flex items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => handleSocialLogin('google')}
-                    disabled={isLoading}
-                    className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center cursor-pointer",
-                      "disabled:opacity-50 disabled:cursor-not-allowed"
-                    )}
-                    aria-label="Iniciar sesión con Google"
-                  >
-                    <img
-                      src={isDarkMode ? '/icons/Google-dark.svg' : '/icons/Google-light.svg'}
-                      alt="Google"
-                      width={24}
-                      height={24}
-                      className="w-6 h-6"
+                  {/* Google Sign-In Button */}
+                  {onGoogleSuccess ? (
+                    <GoogleSignInButton
+                      onSuccess={onGoogleSuccess}
+                      onError={onGoogleError}
+                      disabled={isLoading}
                     />
-                  </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSocialLogin('google')}
+                      disabled={isLoading}
+                      className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center cursor-pointer",
+                        "disabled:opacity-50 disabled:cursor-not-allowed"
+                      )}
+                      aria-label="Iniciar sesión con Google"
+                    >
+                      <img
+                        src={isDarkMode ? '/icons/Google-dark.svg' : '/icons/Google-light.svg'}
+                        alt="Google"
+                        width={24}
+                        height={24}
+                        className="w-6 h-6"
+                      />
+                    </button>
+                  )}
 
-                  <button
+                  {/* TODO: Implementar Apple Sign-In cuando el backend lo soporte */}
+                  {/* <button
                     type="button"
                     onClick={() => handleSocialLogin('apple')}
                     disabled={isLoading}
@@ -195,9 +210,10 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
                       height={24}
                       className="w-6 h-6"
                     />
-                  </button>
+                  </button> */}
 
-                  <button
+                  {/* TODO: Implementar Facebook Sign-In cuando el backend lo soporte */}
+                  {/* <button
                     type="button"
                     onClick={() => handleSocialLogin('facebook')}
                     disabled={isLoading}
@@ -214,7 +230,7 @@ export const LoginForm = React.forwardRef<HTMLFormElement, LoginFormProps>(
                       height={24}
                       className="w-6 h-6"
                     />
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Register Link */}
