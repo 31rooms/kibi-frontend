@@ -5,16 +5,23 @@
 
 import { apiClient } from '@/features/authentication/api/config';
 
+export type PaymentMethodType = 'card' | 'oxxo';
+
 export interface CreatePaymentIntentRequest {
   planType: 'GOLD' | 'DIAMOND';
   amount: number; // en centavos (ej: 5000 = $50.00)
   isUpgrade?: boolean; // true si es un upgrade desde un plan existente
   currentPlanType?: 'FREE' | 'GOLD' | 'DIAMOND'; // plan actual del usuario (para validación)
+  paymentMethodType?: PaymentMethodType; // 'card' (default) o 'oxxo'
 }
 
 export interface CreatePaymentIntentResponse {
   clientSecret: string;
   paymentIntentId: string;
+  // OXXO-specific fields (solo presentes cuando paymentMethodType es 'oxxo')
+  oxxoVoucherUrl?: string;
+  oxxoReference?: string;
+  oxxoExpiresAt?: string;
 }
 
 export const paymentsAPI = {

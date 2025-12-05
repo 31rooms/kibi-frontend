@@ -4,7 +4,7 @@
 
 import type { PlanColors } from './utils/planHelpers';
 
-export type ViewMode = 'view' | 'edit' | 'change-password' | 'contact' | 'plans' | 'checkout' | 'report-payment';
+export type ViewMode = 'view' | 'edit' | 'change-password' | 'contact' | 'plans' | 'checkout' | 'report-payment' | 'oxxo-voucher';
 
 export interface SelectedPlan {
   _id?: string;
@@ -35,4 +35,12 @@ export interface TransferData {
   accountNumber: string;
   idNumber: string;
   amount: string;
+}
+
+export interface OxxoVoucherData {
+  voucherUrl: string;
+  reference: string;
+  expiresAt: string;
+  amount: string;
+  planName: string;
 }
