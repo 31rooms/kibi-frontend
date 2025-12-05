@@ -25,6 +25,7 @@ export interface BarChartProps {
   color?: string;
   className?: string;
   yAxisLabel?: string;
+  maxValue?: number;
 }
 
 export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
@@ -38,6 +39,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
       color = '#95C16B',
       className,
       yAxisLabel,
+      maxValue,
     },
     ref
   ) => {
@@ -100,6 +102,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
       },
       xaxis: {
         categories: data.map((item) => item.category),
+        max: horizontal ? maxValue : undefined,
         labels: {
           style: {
             colors: '#6c757d',
@@ -115,6 +118,7 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
         },
       },
       yaxis: {
+        max: !horizontal ? maxValue : undefined,
         title: {
           text: yAxisLabel,
           style: {

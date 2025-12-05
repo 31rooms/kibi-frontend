@@ -2,10 +2,14 @@ import apiClient from '@/features/authentication/api/config';
 import type {
   DashboardData,
   ProjectedScore,
+  ProjectedExamScore,
   SubjectsEffectiveness,
   SubjectDetail,
   UserAchievements,
-  ActivityTimeChartResponse
+  ActivityTimeChartResponse,
+  EffectivenessHistoryResponse,
+  EffectivenessHistoryPeriod,
+  EffectivenessHistorySource
 } from './types';
 
 const PROGRESS_BASE_URL = '/progress';
@@ -24,6 +28,14 @@ export const progressAPI = {
    */
   getProjectedScore: async (): Promise<ProjectedScore> => {
     const response = await apiClient.get(`${PROGRESS_BASE_URL}/projected-score`);
+    return response.data;
+  },
+
+  /**
+   * Get projected exam score based on user progress
+   */
+  getProjectedExamScore: async (): Promise<ProjectedExamScore> => {
+    const response = await apiClient.get(`${PROGRESS_BASE_URL}/projected-exam-score`);
     return response.data;
   },
 
@@ -90,6 +102,21 @@ export const progressAPI = {
   getActivityTimeChart: async (period: 'today' | 'week' | 'month' = 'week'): Promise<ActivityTimeChartResponse> => {
     const response = await apiClient.get(`${PROGRESS_BASE_URL}/activity-time/chart`, {
       params: { period }
+    });
+    return response.data;
+  },
+
+  /**
+   * Get effectiveness history by subjects
+   * @param period - 'week' | 'month' | 'quarter'
+   * @param source - 'DAILY_TEST' | 'MOCK_EXAM' | 'ALL'
+   */
+  getEffectivenessHistory: async (
+    period: EffectivenessHistoryPeriod = 'week',
+    source: EffectivenessHistorySource = 'DAILY_TEST'
+  ): Promise<EffectivenessHistoryResponse> => {
+    const response = await apiClient.get(`${PROGRESS_BASE_URL}/effectiveness-history`, {
+      params: { period, source }
     });
     return response.data;
   }
